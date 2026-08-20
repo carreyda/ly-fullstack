@@ -1,11 +1,11 @@
 # NestJS 服务端规范
 
-本规范适用于 `apps/api` 与 `apps/admin-api`。两者都是可独立构建和部署的纯 API 服务：`api` 面向未来 C 端主站，`admin-api` 面向管理后台；二者不得混用认证、Guard 和业务模块。
+本规范适用于 `apps/admin-api` 以及通过 `pnpm new:server` 创建的 NestJS 服务。每个服务都可独立构建和部署，不得跨应用导入认证、Guard、会话或业务模块。
 
 ## 技术选型
 
 - NestJS 11 + Fastify 5，不使用 Express。
-- PostgreSQL 17 数据访问统一使用 Prisma 7 和 PostgreSQL driver adapter，数据库结构通过 migration 管理。
+- PostgreSQL 18 数据访问统一使用 Prisma 7 和 PostgreSQL driver adapter，数据库结构通过 migration 管理。
 - 开发环境由 `tsx` 运行，NestJS 构造函数依赖必须显式使用 `@Inject(...)`，不能依赖 esbuild 不生成的装饰器类型元数据。
 - TypeScript 业务源码的相对导入和 barrel 导出不写 `.js` 后缀；Prisma 生成 Client 的导入按生成器要求使用 `.js` 后缀。
 - 编译配置参考 NestJS 常规模式：`module: "Node16"`、`moduleResolution: "Node16"`，server 子包不配置 `"type": "module"`。
@@ -37,7 +37,7 @@ apps/<service>/src/
     └── modules/
 ```
 
-`packages/database` 是数据库唯一真相源，统一放置 `schema.prisma`、migration、种子脚本、Prisma CLI 配置和生成 Client。两个 API 只通过 `@repo/database` 使用数据库能力，不在各自目录复制 Schema 或生成类型。
+`packages/database` 是数据库唯一真相源，统一放置 `schema.prisma`、migration、种子脚本、Prisma CLI 配置和生成 Client。需要数据库的服务只通过 `@repo/database` 使用数据库能力，不在应用目录复制 Schema 或生成类型。
 
 Prisma Client 在安装、database typecheck 和 database build 前生成。修改 Schema 后执行 `pnpm --filter @repo/database build`，再重启消费它的 API 服务；生成目录不提交仓库，也不得手动修改。
 
@@ -52,18 +52,20 @@ Prisma Client 在安装、database typecheck 和 database build 前生成。修�
 ## 类型声明归属
 
 - 前后端通用的类型声明统一放在 `packages/shared`，由 web、admin、server 共同复用。
-- `apps/api/src/types` 与 `apps/admin-api/src/types` 分别维护各自服务内部私有类型，不重复定义 shared 中已经存在的类型。
+- 每个服务在自己的 `src/types` 维护内部私有类型，不重复定义 shared 中已经存在的类型。
 - 服务端内部类型使用通用 barrel 模式：`types/index.ts` 统一出口，复杂领域再拆到 `types/modules/*.ts`。
 - 不在 controller、service、module 等业务 `.ts` 文件内部直接声明可复用类型。
 - 业务文件只消费类型；发现类型会被多个文件复用时，先移动到 `types/` 或 `packages/shared`，再从统一出口导入。
 
 ## 常量维护
 
-- 服务端常量分别维护在 `apps/api/src/constants` 与 `apps/admin-api/src/constants`，禁止跨应用源码导入。
+- 服务端常量维护在各自应用的 `src/constants`，禁止跨应用源码导入。
 - 常量使用通用 barrel 模式：`constants/index.ts` 统一出口，复杂领域再拆到 `constants/modules/*.ts`。
 - 不在 controller、service、module、入口文件中散落魔法字符串或魔法数字。
 - 超过两端都通用的常量统一放在 `packages/shared/src/constants`，不要在 server 内重复维护。
-- `api` 默认监听 3000，`admin-api` 默认监听 3001；部署环境可以通过各自的 `PORT` 覆盖。
+- 应用分类、路径、包名、本地端口与健康检查统一维护在根 `workspace.config.json`；服务源码必须读取必填的 `PORT`，不得再维护本地默认端口常量。
+- `scripts/dev.mjs` 根据配置表选择应用、预检端口、注入 `PORT` 并管理进程；部署环境由容器或平台显式注入 `PORT`。
+- 首次本地开发通过 `pnpm setup` 初始化 PostgreSQL、创建数据库并生成 admin-api 的 `.env.development`；根 `.env` 和 development 配置不得提交仓库。其他服务新增私密配置时分别维护自己的模板和本地文件。
 
 ## 全局能力
 

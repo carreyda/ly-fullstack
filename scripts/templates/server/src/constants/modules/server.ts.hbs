@@ -3,11 +3,9 @@
  *
  * 用于健康检查、日志和后续观测系统识别服务来源。
  */
-export const SERVER_SERVICE_NAME: string = 'admin-api';
+export const SERVER_SERVICE_NAME: string = '{{name}}';
 
 /**
  * 浏览器跨域请求允许使用的 HTTP 方法
- *
- * Fastify CORS 默认方法集合不包含全部写操作，新增 PUT、PATCH 或 DELETE 接口时必须在预检响应中明确放行。
  */
 export const SERVER_CORS_METHODS: string[] = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];

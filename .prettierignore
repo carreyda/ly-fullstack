@@ -11,3 +11,6 @@ apps/admin/build
 apps/admin/auto-imports.d.ts
 apps/admin/components.d.ts
 packages/database/generated/prisma
+
+# Handlebars 中的 TypeScript 泛型会被 Prettier 当成 HTML 标签；生成后再格式化真实文件
+scripts/templates/**/*.hbs

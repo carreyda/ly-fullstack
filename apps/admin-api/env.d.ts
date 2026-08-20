@@ -22,7 +22,7 @@ declare namespace NodeJS {
     readonly CORS_ORIGINS?: string;
 
     /**
-     * 部署环境注入的服务端口，未提供时使用代码内默认端口
+     * 本地启动器或部署平台注入的服务监听端口
      */
     readonly PORT?: string;
   }

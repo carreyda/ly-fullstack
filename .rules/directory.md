@@ -8,12 +8,15 @@
 ly-fullstack/
 ├── apps/
 │   ├── admin/      # 管理后台，Rsbuild + Vue 3 + Element Plus
-│   ├── api/        # C 端 API 服务，NestJS + Fastify
 │   └── admin-api/  # 管理 API 服务，NestJS + Fastify
 ├── packages/
 │   ├── charts/     # 无框架 ECharts 能力与公共类型
 │   ├── database/   # Prisma Schema、迁移、生成 Client 与数据库类型
 │   └── shared/     # 前后端通用类型与无 UI 框架通用工具
+├── scripts/
+│   ├── templates/server/  # pnpm new:server 使用的服务模板
+│   └── *.mjs              # 开发启动、环境初始化与模板测试脚本
+├── workspace.config.json  # 应用注册表与本地运行配置
 ├── docs/
 └── .rules/
 ```
@@ -38,8 +41,7 @@ ly-fullstack/
 
 - Vue 单文件组件目录不强制 barrel，按组件引用便利性决定。
 - `hooks/` 不使用 barrel 聚合，业务代码直接从具体 `use-*.ts` 文件导入。
-- Nuxt/Nitro 自动扫描的 `pages/`、`middleware/`、`plugins/`、`server/routes/`、`server/middleware/`
-  和 `server/plugins/` 不创建 barrel；其中的文件都是框架入口，`index.ts` 会被当作真实入口执行。
+- 框架自动扫描的入口目录是否使用 barrel，以对应框架的实际加载规则为准。
 - 只有一个文件且短期没有扩展需求的目录，不为了形式拆 `modules/`。
 - 构建脚本、测试配置、环境声明保持在仓库根目录或 `build/`、`tests/` 中。
 - `services/` 不建立总 `index.ts`；API 模块显式导入具体服务实例，使多后端依赖保持可见。
@@ -51,9 +53,9 @@ ly-fullstack/
 LY Fullstack 的跨端共享内容统一维护在 `packages/shared`，不为 HTTP 契约单独创建 package。
 
 - `packages/shared/src/types`：使用 barrel 模式，`types/index.ts` 聚合 `types/modules/*.ts`，统一存放前后端或多个应用共同使用的请求参数、响应结构、分页协议、权限码和通用类型。
-- `packages/shared/src/utils`：只收与 Vue、React 等 UI 框架无关的通用工具；可以包含供多个前端复用的浏览器工具，但 `api` 与 `admin-api` 禁止导入该入口。
-- 两个 API 只能从 `@repo/shared/types` 使用共享类型，不能从 `@repo/shared` 根入口或 `@repo/shared/utils` 导入，避免浏览器能力进入服务端依赖图。
-- `packages/shared` 不维护 `AppEnv`、`ImportMetaEnv`、`ProcessEnv` 等单端环境变量类型；这些类型由 admin、api、admin-api 各自维护。
+- `packages/shared/src/utils`：只收与 Vue、React 等 UI 框架无关的通用工具；可以包含供多个前端复用的浏览器工具，但 NestJS 服务禁止导入该入口。
+- NestJS 服务只能从 `@repo/shared/types` 使用共享类型，不能从 `@repo/shared` 根入口或 `@repo/shared/utils` 导入，避免浏览器能力进入服务端依赖图。
+- `packages/shared` 不维护 `AppEnv`、`ImportMetaEnv`、`ProcessEnv` 等单端环境变量类型；这些类型由各应用自己维护。
 - `packages/shared/package.json` 同时暴露根入口、`./types` 与 `./utils`；开发阶段类型入口指向源码，不需要预先构建。
 - 运行时入口指向 `dist` 中对应产物（CJS）；admin-api 生产构建通过 `tsconfig.build.json` 读取 `dist/types/index.d.ts`。
 - 生产环境必须从仓库根目录执行 `pnpm build`，由 Turborepo 先生成 shared 运行时产物，再构建各应用。
@@ -67,8 +69,8 @@ LY Fullstack 的跨端共享内容统一维护在 `packages/shared`，不为 HTT
 - `packages/database/generated/prisma`：Prisma 自动生成源码，不提交仓库、不手动修改。
 - `packages/database/src/index.ts`：服务端统一入口，只导出 Prisma Client 与数据库类型。
 - database 不依赖 NestJS，不保存任何应用的连接串、JWT、Guard 或业务 Service。
-- `apps/api` 与 `apps/admin-api` 可以依赖 database；`apps/admin` 和未来 `apps/web` 禁止依赖。
-- 两个 API 不得相互导入源码；需要跨服务共享的安全 HTTP 类型放 shared，需要共享的数据库定义放 database。
+- `apps/admin-api` 与未来确实需要数据库的服务可以依赖 database；浏览器应用禁止依赖。
+- 服务之间不得相互导入源码；需要跨服务共享的安全 HTTP 类型放 shared，需要共享的数据库定义放 database。
 
 ---
 
@@ -137,58 +139,20 @@ apps/admin/
 └── tsconfig.json
 ```
 
-`apps/web` 是 Nuxt 通用渲染主站，遵循 Nuxt 4 文件路由与 Nitro 服务目录：
+## 未来主站边界
 
-```text
-apps/web/
-├── server/                      # Nitro 服务端扩展
-│   ├── middleware/              # Nitro 自动扫描的服务端中间件入口，不使用 barrel
-│   ├── plugins/                 # Nitro 自动扫描的生命周期插件入口，不使用 barrel
-│   ├── routes/                  # Nitro 自动扫描的服务端路由入口，不使用 barrel
-│   └── utils/                   # 仅服务端使用的纯工具，barrel + modules
-│       ├── index.ts
-│       └── modules/
-├── src/
-│   ├── assets/styles/           # 全局样式入口与模块
-│   ├── components/              # base 与 layouts 通用组件
-│   ├── constants/               # web 内共享常量，barrel + modules
-│   │   ├── index.ts
-│   │   └── modules/
-│   ├── hooks/                   # Composition API hooks
-│   ├── layouts/                 # Nuxt 布局与桌面端、移动端布局实现
-│   ├── middleware/              # Nuxt 路由中间件
-│   ├── pages/                   # Nuxt 文件路由薄入口
-│   ├── plugins/                 # Nuxt 运行时插件
-│   ├── types/                   # web 私有类型，barrel 导出
-│   ├── utils/                   # 同构或浏览器端纯工具
-│   └── views/                   # 按路由拆分的 desktop/mobile 页面实现
-├── nuxt.config.ts
-└── tsconfig.json
-```
-
-Web 目录边界：
-
-- SSR 服务、静态资源和进程生命周期由 Nuxt/Nitro 承担，不再维护自建 Express/Vite SSR 入口。
-- `server/` 只放 Nitro middleware、route、plugin 和仅服务端工具，不导入 Vue 应用代码。
-- `server/routes`、`server/middleware`、`server/plugins` 保持一文件一入口，不增加 `index.ts`；
-  可复用逻辑下沉到使用 barrel 的 `server/utils`。
-- `src/pages/` 只维护文件路由、页面 SEO 和首屏数据入口，不堆叠具体 UI。
-- 官网公共布局直接维护在 `src/layouts/desktop.vue`、`src/layouts/mobile.vue`，当前只有一套布局时不增加无意义的中间目录。
-- Layout 私有的 Header、Footer 等组件按设备放在 `src/components/layouts/desktop/`、`mobile/`，两端不通过响应式样式共用复杂根组件。
-- 页面 UI 保留在 `src/views/<route>/desktop.vue`、`mobile.vue`，文件路由通过静态 `import()` 把两端 loader 传给 `DeviceView`。
-- 设备状态使用 Nuxt `useState` 按 SSR 请求隔离并序列化，只在根组件注册一次浏览器媒体查询监听。
-- 所有设备相关 HTML 响应必须保留 `Vary: User-Agent`；增加共享缓存前必须同时验证设备缓存键。
-- 浏览器源码不得导入 `server/`；Nitro 服务端代码不得导入 `src/components`、`src/pages` 等 Vue 应用模块。
-- 首屏数据使用 `useAsyncData` / `useFetch`，服务端读取私有 API 地址，客户端读取 `runtimeConfig.public` 地址，禁止水合后重复请求。
+- 当前不创建 `apps/web` 空壳，也不提供 Web 生成器。
+- 主站可能采用 Nuxt、Next.js 或其他 SSR/CSR 技术栈，目录规则应在技术选型确定后单独补充。
+- 新主站手动创建后，登记到 `workspace.config.json` 的 `apps.web`，供根开发启动器发现。
+- 无论选择什么框架，浏览器应用都不得直接依赖 `@repo/database` 或 Prisma 生成类型。
 
 ---
 
 ## 页面与路由
 
 - `apps/admin` 是 SPA，页面统一放在 `src/views/`。
-- `apps/web` 是 Nuxt SSR 主站，文件路由放在 `src/pages/`，页面视觉实现放在 `src/views/`。
-- Admin 路由模块统一放在 `src/router/modules/`；Web 路由由 Nuxt 文件系统生成，不维护第二套路由表。
-- 页面目录使用 kebab-case；Admin 页面入口统一命名为 `index.vue`，Web 路由文件遵循 Nuxt 文件路由命名。
+- Admin 路由模块统一放在 `src/router/modules/`。
+- 页面目录使用 kebab-case；Admin 页面入口统一命名为 `index.vue`。
 - 页面私有组件放在页面目录下的 `components/`，不要提升到全局 `components/`。
 
 ```text

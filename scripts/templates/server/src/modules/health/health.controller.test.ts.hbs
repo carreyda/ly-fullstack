@@ -8,7 +8,7 @@ import { HealthController } from './health.controller';
 describe('HealthController', () => {
   const controller = new HealthController();
 
-  it('返回 C 端 API 的服务状态', () => {
+  it('返回当前服务状态与服务名', () => {
     const result = controller.getHealth();
 
     expect(result.status).toBe('ok');

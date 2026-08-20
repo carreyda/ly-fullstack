@@ -145,8 +145,8 @@ export const getUserInfo = async (): Promise<UserInfo> => { ... };
 
 ## 环境变量类型
 
-- `AppEnv` 不放在 `packages/shared`，由 `apps/admin`、`apps/web`、`apps/api`、`apps/admin-api` 按各自工具链在本包内维护。
+- `AppEnv` 不放在 `packages/shared`，由每个应用按自身工具链在本包内维护。
 - Rsbuild 管理后台在 `apps/admin/env.d.ts` 中声明 `import.meta.env.APP_ENV`、`API_BASE_URL`。
-- Nuxt 主站统一通过 `runtimeConfig` 读取环境变量；服务端私有变量使用 `NUXT_*`，浏览器可见变量使用 `NUXT_PUBLIC_*`，禁止在业务代码中直接读取 `process.env`。
-- NestJS 服务端只使用 `process.env`，类型分别写在 `apps/api/env.d.ts` 与 `apps/admin-api/env.d.ts`。
-- 本地开发启动端口由 `scripts/dev.mjs` 统一编排，各子包 `.env.*` 不维护端口。
+- 未来主站的环境变量读取方式跟随最终技术栈确定，不提前写入统一的 Nuxt、Next.js 或其他框架约束。
+- NestJS 服务端只使用 `process.env`，类型写在各服务根目录的 `env.d.ts`。
+- 本地开发由 `scripts/dev.mjs` 统一选择应用、预检端口并管理进程；本地端口来自 `workspace.config.json` 并通过 `PORT` 注入，部署环境也必须显式提供 `PORT`。

@@ -6,10 +6,9 @@ import { HealthModule } from '../health/health.module';
 const appEnv = process.env.APP_ENV || 'development';
 
 /**
- * C 端 API 根模块
+ * {{name}} 服务根模块
  *
- * 当前只装配环境配置和健康检查。C 端 JWT、用户体系与业务模块将在对应阶段独立实现，
- * 不复用 admin-api 的管理端认证边界。
+ * 当前只装配环境配置和健康检查，业务能力按实际需求继续添加独立模块。
  */
 @Module({
   imports: [

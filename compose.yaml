@@ -2,7 +2,7 @@
 # 端口、数据库名、用户名和密码均可通过环境变量覆盖；默认值只用于本地开发，不是生产配置。
 services:
   postgres:
-    image: postgres:17-alpine
+    image: postgres:18.6-alpine
     container_name: ly-fullstack-postgres
     restart: unless-stopped
     ports:
@@ -12,7 +12,8 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     volumes:
-      - ly-fullstack-postgres-data:/var/lib/postgresql/data
+      # PostgreSQL 18 起官方镜像把版本化 PGDATA 放在 /var/lib/postgresql 下，不能沿用 17 的挂载点。
+      - ly-fullstack-postgres-18-data:/var/lib/postgresql
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-ly_fullstack}']
       interval: 10s
@@ -21,5 +22,6 @@ services:
       start_period: 10s
 
 volumes:
-  ly-fullstack-postgres-data:
-    name: ly-fullstack-postgres-data
+  # 使用新卷保留可能存在的 PostgreSQL 17 数据，升级过程不静默覆盖旧数据库。
+  ly-fullstack-postgres-18-data:
+    name: ly-fullstack-postgres-18-data

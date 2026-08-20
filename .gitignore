@@ -6,11 +6,15 @@ coverage
 .log
 .pnpm-store/
 
-# 环境文件：只提交 .env.example，运行环境文件不入库
+# 环境文件默认不入库，只允许提交明确维护的无密钥模板
 .env
-.env.local
-.env.*.local
+.env.*
 !.env.example
+!apps/admin/.env.development
+!apps/admin/.env.test
+!apps/admin/.env.production
+!apps/admin-api/.env.test
+!apps/admin-api/.env.production
 
 # Prisma 生成产物
 packages/database/generated/prisma/

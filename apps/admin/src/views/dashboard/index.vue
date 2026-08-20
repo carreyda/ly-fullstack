@@ -228,8 +228,9 @@ const moduleProgress = [
  * 根目录工程命令（仓库静态信息）
  */
 const commandItems = [
-  { command: 'pnpm dev', purpose: '并行启动 admin、api 与 admin-api' },
-  { command: 'pnpm dev:admin / dev:api', purpose: '单独启动管理端或 API' },
+  { command: 'pnpm dev', purpose: '按 workspace 配置选择并启动应用' },
+  { command: 'pnpm new:server', purpose: '生成并注册新的 NestJS 服务' },
+  { command: 'pnpm dev:admin / dev:admin-api', purpose: '单独启动管理端或管理 API' },
   { command: 'pnpm typecheck', purpose: '全仓类型检查' },
   { command: 'pnpm lint', purpose: '全仓 ESLint 检查' },
   { command: 'pnpm test', purpose: 'Rstest 单元测试' },

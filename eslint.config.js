@@ -7,6 +7,8 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import tseslint from 'typescript-eslint';
 
+import { getWorkspaceApplications, readWorkspaceConfig } from './scripts/workspace-config.mjs';
+
 /**
  * 从自动导入声明文件中提取全局变量名
  *
@@ -34,6 +36,15 @@ const createAutoImportGlobals = (dtsPath) => {
  * 声明文件不存在时为空对象，首次安装或生成类型前执行 ESLint 也不会中断配置加载。
  */
 const adminVueAutoImportGlobals = createAutoImportGlobals(join(import.meta.dirname, 'apps/admin/auto-imports.d.ts'));
+
+/**
+ * 配置表中所有 NestJS 服务的源码范围
+ *
+ * 服务由生成器动态增加，ESLint 不能依赖写死的 api 应用名。
+ */
+const serverSourceGlobs = getWorkspaceApplications(readWorkspaceConfig(import.meta.dirname))
+  .filter((app) => app.kind === 'server')
+  .map((app) => `${app.path}/src/**/*.ts`);
 
 /**
  * LY Fullstack 仓库级 ESLint 扁平配置
@@ -81,11 +92,11 @@ export default tseslint.config(
   },
   {
     files: [
-      'apps/api/src/**/*.ts',
-      'apps/admin-api/src/**/*.ts',
+      ...serverSourceGlobs,
       'apps/admin/build/**/*.ts',
       'packages/*/src/**/*.ts',
       'packages/*/*.ts',
+      'scripts/**/*.{js,mjs,cjs}',
       '*.{js,mjs,cjs,ts}',
       'apps/*/*.{js,mjs,cjs,ts}',
       'packages/*/*.{js,mjs,cjs,ts}',

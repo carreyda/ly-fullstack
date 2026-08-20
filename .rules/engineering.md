@@ -85,8 +85,9 @@ trim_trailing_whitespace = true
 | -------------------------- | ----------------------- | --------------------- |
 | `apps/*/tsconfig.json`     | `compilerOptions.paths` | `"@/*": ["./src/*"]`  |
 | `apps/admin/build/`        | Rsbuild `resolve.alias` | `@ -> apps/admin/src` |
-| `apps/web/nuxt.config.ts`  | Nuxt `alias`            | `@ -> apps/web/src`   |
 | `packages/*/tsconfig.json` | workspace paths         | `@repo/*` workspace   |
+
+未来主站的别名配置跟随最终选定的构建框架，不提前固化为 Nuxt 或其他方案。
 
 ---
 

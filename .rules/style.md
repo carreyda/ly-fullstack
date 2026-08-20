@@ -76,7 +76,7 @@ src/components/chat/message-item/
 | 作用域            | 落点                                                               |
 | ----------------- | ------------------------------------------------------------------ |
 | Admin SPA         | `apps/admin/src/assets/styles/modules/component-overrides.scss`    |
-| Web 主站          | `apps/web/src/assets/styles/modules/component-overrides.scss`      |
+| 未来主站          | 技术栈与目录确定后，在主站应用内维护带业务作用域的全局覆盖文件     |
 | 共享 UI 组件      | `packages/ui/src/styles/modules/component-overrides.scss`          |
 | Element Plus 通用 | `apps/admin/src/assets/element-plus/modules/` 中对应的全局覆盖模块 |
 

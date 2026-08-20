@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fastify';
 
-import { SERVER_CORS_METHODS, SERVER_DEFAULT_PORT } from './constants';
+import { SERVER_CORS_METHODS } from './constants';
 import { AppModule } from './modules/app/app.module';
 
 /**
@@ -57,7 +57,10 @@ const bootstrap = async (): Promise<void> => {
    */
   app.enableShutdownHooks();
 
-  const port = configService.get<number>('PORT', SERVER_DEFAULT_PORT);
+  const port = Number(configService.getOrThrow<string>('PORT'));
+  if (!Number.isInteger(port) || port < 1 || port > 65_535) {
+    throw new Error('PORT 必须是 1 到 65535 之间的整数');
+  }
   await app.listen(port, '0.0.0.0');
 };
 

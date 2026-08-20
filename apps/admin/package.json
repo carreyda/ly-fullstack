@@ -19,7 +19,7 @@
     "axios": "catalog:",
     "element-plus": "catalog:",
     "pinia": "catalog:",
-    "pinia-plugin-persistedstate": "^4.7.1",
+    "pinia-plugin-persistedstate": "catalog:",
     "vue": "catalog:",
     "vue-router": "catalog:"
   },

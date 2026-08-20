@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ly-fullstack/workspace.config.schema.json",
+  "title": "LY Fullstack Workspace Config",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "apps"],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "apps": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["web", "server"],
+      "properties": {
+        "web": {
+          "$ref": "#/$defs/webApps"
+        },
+        "server": {
+          "$ref": "#/$defs/serverApps"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "appName": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "webApp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "packageName", "localPort"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^apps/[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+        },
+        "packageName": {
+          "type": "string",
+          "pattern": "^@repo/[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+        },
+        "localPort": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        }
+      }
+    },
+    "webApps": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/appName"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/webApp"
+      }
+    },
+    "serverApp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "packageName", "localPort", "healthPath"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^apps/[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+        },
+        "packageName": {
+          "type": "string",
+          "pattern": "^@repo/[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+        },
+        "localPort": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "healthPath": {
+          "type": "string",
+          "pattern": "^/"
+        }
+      }
+    },
+    "serverApps": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/appName"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/serverApp"
+      }
+    }
+  }
+}
