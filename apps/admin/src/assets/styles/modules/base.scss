@@ -1,0 +1,116 @@
+/**
+ * 统一元素盒模型并清除浏览器默认间距，保证后台布局尺寸可预测。
+ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body,
+div,
+ul,
+ol,
+li,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+input,
+textarea,
+select,
+p,
+dl,
+dt,
+dd,
+a,
+img,
+button,
+form,
+table,
+th,
+tr,
+td,
+tbody,
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+pre,
+code,
+section {
+  margin: 0;
+  padding: 0;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: normal;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+html,
+body,
+#root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family:
+    Inter,
+    'PingFang SC',
+    -apple-system,
+    'BlinkMacSystemFont',
+    'Segoe UI',
+    'Roboto',
+    'RobotoMono',
+    'Helvetica Neue',
+    'Arial',
+    'Noto Sans',
+    sans-serif,
+    'Apple Color Emoji',
+    'Segoe UI Emoji',
+    'Segoe UI Symbol',
+    'Noto Color Emoji';
+}
+
+html {
+  font-size: calc(14px * var(--font-scale));
+}
+
+body {
+  color: var(--color-text-base);
+  background: var(--body-bg-color);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizelegibility;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}

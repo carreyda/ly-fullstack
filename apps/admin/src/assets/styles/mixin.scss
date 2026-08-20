@@ -1,0 +1,121 @@
+/**
+ * 管理后台通用 SCSS mixin
+ *
+ * 只提供可组合的布局和文本能力，不生成全局原子类。业务组件通过 `@include` 写入自身 BEM 类，
+ * 边线颜色统一引用语义 CSS 变量，以便后续主题切换。
+ */
+
+/**
+ * 创建可配置的 Flex 容器
+ *
+ * @param $direction 主轴方向，默认 `row`
+ * @param $align 交叉轴对齐方式，默认 `stretch`
+ * @param $justify 主轴对齐方式，默认 `flex-start`
+ * @param $wrap 换行方式，默认 `nowrap`
+ */
+@mixin flex($direction: row, $align: stretch, $justify: flex-start, $wrap: nowrap) {
+  display: flex;
+  flex-direction: $direction;
+  align-items: $align;
+  justify-content: $justify;
+  flex-wrap: $wrap;
+}
+
+/**
+ * 创建水平、垂直均居中的 Flex 容器。
+ */
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/**
+ * 创建主轴两端对齐、交叉轴居中的 Flex 容器。
+ */
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/**
+ * 创建主轴环绕均分、交叉轴居中的 Flex 容器。
+ */
+@mixin flex-around {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+/**
+ * 创建主轴等距分布、交叉轴居中的 Flex 容器。
+ */
+@mixin flex-evenly {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+/**
+ * 将超出容器的单行文本显示为省略号。
+ */
+@mixin ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/**
+ * 将超出指定行数的文本显示为省略号
+ *
+ * 同时保留标准 `line-clamp` 和 WebKit 前缀，兼容当前支持范围内的浏览器。
+ *
+ * @param $line 最大显示行数，默认两行
+ */
+@mixin ellipsis-multi($line: 2) {
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-clamp: $line;
+  -webkit-line-clamp: $line;
+  line-break: anywhere;
+  -webkit-box-orient: vertical;
+}
+
+/**
+ * 使用主题语义色绘制左边线。
+ */
+@mixin bl-line {
+  border-left: 1px solid var(--border-color);
+}
+
+/**
+ * 使用主题语义色绘制右边线。
+ */
+@mixin br-line {
+  border-right: 1px solid var(--border-color);
+}
+
+/**
+ * 使用主题语义色绘制下边线。
+ */
+@mixin bb-line {
+  border-bottom: 1px solid var(--border-color);
+}
+
+/**
+ * 使用主题语义色绘制上边线。
+ */
+@mixin bt-line {
+  border-top: 1px solid var(--border-color);
+}
+
+/**
+ * 创建占满父级、相对定位并隐藏溢出的页面根容器。
+ */
+@mixin page-container {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}

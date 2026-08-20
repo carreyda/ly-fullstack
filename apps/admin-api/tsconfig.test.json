@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM"],
+    "types": [],
+    "experimentalDecorators": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@repo/database": ["../../packages/database/src/index.ts"],
+      "@repo/shared/types": ["../../packages/shared/src/types/index.ts"]
+    }
+  },
+  "include": ["src/**/*.ts", "env.d.ts", "rstest.config.ts"]
+}

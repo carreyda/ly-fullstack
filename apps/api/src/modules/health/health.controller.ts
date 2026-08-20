@@ -1,0 +1,26 @@
+import { Controller, Get } from '@nestjs/common';
+import type { HealthStatus } from '@repo/shared/types';
+
+import { SERVER_SERVICE_NAME } from '../../constants';
+
+/**
+ * C 端 API 健康检查控制器
+ *
+ * 只暴露服务存活状态，不访问数据库，也不承载业务鉴权逻辑。
+ */
+@Controller('health')
+export class HealthController {
+  /**
+   * 获取 C 端 API 健康状态
+   *
+   * @returns 当前服务的健康检查结果
+   */
+  @Get()
+  getHealth(): HealthStatus {
+    return {
+      status: 'ok',
+      service: SERVER_SERVICE_NAME,
+      timestamp: new Date().toISOString(),
+    };
+  }
+}

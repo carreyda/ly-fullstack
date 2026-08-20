@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "lib": ["ES2022"],
+    "types": ["node"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": false,
+    "verbatimModuleSyntax": false,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@repo/database": ["../../packages/database/src/index.ts"],
+      "@repo/shared/types": ["../../packages/shared/src/types/index.ts"]
+    }
+  },
+  "include": ["src/**/*.ts", "env.d.ts"],
+  "exclude": ["src/**/*.test.ts"]
+}

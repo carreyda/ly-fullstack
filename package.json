@@ -1,0 +1,53 @@
+{
+  "name": "ly-fullstack",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.6.0",
+  "engines": {
+    "node": ">=22.19.0",
+    "pnpm": ">=11 <12"
+  },
+  "scripts": {
+    "dev": "turbo run dev --ui=stream",
+    "dev:admin": "pnpm --filter @repo/admin dev",
+    "dev:api": "pnpm --filter @repo/api dev",
+    "dev:admin-api": "pnpm --filter @repo/admin-api dev",
+    "build": "turbo run build --ui=stream",
+    "typecheck": "turbo run typecheck --ui=stream",
+    "lint": "eslint . --cache --cache-location node_modules/.cache/eslint/ --cache-strategy content",
+    "lint:fix": "eslint . --cache --cache-location node_modules/.cache/eslint/ --cache-strategy content --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "turbo run test --ui=stream",
+    "clean": "turbo run clean --ui=stream",
+    "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test && pnpm build",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "**/*.{js,mjs,cjs,ts,tsx,vue}": [
+      "eslint --fix --cache --cache-location node_modules/.cache/eslint/ --cache-strategy content"
+    ],
+    "**/*.{js,mjs,cjs,ts,tsx,vue,scss,css,json,md}": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "@commitlint/cli": "catalog:",
+    "@commitlint/config-conventional": "catalog:",
+    "@eslint/js": "catalog:",
+    "@types/node": "catalog:",
+    "@vue/eslint-config-prettier": "catalog:",
+    "eslint": "catalog:",
+    "eslint-plugin-vue": "catalog:",
+    "globals": "catalog:",
+    "husky": "catalog:",
+    "lint-staged": "catalog:",
+    "prettier": "catalog:",
+    "rimraf": "catalog:",
+    "turbo": "catalog:",
+    "typescript": "catalog:",
+    "typescript-eslint": "catalog:",
+    "vue-eslint-parser": "catalog:"
+  }
+}

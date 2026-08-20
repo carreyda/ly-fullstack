@@ -1,0 +1,25 @@
+/**
+ * 覆盖 Element Plus 编译期主题变量
+ *
+ * 使用 `@forward ... with` 在组件 Sass 首次加载前设置品牌色和基础圆角，避免构建后再用大量选择器覆盖。
+ * 颜色基准需要与应用 CSS token 保持一致。
+ */
+@forward 'element-plus/theme-chalk/src/common/var.scss' with (
+  $colors: (
+    'primary': (
+      'base': #064fbc,
+    ),
+    'success': (
+      'base': #00a870,
+    ),
+    'warning': (
+      'base': #ffae1f,
+    ),
+    'danger': (
+      'base': #ff4d4f,
+    ),
+    'error': (
+      'base': #fa896b,
+    ),
+  )
+);

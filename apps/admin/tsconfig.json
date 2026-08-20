@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "preserve",
+    "types": ["@rsbuild/core/types", "node"],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@repo/shared": ["../../packages/shared/src/index.ts"],
+      "@repo/shared/types": ["../../packages/shared/src/types/index.ts"],
+      "@repo/shared/utils": ["../../packages/shared/src/utils/index.ts"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.vue", "build/**/*.ts", "env.d.ts", "components.d.ts", "auto-imports.d.ts"]
+}

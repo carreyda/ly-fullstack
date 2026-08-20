@@ -1,0 +1,30 @@
+{
+  "name": "@repo/database",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./dist/src/index.js",
+  "types": "./src/index.ts",
+  "scripts": {
+    "postinstall": "pnpm generate",
+    "generate": "prisma generate",
+    "build": "pnpm generate && tsc -p tsconfig.build.json",
+    "typecheck": "pnpm generate && tsc --noEmit -p tsconfig.json",
+    "clean": "rimraf dist generated/prisma"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./dist/src/index.js",
+      "require": "./dist/src/index.js"
+    }
+  },
+  "dependencies": {
+    "@prisma/client": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "prisma": "catalog:",
+    "rimraf": "catalog:",
+    "typescript": "catalog:"
+  }
+}

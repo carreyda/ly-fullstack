@@ -1,0 +1,13 @@
+node_modules
+dist
+coverage
+.turbo
+.log
+.env*
+pnpm-lock.yaml
+apps/admin/build
+
+# 自动导入与组件声明由构建插件生成并重写，不参与格式化检查
+apps/admin/auto-imports.d.ts
+apps/admin/components.d.ts
+packages/database/generated/prisma

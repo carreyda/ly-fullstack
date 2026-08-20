@@ -1,0 +1,37 @@
+{
+  "name": "@repo/api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "cross-env APP_ENV=development tsx watch --clear-screen=false src/main.ts",
+    "build": "pnpm build:prod",
+    "build:test": "cross-env APP_ENV=test tsc -p tsconfig.build.json",
+    "build:prod": "cross-env APP_ENV=production tsc -p tsconfig.build.json",
+    "start": "pnpm start:prod",
+    "start:test": "cross-env APP_ENV=test node dist/main.js",
+    "start:prod": "cross-env APP_ENV=production node dist/main.js",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json",
+    "test": "rstest run",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@nestjs/common": "catalog:",
+    "@nestjs/config": "catalog:",
+    "@nestjs/core": "catalog:",
+    "@nestjs/platform-fastify": "catalog:",
+    "@repo/shared": "workspace:*",
+    "class-transformer": "catalog:",
+    "class-validator": "catalog:",
+    "fastify": "catalog:",
+    "reflect-metadata": "catalog:",
+    "rxjs": "catalog:"
+  },
+  "devDependencies": {
+    "@rstest/core": "catalog:",
+    "@types/node": "catalog:",
+    "cross-env": "catalog:",
+    "rimraf": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}

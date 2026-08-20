@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "allowImportingTsExtensions": false,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@repo/database": ["../../packages/database/dist/src/index.d.ts"],
+      "@repo/shared/types": ["../../packages/shared/dist/types/index.d.ts"]
+    },
+    "rootDir": "src",
+    "outDir": "dist",
+    "declaration": true,
+    "sourceMap": true
+  },
+  "exclude": ["dist", "node_modules", "src/**/*.test.ts"]
+}

@@ -1,0 +1,60 @@
+/**
+ * 后台抽屉公共样式
+ *
+ * `drawer-custom-common` 约定全站业务抽屉结构：限宽、描边、通栏头尾；窄屏自动压缩宽度，
+ * 全屏变体用于详情类内容。
+ */
+.drawer-custom-common {
+  --drawer-width: 860px;
+
+  .el-drawer {
+    width: min(var(--drawer-width), calc(100vw - 32px)) !important;
+    border-left: 1px solid var(--border-color);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-md);
+  }
+
+  .el-drawer__header {
+    min-height: 58px;
+    margin-bottom: 0;
+    padding: 17px 24px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .el-drawer__title {
+    color: var(--color-text-base);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+  }
+
+  .el-drawer__body {
+    min-height: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .el-drawer__footer {
+    padding: 0;
+  }
+}
+
+.drawer-custom-common--fullscreen {
+  .el-drawer {
+    width: 100vw !important;
+    border-left: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .drawer-custom-common {
+    .el-drawer {
+      width: calc(100vw - 16px) !important;
+    }
+  }
+
+  .drawer-custom-common--fullscreen {
+    .el-drawer {
+      width: 100vw !important;
+    }
+  }
+}
