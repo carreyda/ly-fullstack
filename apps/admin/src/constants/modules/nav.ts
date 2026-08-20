@@ -56,9 +56,9 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     title: '系统管理',
     icon: Settings,
     children: [
-      { key: 'system-user', title: '用户管理' },
-      { key: 'system-role', title: '角色管理' },
-      { key: 'system-menu', title: '菜单管理' },
+      { key: '/system/user', title: '用户管理', path: '/system/user' },
+      { key: '/system/role', title: '角色管理', path: '/system/role' },
+      { key: '/system/menu', title: '菜单管理', path: '/system/menu' },
     ],
   },
   {
@@ -66,8 +66,8 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     title: '组件中心',
     icon: Boxes,
     children: [
-      { key: 'component-icon', title: '图标' },
-      { key: 'component-video', title: '视频播放器' },
+      { key: '/component/icon', title: '图标', path: '/component/icon' },
+      { key: '/component/video', title: '视频播放器', path: '/component/video' },
     ],
   },
   {
@@ -75,10 +75,10 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     title: '展示页面',
     icon: PanelsTopLeft,
     children: [
-      { key: 'display-success', title: '成功页' },
-      { key: 'display-failure', title: '失败页' },
-      { key: 'display-404', title: '404' },
-      { key: 'display-500', title: '500' },
+      { key: '/display/success', title: '成功页', path: '/display/success' },
+      { key: '/display/failure', title: '失败页', path: '/display/failure' },
+      { key: '/display/404', title: '404', path: '/display/404' },
+      { key: '/display/500', title: '500', path: '/display/500' },
     ],
   },
 ];

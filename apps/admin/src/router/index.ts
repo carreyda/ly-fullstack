@@ -1,7 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
+import { componentCenter } from './modules/component-center';
 import { dashboard } from './modules/dashboard';
+import { display } from './modules/display';
 import { notFound } from './modules/not-found';
+import { system } from './modules/system';
 
 import type { RouteRecordRaw } from 'vue-router';
 
@@ -21,7 +24,7 @@ const routes: RouteRecordRaw[] = [
     name: 'AdminLayout',
     component: () => import('@/layouts/index.vue'),
     redirect: '/dashboard',
-    children: [dashboard, notFound],
+    children: [dashboard, system, componentCenter, display, notFound],
   },
 ];
 

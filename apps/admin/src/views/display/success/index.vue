@@ -1,0 +1,5 @@
+<template>
+  <div>成功页</div>
+</template>
+
+<script setup lang="ts"></script>
