@@ -27,3 +27,35 @@
     }
   }
 }
+
+.layout-side__menu-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  margin-right: 10px;
+}
+
+.layout-side--collapsed .layout-side__menu-icon {
+  margin-right: 0;
+}
+
+.layout-side__menu-popper.el-popper.is-light {
+  border-color: var(--border-color);
+  background: var(--color-bg-page);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+
+  .el-menu--popup {
+    padding: 8px;
+    box-shadow: none;
+  }
+
+  .el-menu-item {
+    margin: 2px 0;
+    border-radius: var(--radius-md);
+  }
+
+  .el-popper__arrow::before {
+    border-color: var(--border-color);
+    background: var(--color-bg-page);
+  }
+}

@@ -14,31 +14,11 @@
         class="layout-side__menu"
         :collapse="props.collapsed"
         :collapse-transition="false"
-        :default-active="ADMIN_NAV_HOME.key"
+        :default-active="route.path"
         :default-openeds="ADMIN_NAV_DEFAULT_OPENED_KEYS"
+        @select="handleMenuSelect"
       >
-        <el-menu-item :index="ADMIN_NAV_HOME.key" @click="handleHomeOpen">
-          <component :is="ADMIN_NAV_HOME.icon" class="layout-side__menu-icon" :size="18" :stroke-width="1.8" />
-          <span>{{ ADMIN_NAV_HOME.title }}</span>
-        </el-menu-item>
-
-        <el-sub-menu
-          v-for="group in ADMIN_NAV_ITEMS"
-          :key="group.key"
-          :index="group.key"
-          :expand-close-icon="ChevronDown"
-          :expand-open-icon="ChevronUp"
-        >
-          <template #title>
-            <component :is="group.icon" class="layout-side__menu-icon" :size="18" :stroke-width="1.8" />
-            <span>{{ group.title }}</span>
-          </template>
-
-          <el-menu-item v-for="item in group.children" :key="item.key" :index="item.key">
-            <component :is="item.icon" class="layout-side__menu-icon" :size="17" :stroke-width="1.8" />
-            <span>{{ item.title }}</span>
-          </el-menu-item>
-        </el-sub-menu>
+        <layout-menu-item v-for="item in ADMIN_NAV_ITEMS" :key="item.key" :item="item" root />
       </el-menu>
     </div>
   </aside>
@@ -48,21 +28,21 @@
 /**
  * 导入 Vue Router 模块
  */
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 /**
  * 导入组件
  */
-import { ChevronDown, ChevronUp } from '@lucide/vue';
-import { ElMenu, ElMenuItem, ElSubMenu } from 'element-plus';
+import { ElMenu } from 'element-plus';
 import 'element-plus/es/components/menu/style/index';
-import 'element-plus/es/components/menu-item/style/index';
-import 'element-plus/es/components/sub-menu/style/index';
+
+import LayoutMenuItem from './menu-item.vue';
 
 /**
  * 导入常量
  */
-import { ADMIN_NAV_DEFAULT_OPENED_KEYS, ADMIN_NAV_HOME, ADMIN_NAV_ITEMS } from '@/constants';
+import { ADMIN_NAV_DEFAULT_OPENED_KEYS, ADMIN_NAV_ITEMS } from '@/constants';
+import type { AdminNavItem } from '@/constants/modules/nav';
 
 /**
  * 定义 props 的类型声明
@@ -85,12 +65,44 @@ const props = withDefaults(defineProps<Props>(), {
  * 引入路由
  */
 const router = useRouter();
+const route = useRoute();
 
 /**
- * 打开工作台首页
+ * 在导航树中查找节点对应的路由地址
+ *
+ * @param items 导航树节点
+ * @param key 菜单唯一标识
+ * @returns 路由地址，不存在时返回 undefined
  */
-const handleHomeOpen = (): void => {
-  void router.push(ADMIN_NAV_HOME.path);
+const findNavPath = (items: AdminNavItem[], key: string): string | undefined => {
+  for (const item of items) {
+    if (item.key === key) {
+      return item.path;
+    }
+
+    if (item.children?.length) {
+      const childPath = findNavPath(item.children, key);
+
+      if (childPath) {
+        return childPath;
+      }
+    }
+  }
+
+  return undefined;
+};
+
+/**
+ * 打开叶子菜单绑定的页面
+ *
+ * @param key 菜单唯一标识
+ */
+const handleMenuSelect = (key: string): void => {
+  const path = findNavPath(ADMIN_NAV_ITEMS, key);
+
+  if (path && path !== route.path) {
+    void router.push(path);
+  }
 };
 </script>
 
@@ -121,10 +133,6 @@ const handleHomeOpen = (): void => {
   &--collapsed &__brand,
   &--collapsed &__status {
     display: none;
-  }
-
-  &--collapsed &__menu-icon {
-    margin-right: 0;
   }
 
   &__header {
@@ -190,13 +198,6 @@ const handleHomeOpen = (): void => {
     width: 100%;
     border-right: 0;
     background: transparent;
-  }
-
-  &__menu-icon {
-    width: 18px;
-    height: 18px;
-    flex: 0 0 18px;
-    margin-right: 10px;
   }
 }
 </style>
