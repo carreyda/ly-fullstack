@@ -3,5 +3,27 @@
  *
  * 只维护必须命中子组件或第三方组件生成 DOM 的规则。
  * 每组规则必须以业务组件的 BEM Block 为边界，禁止添加无作用域的第三方选择器。
- * 当前外壳样式全部收敛在布局组件的 scoped 样式内，本文件随真实业务页面落地再扩展。
  */
+
+/**
+ * 管理后台侧栏菜单结构修正
+ *
+ * 颜色由 Element Plus 菜单变量提供，这里只处理业务侧栏需要的间距、圆角和选中态。
+ */
+.layout-side__menu {
+  .el-sub-menu__title,
+  .el-menu-item {
+    margin: 2px 10px;
+    border-radius: var(--radius-md);
+  }
+
+  .el-menu-item {
+    min-width: 0;
+    border-left: 2px solid transparent;
+
+    &.is-active {
+      border-left-color: var(--el-menu-active-color);
+      background: var(--el-menu-active-bg-color);
+    }
+  }
+}

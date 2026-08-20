@@ -15,12 +15,12 @@ catalogs:
     '@commitlint/config-conventional':
       specifier: 21.2.2
       version: 21.2.2
-    '@element-plus/icons-vue':
-      specifier: 2.3.2
-      version: 2.3.2
     '@eslint/js':
       specifier: 10.0.1
       version: 10.0.1
+    '@lucide/vue':
+      specifier: 1.33.0
+      version: 1.33.0
     '@nestjs/common':
       specifier: 11.2.1
       version: 11.2.1
@@ -226,9 +226,9 @@ importers:
 
   apps/admin:
     dependencies:
-      '@element-plus/icons-vue':
+      '@lucide/vue':
         specifier: 'catalog:'
-        version: 2.3.2(vue@3.5.41(typescript@6.0.2))
+        version: 1.33.0(vue@3.5.41(typescript@6.0.2))
       '@repo/charts':
         specifier: workspace:*
         version: link:../../packages/charts
@@ -877,6 +877,11 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@lucide/vue@1.33.0':
+    resolution: {integrity: sha512-8d3HnIIglHnosvsnm+IWNy8XhYYJvkf4YEgQqb74HnY3ihzdz+7XX4MxMZoyKdw7pbKOGno2HoaHTq7DH/v5AA==}
+    peerDependencies:
+      vue: 3.5.41
 
   '@lukeed/csprng@1.1.0':
     resolution: {integrity: sha512-Z7C/xXCiGWsg0KuKsHTKJxbWhpI3Vs5GwLfOean7MGyVFGqdRgBbAjOCh6u4bbjPc/8MJ2pZmK/0DLdCbivLDA==}
@@ -4634,6 +4639,10 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.4.14
 
+  '@lucide/vue@1.33.0(vue@3.5.41(typescript@6.0.2))':
+    dependencies:
+      vue: 3.5.41(typescript@6.0.2)
+
   '@lukeed/csprng@1.1.0': {}
 
   '@napi-rs/image-android-arm64@1.11.2':
@@ -5240,7 +5249,7 @@ snapshots:
 
   '@types/ws@8.18.1':
     dependencies:
-      '@types/node': 25.0.3
+      '@types/node': 26.2.0
 
   '@typescript-eslint/eslint-plugin@8.67.0(@typescript-eslint/parser@8.67.0(eslint@10.8.1(jiti@2.7.0)(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.2))(eslint@10.8.1(jiti@2.7.0)(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.2)':
     dependencies:
@@ -5771,7 +5780,7 @@ snapshots:
 
   buffer-image-size@0.6.4:
     dependencies:
-      '@types/node': 25.0.3
+      '@types/node': 26.2.0
 
   buffer@5.7.1:
     dependencies:
@@ -6562,7 +6571,7 @@ snapshots:
 
   happy-dom@20.11.6:
     dependencies:
-      '@types/node': 25.0.3
+      '@types/node': 26.2.0
       '@types/whatwg-mimetype': 3.0.2
       '@types/ws': 8.18.1
       buffer-image-size: 0.6.4
@@ -6705,7 +6714,7 @@ snapshots:
 
   jest-worker@27.4.5:
     dependencies:
-      '@types/node': 25.0.3
+      '@types/node': 26.2.0
       merge-stream: 2.0.0
       supports-color: 8.0.0
 

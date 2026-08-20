@@ -4,6 +4,7 @@
  * 由 `src/main.ts` 引入一次，只聚合全局 token 和基础样式；组件私有样式保留在组件目录。
  */
 @use './modules/tokens.scss';
+@use './modules/theme.scss';
 @use './modules/base.scss';
 @use './modules/router-transition.scss';
 @use './modules/component-overrides.scss';

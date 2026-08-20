@@ -7,7 +7,7 @@
 @forward 'element-plus/theme-chalk/src/common/var.scss' with (
   $colors: (
     'primary': (
-      'base': #064fbc,
+      'base': #1de9a0,
     ),
     'success': (
       'base': #00a870,
@@ -21,5 +21,25 @@
     'error': (
       'base': #fa896b,
     ),
+  ),
+  $menu: (
+    'active-color': var(--color-primary),
+    'text-color': var(--color-text-secondary),
+    'hover-text-color': var(--color-text-primary),
+    'bg-color': transparent,
+    'hover-bg-color': color-mix(in srgb, var(--color-primary) 8%, transparent),
+    'item-hover-fill': color-mix(in srgb, var(--color-primary) 8%, transparent),
+    'active-bg-color': linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--color-primary) 16%, transparent),
+        color-mix(in srgb, var(--color-primary) 4%, transparent)
+      ),
+    'border-color': transparent,
+    'item-height': 42px,
+    'sub-item-height': 40px,
+    'item-font-size': var(--font-size-base),
+    'base-level-padding': 16px,
+    'level-padding': 16px,
+    'icon-width': 18px,
   )
 );

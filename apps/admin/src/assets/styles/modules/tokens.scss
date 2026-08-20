@@ -27,23 +27,9 @@
   --spacing-2xl: 24px;
 
   /**
-   * 管理后台侧栏品牌区和顶部导航共用高度
-   */
-  --layout-header-height: 60px;
-  --layout-sidebar-width: 230px;
-
-  /**
-   * 侧栏折叠后的图标宽度；折叠态只保留图标列，导航文字和分组标题隐藏
-   */
-  --layout-sidebar-collapsed-width: 64px;
-
-  /**
    * 自定义圆角基准
-   *
-   * 全站圆角都由它派生：卡片 calc(+4px/0/-4px)，组件 calc(/3+2px)，
-   * 弹窗 calc(/1.2+2px)，保证任何容器圆角节奏一致。
    */
-  --custom-radius: 0.75rem;
+  --custom-radius: 4px;
 
   /**
    * 旧圆角令牌（保留兼容，新代码优先使用 --custom-radius 派生值）
@@ -52,72 +38,20 @@
   --radius-md: 8px;
 
   /**
-   * Element Plus 与业务组件共用的主色阶
+   * 基础色板
    *
-   * 主色基准与 `assets/element-plus/modules/var.scss` 保持一致，浅色和深色用于交互状态。
+   * 色板变量只记录固定色值，不绑定背景、正文或提示文案等主题语义。
    */
-  --color-primary: #064fbc;
-  --color-primary-light-3: #5184d0;
-  --color-primary-light-5: #83a7de;
-  --color-primary-light-7: #b4caeb;
-  --color-primary-light-8: #cddcf2;
-  --color-primary-light-9: #e6edf8;
-  --color-primary-dark-2: #053f96;
-
-  /**
-   * 灰阶与表面体系
-   *
-   * g-900 为标题色，g-600 为次要文字，g-500 为占位/辅助；
-   * 卡片使用白色 1px 描边 + 大圆角 + 无阴影的扁平描边风格。
-   */
-  --gray-100: #f9fafb;
-  --gray-200: #f2f4f5;
-  --gray-300: #e6eaeb;
-  --gray-400: #dbdfe1;
-  --gray-500: #949eb7;
-  --gray-600: #7987a1;
-  --gray-700: #4d5875;
-  --gray-800: #383853;
-  --gray-900: #323251;
-  --card-border-color: rgb(0 0 0 / 8%);
-  --color-hover: #edeff0;
-  --color-active: #f2f4f5;
-
-  /**
-   * 管理后台基础表面与文字色
-   *
-   * 页面通过白色工作区和浅灰背景区分层级，主色只用于关键操作和交互状态。
-   */
-  --body-bg-color: #fafbfc;
-  --color-surface: #ffffff;
-  --color-surface-subtle: #f8fafc;
-
-  /**
-   * 侧栏为浅色表面：与顶栏组成白色框架，内容区以灰底衬托白卡
-   *
-   * 常态文字使用次级文字色，激活态使用主色浅底 + 主色文字，不依赖深色底制造分层。
-   */
-  --color-sidebar: #ffffff;
-  --color-sidebar-hover: var(--gray-200);
-  --color-sidebar-active: var(--color-primary-light-9);
-  --color-sidebar-text: var(--gray-700);
-  --color-sidebar-text-active: var(--color-primary);
-  --color-sidebar-text-muted: var(--gray-500);
-  --color-text-base: var(--gray-900);
-  --color-text-secondary: var(--gray-600);
-  --color-text-tertiary: var(--gray-500);
-  --border-color: #e2e8ee;
-  --color-success: #067647;
-  --color-success-surface: #ecfdf3;
-  --color-warning: #b54708;
-  --color-warning-surface: #fffaeb;
-  --color-danger: #b42318;
-  --color-danger-surface: #fef3f2;
-  --color-neutral-surface: var(--gray-200);
-  --focus-ring-color: rgb(6 79 188 / 18%);
-  --shadow-sm: 0 1px 2px rgb(16 24 40 / 5%);
-  --shadow-card: 0 1px 2px rgb(16 24 40 / 4%), 0 4px 16px rgb(16 24 40 / 4%);
-  --shadow-md: 0 16px 40px rgb(16 24 40 / 14%);
+  --palette-green-400: #1de9a0;
+  --palette-white: #ffffff;
+  --palette-neutral-50: #f5f5f5;
+  --palette-neutral-400: #999999;
+  --palette-neutral-600: #666666;
+  --palette-neutral-800: #333333;
+  --palette-dark-950: #050706;
+  --palette-mint-50: #f2f8f5;
+  --palette-mint-300: #b3c0ba;
+  --palette-mint-600: #718079;
 
   /**
    * 动效令牌

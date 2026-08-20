@@ -1,105 +1,202 @@
 <template>
-  <aside class="layout-side" :class="{ 'layout-side--collapsed': collapsed }">
-    <div class="layout-side__brand">
-      <span class="layout-side__brand-mark" aria-hidden="true">
-        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="1.5" y="1.5" width="29" height="29" rx="7.5" stroke="currentColor" stroke-width="3" />
-          <path
-            d="M10 21.5V10.5L22 21.5V10.5"
-            stroke="currentColor"
-            stroke-width="3"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-      </span>
-      <span class="layout-side__brand-name">LY Fullstack</span>
-    </div>
+  <aside class="layout-side" :class="{ 'layout-side--collapsed': props.collapsed }">
+    <header class="layout-side__header">
+      <div class="layout-side__logo-wrap">
+        <img class="layout-side__logo" src="@/assets/images/logo.svg" alt="" />
+      </div>
+      <div class="layout-side__brand">
+        <strong class="layout-side__brand-name">LY Fullstack</strong>
+      </div>
+      <span class="layout-side__status" aria-hidden="true"></span>
+    </header>
+    <div class="layout-side__body">
+      <el-menu
+        class="layout-side__menu"
+        :collapse="props.collapsed"
+        :collapse-transition="false"
+        :default-active="ADMIN_NAV_HOME.key"
+        :default-openeds="ADMIN_NAV_DEFAULT_OPENED_KEYS"
+      >
+        <el-menu-item :index="ADMIN_NAV_HOME.key" @click="handleHomeOpen">
+          <component :is="ADMIN_NAV_HOME.icon" class="layout-side__menu-icon" :size="18" :stroke-width="1.8" />
+          <span>{{ ADMIN_NAV_HOME.title }}</span>
+        </el-menu-item>
 
-    <el-scrollbar class="layout-side__scroll">
-      <layout-menu :collapsed="collapsed"></layout-menu>
-    </el-scrollbar>
+        <el-sub-menu
+          v-for="group in ADMIN_NAV_ITEMS"
+          :key="group.key"
+          :index="group.key"
+          :expand-close-icon="ChevronDown"
+          :expand-open-icon="ChevronUp"
+        >
+          <template #title>
+            <component :is="group.icon" class="layout-side__menu-icon" :size="18" :stroke-width="1.8" />
+            <span>{{ group.title }}</span>
+          </template>
+
+          <el-menu-item v-for="item in group.children" :key="item.key" :index="item.key">
+            <component :is="item.icon" class="layout-side__menu-icon" :size="17" :stroke-width="1.8" />
+            <span>{{ item.title }}</span>
+          </el-menu-item>
+        </el-sub-menu>
+      </el-menu>
+    </div>
   </aside>
 </template>
 
 <script setup lang="ts">
-import LayoutMenu from '@/components/layouts/layout-menu/index.vue';
+/**
+ * 导入 Vue Router 模块
+ */
+import { useRouter } from 'vue-router';
 
 /**
- * 后台侧栏
- *
- * 桌面端常驻左侧，接收折叠状态在 230px 与 64px 之间过渡；窄屏下由布局层隐藏本组件并改用抽屉。
+ * 导入组件
  */
-defineProps<{
-  /** 是否折叠为图标列 */
-  collapsed: boolean;
-}>();
+import { ChevronDown, ChevronUp } from '@lucide/vue';
+import { ElMenu, ElMenuItem, ElSubMenu } from 'element-plus';
+import 'element-plus/es/components/menu/style/index';
+import 'element-plus/es/components/menu-item/style/index';
+import 'element-plus/es/components/sub-menu/style/index';
+
+/**
+ * 导入常量
+ */
+import { ADMIN_NAV_DEFAULT_OPENED_KEYS, ADMIN_NAV_HOME, ADMIN_NAV_ITEMS } from '@/constants';
+
+/**
+ * 定义 props 的类型声明
+ */
+interface Props {
+  /**
+   * 是否折叠侧栏
+   */
+  collapsed?: boolean;
+}
+
+/**
+ * 定义 props
+ */
+const props = withDefaults(defineProps<Props>(), {
+  collapsed: false,
+});
+
+/**
+ * 引入路由
+ */
+const router = useRouter();
+
+/**
+ * 打开工作台首页
+ */
+const handleHomeOpen = (): void => {
+  void router.push(ADMIN_NAV_HOME.path);
+};
 </script>
 
 <style lang="scss" scoped>
 .layout-side {
+  position: relative;
+  width: 240px;
+  height: 100%;
+  flex: 0 0 240px;
+  border-right: 1px solid var(--border-color);
+  background: var(--fill-color);
   display: flex;
-  width: var(--layout-sidebar-width);
-  flex: 0 0 var(--layout-sidebar-width);
   flex-direction: column;
-  border-right: 1px solid var(--card-border-color);
-  background: var(--color-sidebar);
   transition:
     width var(--duration-normal) var(--ease-standard),
     flex-basis var(--duration-normal) var(--ease-standard);
-  user-select: none;
 
   &--collapsed {
-    width: var(--layout-sidebar-collapsed-width);
-    flex-basis: var(--layout-sidebar-collapsed-width);
+    width: 72px;
+    flex-basis: 72px;
   }
-}
 
-.layout-side__brand {
-  display: flex;
-  height: var(--layout-header-height);
-  flex: 0 0 var(--layout-header-height);
-  align-items: center;
-  gap: 10px;
-  padding: 0 var(--spacing-xl);
-  overflow: hidden;
-}
-
-.layout-side--collapsed .layout-side__brand {
-  padding: 0;
-  justify-content: center;
-}
-
-.layout-side__brand-mark {
-  display: flex;
-  width: 32px;
-  height: 32px;
-  flex: 0 0 32px;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-primary);
-
-  svg {
-    width: 28px;
-    height: 28px;
+  &--collapsed &__header {
+    justify-content: center;
+    padding: 0;
   }
-}
 
-.layout-side__brand-name {
-  overflow: hidden;
-  color: var(--gray-900);
-  font-size: 17px;
-  font-weight: 600;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+  &--collapsed &__brand,
+  &--collapsed &__status {
+    display: none;
+  }
 
-.layout-side--collapsed .layout-side__brand-name {
-  display: none;
-}
+  &--collapsed &__menu-icon {
+    margin-right: 0;
+  }
 
-.layout-side__scroll {
-  min-height: 0;
-  flex: 1;
+  &__header {
+    position: relative;
+    display: flex;
+    width: 100%;
+    height: 60px;
+    flex: 0 0 60px;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  &__logo-wrap {
+    display: grid;
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    place-items: center;
+  }
+
+  &__logo {
+    display: block;
+    width: 30px;
+    height: 30px;
+  }
+
+  &__brand {
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__brand-name {
+    display: block;
+    overflow: hidden;
+    color: var(--color-text-primary);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 18px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__status {
+    width: 6px;
+    height: 6px;
+    flex: 0 0 6px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary) 10%, transparent);
+  }
+
+  &__body {
+    min-height: 0;
+    flex: 1;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 10px 0;
+  }
+
+  &__menu {
+    width: 100%;
+    border-right: 0;
+    background: transparent;
+  }
+
+  &__menu-icon {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    margin-right: 10px;
+  }
 }
 </style>

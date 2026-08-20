@@ -1,0 +1,51 @@
+/**
+ * 默认深色主题
+ *
+ * `:root` 负责未声明主题时的兜底，后台首次加载和显式 dark 主题均使用同一组语义色。
+ */
+:root,
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --color-primary: var(--palette-green-400);
+  --color-bg-page: var(--palette-dark-950);
+  --fill-color: linear-gradient(140deg, rgba(255, 255, 255, 0.018), transparent 34%), rgba(9, 14, 12, 0.88);
+  --border-color: rgba(198, 255, 229, 0.09);
+  --color-text-primary: var(--palette-mint-50);
+  --color-text-secondary: var(--palette-mint-300);
+  --color-text-tertiary: var(--palette-mint-600);
+  --body-bg-color: var(--color-bg-page);
+  --color-text-base: var(--color-text-primary);
+}
+
+/**
+ * 浅色主题
+ */
+html[data-theme='light'] {
+  color-scheme: light;
+  --color-primary: var(--palette-green-400);
+  --color-bg-page: var(--palette-neutral-50);
+  --fill-color: var(--palette-white);
+  --border-color: rgba(5, 7, 6, 0.09);
+  --color-text-primary: var(--palette-neutral-800);
+  --color-text-secondary: var(--palette-neutral-600);
+  --color-text-tertiary: var(--palette-neutral-400);
+  --body-bg-color: var(--color-bg-page);
+  --color-text-base: var(--color-text-primary);
+}
+
+/**
+ * 主题切换由按钮中心接管新页面快照的揭幕动画，关闭浏览器默认的交叉淡化。
+ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 2;
+}
