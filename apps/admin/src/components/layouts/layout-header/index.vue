@@ -34,7 +34,7 @@
         <span class="layout-header__notification-dot" aria-hidden="true"></span>
       </button>
 
-      <button class="layout-header__action" type="button" aria-label="切换主题" @click="handleThemeToggle">
+      <button class="layout-header__action" type="button" aria-label="切换主题" @click="toggleTheme">
         <sun v-if="isDarkTheme" :size="18" :stroke-width="1.8" />
         <moon v-else :size="18" :stroke-width="1.8" />
       </button>
@@ -89,6 +89,11 @@ import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue';
 import { useRoute } from 'vue-router';
 
 /**
+ * 导入主题 Hook。
+ */
+import { useTheme } from '@/hooks/use-theme';
+
+/**
  * 导入组件
  */
 import {
@@ -136,6 +141,11 @@ interface Emits {
 const emits = defineEmits<Emits>();
 
 /**
+ * 引入主题能力
+ */
+const { isDarkTheme, toggleTheme } = useTheme();
+
+/**
  * 引入路由
  */
 const route = useRoute();
@@ -145,7 +155,6 @@ const route = useRoute();
  */
 const profileRef = useTemplateRef<HTMLElement>('profileRef');
 const isFullscreen = ref(false);
-const isDarkTheme = ref(true);
 const isProfileOpen = ref(false);
 
 /**
@@ -198,45 +207,6 @@ const handleFullscreenChange = (): void => {
 };
 
 /**
- * 切换黑白主题，并从主题按钮中心播放圆形扩散动画
- *
- * @param event 主题按钮点击事件
- */
-const handleThemeToggle = async (event: MouseEvent): Promise<void> => {
-  const switchTheme = (): void => {
-    isDarkTheme.value = !isDarkTheme.value;
-    document.documentElement.dataset.theme = isDarkTheme.value ? 'dark' : 'light';
-  };
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  if (typeof document.startViewTransition !== 'function' || prefersReducedMotion) {
-    switchTheme();
-    return;
-  }
-
-  const buttonRect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-  const originX = buttonRect.left + buttonRect.width / 2;
-  const originY = buttonRect.top + buttonRect.height / 2;
-  const radius = Math.hypot(
-    Math.max(originX, window.innerWidth - originX),
-    Math.max(originY, window.innerHeight - originY),
-  );
-  const transition = document.startViewTransition(switchTheme);
-
-  await transition.ready;
-  document.documentElement.animate(
-    {
-      clipPath: [`circle(0 at ${originX}px ${originY}px)`, `circle(${radius}px at ${originX}px ${originY}px)`],
-    },
-    {
-      duration: 520,
-      easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
-      pseudoElement: '::view-transition-new(root)',
-    },
-  );
-};
-
-/**
  * 切换头像菜单
  */
 const handleProfileToggle = (): void => {
@@ -279,7 +249,6 @@ const handleDocumentKeydown = (event: KeyboardEvent): void => {
  */
 onMounted(() => {
   isFullscreen.value = Boolean(document.fullscreenElement);
-  isDarkTheme.value = document.documentElement.dataset.theme !== 'light';
   document.addEventListener('fullscreenchange', handleFullscreenChange);
   document.addEventListener('pointerdown', handleDocumentPointerDown);
   document.addEventListener('keydown', handleDocumentKeydown);

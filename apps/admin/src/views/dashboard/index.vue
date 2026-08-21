@@ -32,11 +32,6 @@
 
 <script setup lang="ts">
 /**
- * 导入组件
- */
-import FluidGlassCard from '@/components/base/fluid-glass-card/index.vue';
-
-/**
  * 首页指标卡片展示数据
  *
  * 当前沿用首页视觉草稿中的指标文案和数值。
@@ -44,7 +39,7 @@ import FluidGlassCard from '@/components/base/fluid-glass-card/index.vue';
 const METRIC_CARDS = [
   {
     key: 'metric-01',
-    eyebrow: 'Today / 今日新增',
+    eyebrow: '今日新增',
     title: '新增用户',
     value: '128',
     metaLabel: '较昨日',
@@ -57,7 +52,7 @@ const METRIC_CARDS = [
   },
   {
     key: 'metric-02',
-    eyebrow: 'Access / 活跃会话',
+    eyebrow: '活跃会话',
     title: '在线用户',
     value: '286',
     metaLabel: '当前峰值',
@@ -70,7 +65,7 @@ const METRIC_CARDS = [
   },
   {
     key: 'metric-03',
-    eyebrow: 'Request / API 调用',
+    eyebrow: '接口调用',
     title: '今日请求',
     value: '56k',
     metaLabel: '成功率',
@@ -83,7 +78,7 @@ const METRIC_CARDS = [
   },
   {
     key: 'metric-04',
-    eyebrow: 'Alert / 待处理',
+    eyebrow: '待处理',
     title: '系统告警',
     value: '03',
     metaLabel: '较昨日',

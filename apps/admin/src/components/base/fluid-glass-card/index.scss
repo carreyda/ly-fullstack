@@ -8,31 +8,21 @@
   height: 150px;
   overflow: hidden;
   isolation: isolate;
-  border: 1px solid rgba(153, 255, 237, 0.18);
+  border: 1px solid var(--fluid-card-border);
   border-radius: 16px;
-  color: #eefcf8;
-  background-color: rgba(255, 255, 255, var(--surface-opacity));
-  box-shadow:
-    0 16px 34px rgba(0, 0, 0, 0.28),
-    0 2px 8px rgba(0, 0, 0, 0.16),
-    inset 0 1px 0 rgba(222, 255, 248, 0.1),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.24);
+  background-color: var(--fluid-card-background);
+  box-shadow: var(--fluid-card-shadow);
   cursor: default;
   transform: translateZ(0);
   transition:
     transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    box-shadow 280ms ease,
-    border-color 280ms ease;
+    border-color 280ms ease,
+    box-shadow 280ms ease;
   backdrop-filter: blur(16px) saturate(118%);
 
   &:hover {
-    border-color: rgba(111, 255, 228, 0.38);
-    box-shadow:
-      0 23px 42px rgba(0, 0, 0, 0.36),
-      0 3px 9px rgba(0, 0, 0, 0.18),
-      inset 0 1px 0 rgba(226, 255, 249, 0.15),
-      0 0 0 1px rgba(91, 246, 218, 0.08),
-      0 0 32px rgba(29, 233, 160, 0.1);
+    border-color: var(--fluid-card-border-hover);
+    box-shadow: var(--fluid-card-shadow-hover);
     transform: translateY(-3px);
   }
 
@@ -41,28 +31,7 @@
     z-index: 1;
     inset: 0;
     border-radius: inherit;
-    background:
-      linear-gradient(
-        90deg,
-        rgba(2, 10, 8, 0.425),
-        rgba(3, 13, 11, 0.306) 28%,
-        rgba(3, 14, 12, 0.136) 50%,
-        transparent 76%
-      ),
-      linear-gradient(180deg, rgba(208, 255, 246, 0.032), transparent 34%, rgba(0, 0, 0, 0.092));
-    content: '';
-    pointer-events: none;
-  }
-
-  &::after {
-    position: absolute;
-    z-index: 4;
-    inset: 1px;
-    border-radius: inherit;
-    box-shadow:
-      inset 0 1px 1px rgba(255, 255, 255, 0.12),
-      inset 0 -1px 2px rgba(0, 0, 0, 0.26),
-      inset -22px 0 34px rgba(29, 233, 160, 0.025);
+    background: var(--fluid-card-overlay-horizontal), var(--fluid-card-overlay-vertical);
     content: '';
     pointer-events: none;
   }
@@ -80,8 +49,8 @@
   &__canvas {
     z-index: 0;
     display: block;
-    opacity: 0.96;
-    filter: saturate(1.1) contrast(1.04) blur(1.8px);
+    opacity: var(--fluid-card-canvas-opacity);
+    filter: var(--fluid-card-canvas-filter);
     transform: scale(1.035);
   }
 
@@ -116,7 +85,7 @@
     z-index: 2;
     inset: 0;
     border-radius: inherit;
-    opacity: 0.075;
+    opacity: var(--fluid-card-noise-opacity);
     background-image:
       radial-gradient(circle at 20% 30%, rgba(220, 255, 248, 0.7) 0 0.42px, transparent 0.78px),
       radial-gradient(circle at 70% 65%, rgba(0, 40, 34, 0.78) 0 0.4px, transparent 0.75px);
@@ -135,16 +104,16 @@
     flex-direction: column;
     align-items: flex-start;
     padding: 16px 18px;
-    color: #f3fffb;
-    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.34);
+    color: var(--fluid-card-value-color);
+    text-shadow: var(--fluid-card-text-shadow);
   }
 
   &__eyebrow {
     max-width: 78%;
     overflow: hidden;
     margin-bottom: 3px;
-    color: #82a69d;
-    font-size: 9px;
+    color: var(--fluid-card-eyebrow-color);
+    font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.065em;
     line-height: 1.25;
@@ -154,7 +123,7 @@
 
   &__title {
     margin-bottom: 5px;
-    color: #d8eee8;
+    color: var(--fluid-card-title-color);
     font-size: 14px;
     font-weight: 600;
     line-height: 1.25;
@@ -166,7 +135,7 @@
   }
 
   &__value {
-    color: #f3fffb;
+    color: var(--fluid-card-value-color);
     font-size: 36px;
     font-weight: 500;
     letter-spacing: -0.035em;
@@ -175,7 +144,7 @@
 
   &__unit {
     margin-left: 5px;
-    color: #8fa9a2;
+    color: var(--fluid-card-unit-color);
     font-size: 10px;
   }
 
@@ -185,18 +154,18 @@
     align-items: center;
     justify-content: space-between;
     margin-top: 6px;
-    color: #819b94;
-    font-size: 10px;
+    color: var(--fluid-card-change-color);
+    font-size: 14px;
     line-height: 1.35;
   }
 
   &__change-value--positive {
-    color: #35e9bb;
+    color: var(--fluid-card-positive-color);
     font-weight: 500;
   }
 
   &__change-value--negative {
-    color: #ff7280;
+    color: var(--fluid-card-negative-color);
     font-weight: 500;
   }
 }

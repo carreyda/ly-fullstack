@@ -8,6 +8,8 @@ import type { Pinia } from 'pinia';
  */
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
 
+export * from './modules/theme';
+
 /**
  * 引入pinia
  */

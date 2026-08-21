@@ -2,10 +2,10 @@
   <article
     ref="cardRef"
     class="fluid-glass-card"
-    :class="{ 'fluid-glass-card--fallback': isFallback }"
+    :class="[`fluid-glass-card--${currentThemeName}`, { 'fluid-glass-card--fallback': isFallback }]"
     :style="cardStyle"
   >
-    <canvas ref="canvasRef" class="fluid-glass-card__canvas" aria-hidden="true"></canvas>
+    <canvas :key="currentThemeName" ref="canvasRef" class="fluid-glass-card__canvas" aria-hidden="true"></canvas>
     <div class="fluid-glass-card__fallback" aria-hidden="true"></div>
     <div class="fluid-glass-card__noise" aria-hidden="true"></div>
 
@@ -28,13 +28,28 @@
 /**
  * 导入 Vue 模块
  */
-import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue';
 import type { CSSProperties } from 'vue';
 
 /**
- * 导入 Fluid Glass 渲染器
+ * 导入全局主题事件总线。
+ */
+import { emitter } from '@/emitter';
+
+/**
+ * 导入主题 Hook。
+ */
+import { useTheme } from '@/hooks/use-theme';
+
+/**
+ * 导入 Fluid Glass 渲染器。
  */
 import { createFluidGlassRenderer } from './renderer';
+
+/**
+ * 导入类型声明
+ */
+import type { ThemeName } from '@/types';
 
 /**
  * 定义 props 的类型声明
@@ -74,12 +89,19 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 /**
+ * 引入主题能力
+ */
+const { themeName } = useTheme();
+
+/**
  * 定义响应式数据
  */
 const cardRef = useTemplateRef<HTMLElement>('cardRef');
 const canvasRef = useTemplateRef<HTMLCanvasElement>('canvasRef');
 const isFallback = ref(false);
+const currentThemeName = ref<ThemeName>(themeName.value);
 let destroyRenderer: (() => void) | undefined;
+let rendererGeneration = 0;
 
 /**
  * 计算属性
@@ -97,9 +119,25 @@ const cardStyle = computed<CSSProperties>(() => ({
 }));
 
 /**
- * 生命周期函数
+ * 按主题重建卡片渲染器
+ *
+ * WebGL 程序在创建时固定片元着色器，因此主题变化时需要销毁旧上下文，并在 Vue 替换画布节点后
+ * 创建新程序。递增序号用于阻止用户快速切换主题时较早的异步任务覆盖最终主题。
+ *
+ * @param nextThemeName 需要渲染的主题
  */
-onMounted(() => {
+const setupRenderer = async (nextThemeName: ThemeName): Promise<void> => {
+  const currentGeneration = ++rendererGeneration;
+  destroyRenderer?.();
+  destroyRenderer = undefined;
+  isFallback.value = false;
+  currentThemeName.value = nextThemeName;
+  await nextTick();
+
+  if (currentGeneration !== rendererGeneration) {
+    return;
+  }
+
   if (!cardRef.value || !canvasRef.value) {
     isFallback.value = true;
     return;
@@ -118,13 +156,33 @@ onMounted(() => {
       surface: props.surface,
       seed: props.seed,
     },
+    nextThemeName,
     () => {
       isFallback.value = true;
     },
   );
+};
+
+/**
+ * 收到全局主题通知后切换卡片材质
+ *
+ * @param nextThemeName 切换后的主题名称
+ */
+const handleThemeChange = (nextThemeName: ThemeName): void => {
+  void setupRenderer(nextThemeName);
+};
+
+/**
+ * 生命周期函数
+ */
+onMounted(() => {
+  emitter.on('EVENT_THEME_CHANGE', handleThemeChange);
+  void setupRenderer(themeName.value);
 });
 
 onBeforeUnmount(() => {
+  emitter.off('EVENT_THEME_CHANGE', handleThemeChange);
+  rendererGeneration += 1;
   destroyRenderer?.();
 });
 </script>
