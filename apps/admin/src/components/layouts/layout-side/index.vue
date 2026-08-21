@@ -16,10 +16,10 @@
           :collapse="props.collapsed"
           :collapse-transition="false"
           :default-active="route.path"
-          :default-openeds="ADMIN_NAV_DEFAULT_OPENED_KEYS"
+          :default-openeds="defaultOpenedKeys"
           @select="handleMenuSelect"
         >
-          <layout-menu-item v-for="item in ADMIN_NAV_ITEMS" :key="item.key" :item="item" root />
+          <layout-menu-item v-for="item in navigationItems" :key="item.key" :item="item" root />
         </el-menu>
       </el-scrollbar>
     </div>
@@ -38,9 +38,10 @@ import { useRoute, useRouter } from 'vue-router';
 import LayoutMenuItem from './menu-item.vue';
 
 /**
- * 静态导航树同时提供菜单结构、默认展开项和可跳转地址。
+ * 数据库菜单树决定当前管理员可以看到的侧栏结构，本地注册表只解析一级 Lucide 图标。
  */
-import { ADMIN_NAV_DEFAULT_OPENED_KEYS, ADMIN_NAV_ITEMS } from '@/constants';
+import { createAdminNavDefaultOpenedKeys, createAdminNavItems } from '@/constants';
+import { useAuthStore } from '@/stores';
 import type { AdminNavItem } from '@/constants/modules/nav';
 
 /**
@@ -65,6 +66,18 @@ const props = withDefaults(defineProps<Props>(), {
  */
 const router = useRouter();
 const route = useRoute();
+const authStore = useAuthStore();
+const { menus } = storeToRefs(authStore);
+
+/**
+ * 当前登录会话转换后的侧栏导航树
+ */
+const navigationItems = computed(() => createAdminNavItems(menus.value));
+
+/**
+ * 当前菜单树中默认展开的一级分组
+ */
+const defaultOpenedKeys = computed(() => createAdminNavDefaultOpenedKeys(navigationItems.value));
 
 /**
  * 在导航树中查找节点对应的路由地址
@@ -97,7 +110,7 @@ const findNavPath = (items: AdminNavItem[], key: string): string | undefined => 
  * @param key 菜单唯一标识
  */
 const handleMenuSelect = (key: string): void => {
-  const path = findNavPath(ADMIN_NAV_ITEMS, key);
+  const path = findNavPath(navigationItems.value, key);
 
   if (path && path !== route.path) {
     void router.push(path);

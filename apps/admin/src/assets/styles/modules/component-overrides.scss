@@ -81,18 +81,7 @@
 
   .el-input__wrapper {
     min-height: 46px;
-    border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    background: color-mix(in srgb, var(--fill-color) 82%, transparent);
-    box-shadow: none;
-    transition:
-      border-color var(--duration-normal) var(--ease-standard),
-      box-shadow var(--duration-normal) var(--ease-standard);
-
-    &.is-focus {
-      border-color: color-mix(in srgb, var(--color-primary) 72%, transparent);
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 10%, transparent);
-    }
   }
 
   .el-input__prefix {
@@ -103,5 +92,93 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
+  }
+}
+
+/**
+ * 菜单树编辑器的 Element Plus 结构覆盖
+ *
+ * 树节点使用后台现有主题色建立选中态，拖拽占位和节点高度只在菜单管理组件内生效。
+ */
+.menu-tree-panel {
+  .el-tree {
+    --el-tree-node-hover-bg-color: var(--menu-hover-background);
+  }
+
+  .el-tree-node__content {
+    height: 42px;
+    margin: 2px 0;
+    border-radius: var(--radius-md);
+    background: transparent;
+    transition:
+      background var(--duration-normal) var(--ease-standard),
+      color var(--duration-normal) var(--ease-standard);
+
+    &:hover {
+      background: var(--el-tree-node-hover-bg-color);
+      color: var(--menu-hover-text-color);
+    }
+  }
+
+  .el-tree.el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content {
+    background: var(--el-tree-node-hover-bg-color);
+    color: var(--menu-hover-text-color);
+  }
+
+  .el-tree-node__expand-icon {
+    color: var(--color-text-tertiary);
+  }
+
+  .el-tree-node__content > .el-tree-node__expand-icon.is-leaf {
+    color: transparent;
+  }
+}
+
+/**
+ * 菜单属性面板表单宽度覆盖
+ */
+.menu-editor-panel {
+  .el-form-item {
+    margin-bottom: 20px;
+  }
+
+  .el-select,
+  .el-input {
+    width: 100%;
+  }
+
+  .el-form-item__label {
+    color: var(--color-text-secondary);
+    font-size: 13px;
+  }
+}
+
+/**
+ * 通用数据筛选面板的 Element Plus 结构覆盖
+ *
+ * 筛选字段保持统一宽度和紧凑间距，窄屏时再切换为整行输入，避免每个 CRUD 页面重复维护。
+ */
+.data-filter-panel {
+  .el-form-item {
+    width: 280px;
+    margin-bottom: 0;
+  }
+
+  .el-input,
+  .el-select,
+  .el-date-editor {
+    width: 100%;
+  }
+
+  .el-button + .el-button {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .data-filter-panel {
+    .el-form-item {
+      width: 100%;
+    }
   }
 }

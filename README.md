@@ -113,5 +113,6 @@ ly-fullstack/
 
 - 开发规范：`.rules/`（索引见 `AGENTS.md`）
 - 环境配置：`docs/environment.md`
+- Admin 多主题与 Element Plus 定制：[`docs/admin-theme.md`](docs/admin-theme.md)
 
 LY Fullstack 项目组

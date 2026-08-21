@@ -143,6 +143,7 @@ onUnmounted(() => {
 - [ ] 组件业务逻辑不超过 20 行
 - [ ] Props/Emits 定义完整
 - [ ] 没有遗留 `console.log` 调试代码
+- [ ] Admin 没有手动导入 Element Plus 运行时组件、API 或预编译样式，类型导入均使用 `import type`
 
 ---
 

@@ -89,6 +89,32 @@ export default tseslint.config(
         ...adminVueAutoImportGlobals,
       },
     },
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'element-plus',
+              allowTypeImports: true,
+              message: 'Element Plus 运行时 API 和组件必须使用自动导入；仅允许 import type。',
+            },
+            {
+              name: 'element-plus/es',
+              allowTypeImports: true,
+              message: 'Element Plus 运行时 API 和组件必须使用自动导入；仅允许 import type。',
+            },
+          ],
+          patterns: [
+            {
+              group: ['element-plus/es/components/**', 'element-plus/theme-chalk/**'],
+              allowTypeImports: true,
+              message: '禁止绕过 ElementPlusResolver 手动加载组件或样式入口。',
+            },
+          ],
+        },
+      ],
+    },
   },
   {
     files: [

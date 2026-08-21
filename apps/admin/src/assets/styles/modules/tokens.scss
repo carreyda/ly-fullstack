@@ -42,19 +42,52 @@
    *
    * 色板变量只记录固定色值，不绑定背景、正文或提示文案等主题语义。
    */
+  --palette-green-25: #f8fcfa;
+  --palette-green-50: #edf8f3;
+  --palette-green-75: #e8f5ef;
+  --palette-green-300: #59efba;
+  --palette-green-350: #35e9bb;
   --palette-green-400: #1de9a0;
+  --palette-green-600: #15956f;
+  --palette-green-650: #10805e;
   --palette-green-700: #087f5b;
+  --palette-green-900: #084332;
+  --palette-green-950: #172b25;
+  --palette-blue-400: #5b8cff;
+  --palette-blue-600: #3977db;
+  --palette-red-400: #ff7280;
+  --palette-red-600: #d93f55;
+  --palette-aqua-300: #6fffe4;
+  --palette-black: #000000;
+  --palette-graphite-400: #78857f;
+  --palette-graphite-500: #65746f;
+  --palette-graphite-700: #3f4d48;
+  --palette-graphite-925: #111a16;
   --palette-graphite-950: #171a18;
   --palette-white: #ffffff;
-  --palette-neutral-75: #f3f5f4;
   --palette-neutral-50: #f5f5f5;
+  --palette-neutral-75: #f3f5f4;
   --palette-neutral-400: #999999;
   --palette-neutral-600: #666666;
   --palette-neutral-800: #333333;
+  --palette-dark-850: #0c1310;
+  --palette-dark-875: #0c100f;
+  --palette-dark-900: #090e0c;
+  --palette-dark-925: #08100d;
   --palette-dark-950: #050706;
+  --palette-dark-960: #030e0c;
+  --palette-dark-975: #030d0b;
+  --palette-dark-990: #020a08;
+  --palette-mint-25: #f3fffb;
   --palette-mint-50: #f2f8f5;
   --palette-mint-75: #eef7f3;
+  --palette-mint-100: #d0fff6;
+  --palette-mint-150: #d8eee8;
+  --palette-mint-200: #c6ffe5;
   --palette-mint-300: #b3c0ba;
+  --palette-mint-350: #8fa9a2;
+  --palette-mint-400: #82a69d;
+  --palette-mint-500: #819b94;
   --palette-mint-600: #718079;
 
   /**

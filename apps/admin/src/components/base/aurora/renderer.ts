@@ -327,8 +327,13 @@ export const createAuroraRenderer = (
    * 停止 Aurora 动画并释放观察器、着色器、几何体和 WebGL 上下文
    */
   const destroy = (): void => {
+    if (destroyed) {
+      return;
+    }
+
     destroyed = true;
     window.cancelAnimationFrame(animationFrame);
+    animationFrame = 0;
     resizeObserver.disconnect();
     intersectionObserver.disconnect();
     reducedMotionQuery.removeEventListener('change', syncMotionPreference);

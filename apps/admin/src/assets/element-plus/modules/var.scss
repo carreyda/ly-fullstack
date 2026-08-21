@@ -7,7 +7,7 @@
 @forward 'element-plus/theme-chalk/src/common/var.scss' with (
   $colors: (
     'primary': (
-      'base': #1de9a0,
+      'base': #087f5b,
     ),
     'success': (
       'base': #00a870,
@@ -21,6 +21,44 @@
     'error': (
       'base': #fa896b,
     ),
+  ),
+  $text-color: (
+    'primary': var(--color-text-primary),
+    'regular': var(--color-text-secondary),
+    'secondary': var(--color-text-tertiary),
+    'placeholder': var(--color-text-tertiary),
+    'disabled': var(--control-disabled-text-color),
+  ),
+  $border-color: (
+    '': var(--border-color),
+    'light': var(--border-color),
+    'lighter': var(--border-color),
+    'extra-light': var(--border-color),
+    'dark': var(--border-color),
+    'darker': var(--border-color),
+  ),
+  $fill-color: (
+    '': var(--control-active-fill-color),
+    'light': var(--control-hover-fill-color),
+    'lighter': var(--control-hover-fill-color),
+    'extra-light': var(--control-fill-color),
+    'dark': var(--control-active-fill-color),
+    'darker': var(--control-active-fill-color),
+    'blank': var(--control-fill-color),
+  ),
+  $bg-color: (
+    '': var(--control-fill-color),
+    'page': var(--color-bg-page),
+    'overlay': var(--overlay-fill-color),
+  ),
+  $disabled: (
+    'bg-color': var(--control-disabled-fill-color),
+    'text-color': var(--control-disabled-text-color),
+    'border-color': var(--control-disabled-border-color),
+  ),
+  $mask-color: (
+    '': var(--mask-fill-color),
+    'extra-light': var(--mask-extra-light-fill-color),
   ),
   $menu: (
     'active-color': var(--menu-active-text-color),
@@ -40,6 +78,108 @@
   ),
   $input: (
     'text-color': var(--color-text-primary),
+    'bg-color': var(--input-fill-color),
+    'border-color': var(--border-color),
+    'hover-border-color': var(--color-primary),
+    'focus-border-color': var(--color-primary),
+    'icon-color': var(--color-text-tertiary),
     'placeholder-color': var(--color-text-tertiary),
+    'clear-hover-color': var(--color-text-secondary),
+  ),
+  $input-disabled: (
+    'fill': var(--control-disabled-fill-color),
+    'border': var(--control-disabled-border-color),
+    'text-color': var(--control-disabled-text-color),
+    'placeholder-color': var(--color-text-tertiary),
+  ),
+  $radio: (
+    'text-color': var(--color-text-secondary),
+    'input-bg-color': var(--control-fill-color),
+    'input-border-color': var(--border-color),
+    'input-border-color-hover': var(--color-primary),
+  ),
+  $radio-button: (
+    'checked-bg-color': var(--color-primary),
+    'checked-text-color': var(--palette-white),
+    'checked-border-color': var(--color-primary),
+    'disabled-checked-fill': var(--control-disabled-fill-color),
+  ),
+  $radio-disabled: (
+    'input-border-color': var(--control-disabled-border-color),
+    'input-fill': var(--control-disabled-fill-color),
+    'icon-color': var(--control-disabled-fill-color),
+    'checked-input-border-color': var(--control-disabled-border-color),
+    'checked-input-fill': var(--control-disabled-fill-color),
+    'checked-icon-color': var(--control-disabled-text-color),
+  ),
+  $radio-checked: (
+    'text-color': var(--color-primary),
+    'input-border-color': var(--color-primary),
+    'icon-color': var(--color-primary),
+  ),
+  $select: (
+    'border-color-hover': var(--color-primary),
+    'disabled-color': var(--control-disabled-text-color),
+    'disabled-border': var(--control-disabled-border-color),
+    'close-hover-color': var(--control-accent-color),
+    'input-color': var(--color-text-tertiary),
+    'multiple-input-color': var(--color-text-primary),
+    'input-focus-border-color': var(--color-primary),
+  ),
+  $select-option: (
+    'text-color': var(--color-text-secondary),
+    'disabled-color': var(--control-disabled-text-color),
+    'hover-background': var(--control-hover-fill-color),
+    'selected-text-color': var(--control-accent-color),
+  ),
+  $select-group: (
+    'text-color': var(--color-text-tertiary),
+  ),
+  $select-dropdown: (
+    'bg-color': var(--overlay-fill-color),
+    'empty-color': var(--color-text-tertiary),
+    'border': 1px solid var(--border-color),
+  ),
+  $popover: (
+    'bg-color': var(--overlay-fill-color),
+    'border-color': var(--border-color),
+    'title-text-color': var(--color-text-primary),
+  ),
+  $popper: (
+    'bg-color-light': var(--overlay-fill-color),
+    'bg-color-dark': var(--color-text-primary),
+  ),
+  $button: (
+    'border-color': var(--border-color),
+    'bg-color': var(--control-fill-color),
+    'text-color': var(--color-text-primary),
+    'disabled-text-color': var(--control-disabled-text-color),
+    'disabled-bg-color': var(--control-disabled-fill-color),
+    'disabled-border-color': var(--control-disabled-border-color),
+    'hover-text-color': var(--control-accent-color),
+    'hover-bg-color': var(--control-hover-fill-color),
+    'hover-border-color': var(--color-primary),
+    'active-text-color': var(--control-accent-color),
+    'active-border-color': var(--color-primary),
+    'active-bg-color': var(--control-active-fill-color),
+    'outline-color': var(--control-focus-ring-color),
+    'hover-link-text-color': var(--control-accent-color),
+    'active-color': var(--color-text-primary),
+  ),
+  $dropdown: (
+    'menuItem-hover-fill': var(--control-hover-fill-color),
+    'menuItem-hover-color': var(--control-accent-color),
+  ),
+  $empty: (
+    'fill-color-0': var(--empty-fill-color-0),
+    'fill-color-1': var(--empty-fill-color-1),
+    'fill-color-2': var(--empty-fill-color-2),
+    'fill-color-3': var(--empty-fill-color-3),
+    'fill-color-4': var(--empty-fill-color-4),
+    'fill-color-5': var(--empty-fill-color-5),
+    'fill-color-6': var(--empty-fill-color-6),
+    'fill-color-7': var(--empty-fill-color-7),
+    'fill-color-8': var(--empty-fill-color-8),
+    'fill-color-9': var(--empty-fill-color-9),
   )
 );

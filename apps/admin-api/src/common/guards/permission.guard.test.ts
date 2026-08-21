@@ -10,14 +10,14 @@ import type { PermissionCode } from '@repo/shared/types';
 import type { AdminRequest } from '../../types';
 import { PermissionGuard } from './permission.guard';
 
-const createContext = (permissions: PermissionCode[]): ExecutionContext => {
+const createContext = (permissions: PermissionCode[], roleCode?: string): ExecutionContext => {
   const request: AdminRequest = {
     headers: {},
     admin: {
       id: 1,
       username: 'admin',
       displayName: '管理员',
-      roles: [],
+      roles: roleCode ? [{ id: 1, name: '测试角色', code: roleCode }] : [],
       menus: [],
       permissions,
     },
@@ -54,5 +54,11 @@ describe('PermissionGuard', () => {
     const guard = new PermissionGuard(createReflector([]));
 
     expect(guard.canActivate(createContext([]))).toBe(true);
+  });
+
+  it('超级管理员不依赖菜单关联和权限节点直接通过授权', () => {
+    const guard = new PermissionGuard(createReflector(['system:menu:delete']));
+
+    expect(guard.canActivate(createContext([], 'super_admin'))).toBe(true);
   });
 });

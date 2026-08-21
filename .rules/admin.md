@@ -25,6 +25,32 @@ AutoImport 当前覆盖 Vue、Vue Router、Pinia 和 Element Plus resolver 支�
 
 禁止为了省 import 把 `unplugin-vue-components` 的扫描目录扩大到整个 `src/components`。
 
+### Element Plus 唯一样式入口
+
+Element Plus 组件和运行时 API 必须统一交给 `unplugin-vue-components`、`unplugin-auto-import` 与
+`ElementPlusResolver({ importStyle: 'sass' })` 处理。业务源码不得自行选择 Element Plus 样式入口，
+否则预编译 CSS 会绕过 `src/assets/element-plus/modules/var.scss`，重新注入默认主题变量。
+
+强制规则：
+
+- Vue 模板中的 `el-*` 组件禁止从 `element-plus` 或 `element-plus/es` 手动导入；
+- `ElMessage`、`ElMessageBox`、`ElNotification`、`ElLoading` 等运行时 API 禁止手动导入，直接使用自动导入名称；
+- 禁止在 `apps/admin/src` 的 TS、Vue 和业务 SCSS 中导入 `*/style/css`、`*/style/index`、
+  `element-plus/theme-chalk/*.css` 或其他 Element Plus 预编译样式；
+- Element Plus 类型只能使用 `import type` 显式导入；语言包等 Resolver 不负责的非组件资源可以显式导入；
+- Element Plus Sass 定制唯一入口是 `src/assets/element-plus/index.scss`，编译变量统一维护在
+  `src/assets/element-plus/modules/var.scss`；
+- 自动导入声明缺失时，先确认 Rsbuild 插件配置并执行 Admin 构建生成 `auto-imports.d.ts` 或
+  `components.d.ts`，禁止用手动运行时导入绕过问题；
+- ESLint 的 `@typescript-eslint/no-restricted-imports` 是该约束的机器检查，禁止通过局部 disable 规避。
+
+出现 Element Plus 默认蓝色 `#409eff` 时，优先执行以下排查，确认没有预编译 CSS 混入：
+
+```bash
+rg "element-plus/.*/style/(css|index)|element-plus/theme-chalk/.*\\.css" apps/admin/src
+rg -o --glob "*.css" -- "--el-color-primary:[^;}]+" apps/admin/dist/css
+```
+
 ## CRUD 页面结构
 
 列表型 CRUD 页面统一使用以下结构：

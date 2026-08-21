@@ -7,6 +7,23 @@ import { PrismaService } from '../../prisma/prisma.service';
 import type { AuthenticatedAdmin, RbacAccessMenuRecord } from '../../types';
 
 /**
+ * 登录会话与权限 Guard 读取菜单时使用的最小数据库字段
+ */
+const RBAC_ACCESS_MENU_SELECT = {
+  id: true,
+  parentId: true,
+  name: true,
+  type: true,
+  routePath: true,
+  routeName: true,
+  component: true,
+  icon: true,
+  permissionCode: true,
+  sortOrder: true,
+  isVisible: true,
+} as const;
+
+/**
  * 判断数据库字符串是否符合三段式权限码结构
  *
  * @param value 菜单记录中未经类型收窄的权限码
@@ -55,19 +72,7 @@ export class RbacAccessService {
                   where: { menu: { isActive: true } },
                   select: {
                     menu: {
-                      select: {
-                        id: true,
-                        parentId: true,
-                        name: true,
-                        type: true,
-                        routePath: true,
-                        routeName: true,
-                        component: true,
-                        icon: true,
-                        permissionCode: true,
-                        sortOrder: true,
-                        isVisible: true,
-                      },
+                      select: RBAC_ACCESS_MENU_SELECT,
                     },
                   },
                 },
@@ -82,10 +87,10 @@ export class RbacAccessService {
       return null;
     }
 
-    const menuMap = new Map<number, RbacAccessMenuRecord>();
+    const assignedMenuMap = new Map<number, RbacAccessMenuRecord>();
     const roles = user.roles.map(({ role }) => {
       for (const { menu } of role.menus) {
-        menuMap.set(menu.id, menu);
+        assignedMenuMap.set(menu.id, menu);
       }
 
       return {
@@ -94,7 +99,13 @@ export class RbacAccessService {
         code: role.code,
       };
     });
-    const menuRecords = [...menuMap.values()];
+    const isSuperAdmin = roles.some((role) => role.code === 'super_admin');
+    const menuRecords = isSuperAdmin
+      ? await this.prisma.menu.findMany({
+          where: { isActive: true },
+          select: RBAC_ACCESS_MENU_SELECT,
+        })
+      : [...assignedMenuMap.values()];
     const permissions = menuRecords.flatMap((menu) => {
       const permissionCode = menu.permissionCode;
       return permissionCode && isPermissionCode(permissionCode) ? [permissionCode] : [];

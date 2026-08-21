@@ -15,6 +15,14 @@ import pinia, { useAuthStore } from './stores';
 const app = createApp(App);
 
 /**
+ * 先安装 Pinia，再创建任何 Store
+ *
+ * Pinia 在应用安装前会暂存插件；若提前创建 Store，持久化插件不会补挂到该实例，认证 Token
+ * 只能停留在内存中并在刷新后丢失。
+ */
+app.use(pinia);
+
+/**
  * 恢复 Pinia 持久化的认证状态并同步 Axios 使用的内存 Token
  *
  * 这里只同步 Token，不直接信任本地保存的角色和权限；首次受保护路由会通过 `/auth/me` 重新确认。
@@ -40,4 +48,4 @@ emitter.on('EVENT_AUTH_UNAUTHORIZED', () => {
   }
 });
 
-app.use(pinia).use(router).mount('#root');
+app.use(router).mount('#root');

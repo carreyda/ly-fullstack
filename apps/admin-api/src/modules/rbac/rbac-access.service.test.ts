@@ -6,10 +6,13 @@ import { MenuType } from '@repo/database';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RbacAccessService } from './rbac-access.service';
 
-const createPrisma = (user: unknown): PrismaService => {
+const createPrisma = (user: unknown, menus: unknown[] = []): PrismaService => {
   return {
     user: {
       findUnique: async () => user,
+    },
+    menu: {
+      findMany: async () => menus,
     },
   } as unknown as PrismaService;
 };
@@ -55,30 +58,33 @@ describe('RbacAccessService', () => {
       sortOrder: 1,
       isVisible: false,
     };
-    const prisma = createPrisma({
-      id: 7,
-      username: 'admin',
-      displayName: '管理员',
-      isActive: true,
-      roles: [
-        {
-          role: {
-            id: 1,
-            name: '超级管理员',
-            code: 'super_admin',
-            menus: [systemMenu, userMenu, listPermission].map((menu) => ({ menu })),
+    const prisma = createPrisma(
+      {
+        id: 7,
+        username: 'admin',
+        displayName: '管理员',
+        isActive: true,
+        roles: [
+          {
+            role: {
+              id: 1,
+              name: '超级管理员',
+              code: 'super_admin',
+              menus: [systemMenu, userMenu, listPermission].map((menu) => ({ menu })),
+            },
           },
-        },
-        {
-          role: {
-            id: 2,
-            name: '用户管理员',
-            code: 'user_admin',
-            menus: [userMenu, listPermission].map((menu) => ({ menu })),
+          {
+            role: {
+              id: 2,
+              name: '用户管理员',
+              code: 'user_admin',
+              menus: [userMenu, listPermission].map((menu) => ({ menu })),
+            },
           },
-        },
-      ],
-    });
+        ],
+      },
+      [systemMenu, userMenu, listPermission],
+    );
     const service = new RbacAccessService(prisma);
 
     const result = await service.getActiveAdmin(7);

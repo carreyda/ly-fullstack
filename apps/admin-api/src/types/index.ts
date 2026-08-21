@@ -5,4 +5,5 @@
  * 前后端共用的 HTTP 契约继续由 `@repo/shared/types` 维护。
  */
 export * from './modules/admin-auth';
+export * from './modules/menu';
 export * from './modules/rbac';

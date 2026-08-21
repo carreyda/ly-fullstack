@@ -1,0 +1,130 @@
+.menu-tree-panel {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  border-right: 1px solid var(--border-color);
+
+  &__header {
+    display: flex;
+    min-height: 78px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--border-color);
+
+    h2,
+    p {
+      margin: 0;
+    }
+
+    h2 {
+      color: var(--color-text-primary);
+      font-size: 16px;
+      font-weight: 650;
+    }
+
+    p {
+      margin-top: 5px;
+      color: var(--color-text-tertiary);
+      font-size: 12px;
+    }
+  }
+
+  &__search {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  &__body {
+    min-height: 0;
+    flex: 1;
+    padding: 10px;
+  }
+
+  &__tree {
+    min-width: 100%;
+    background: transparent;
+    color: var(--color-text-secondary);
+  }
+
+  &__node {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    align-items: center;
+    gap: 8px;
+    padding-right: 6px;
+  }
+
+  &__drag {
+    flex: none;
+    color: var(--color-text-tertiary);
+    cursor: grab;
+  }
+
+  &__icon {
+    flex: none;
+    color: var(--color-text-secondary);
+  }
+
+  &__name {
+    min-width: 0;
+    overflow: hidden;
+    flex: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__type,
+  &__state {
+    flex: none;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--color-primary) 9%, transparent);
+    color: var(--color-primary);
+    font-size: 12px;
+  }
+
+  &__state {
+    background: color-mix(in srgb, var(--color-text-tertiary) 10%, transparent);
+    color: var(--color-text-tertiary);
+  }
+
+  &__actions {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 2px;
+    opacity: 0;
+    transition: opacity var(--duration-normal) var(--ease-standard);
+  }
+
+  &__node:hover &__actions {
+    opacity: 1;
+  }
+
+  &__action {
+    display: grid;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    place-items: center;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-text-tertiary);
+    cursor: pointer;
+
+    &:hover {
+      background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+      color: var(--color-primary);
+    }
+
+    &--danger:hover {
+      background: color-mix(in srgb, var(--el-color-danger) 10%, transparent);
+      color: var(--el-color-danger);
+    }
+  }
+}

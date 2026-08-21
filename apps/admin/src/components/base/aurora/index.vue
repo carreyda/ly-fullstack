@@ -85,6 +85,9 @@ const getRenderOptions = () => ({
  * WebGL 初始化失败时保留透明容器作为静默降级，不影响登录表单和机械主体继续显示。
  */
 const setupRenderer = (): void => {
+  rendererControl?.destroy();
+  rendererControl = undefined;
+
   if (!containerRef.value) {
     isFallback.value = true;
     return;

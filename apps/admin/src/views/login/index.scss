@@ -19,12 +19,7 @@
   }
 
   &__visual-aurora {
-    position: absolute;
     z-index: 0;
-    top: -12%;
-    right: -18%;
-    width: 86%;
-    height: 58%;
     opacity: var(--login-aurora-opacity);
   }
 
@@ -187,7 +182,6 @@
     height: 46px;
     margin-top: 8px;
     border: 0;
-    background: var(--color-primary);
     font-size: 14px;
     font-weight: 600;
   }

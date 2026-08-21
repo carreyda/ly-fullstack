@@ -1,5 +1,7 @@
 import type { Component } from 'vue';
-import { Boxes, LayoutDashboard, PanelsTopLeft, Settings } from '@lucide/vue';
+import type { RbacMenuNode } from '@repo/shared/types';
+
+import { resolveMenuIcon } from './menu-icons';
 
 /**
  * 管理后台导航树节点
@@ -32,52 +34,31 @@ export interface AdminNavItem {
 }
 
 /**
- * 管理后台主导航
+ * 把当前管理员的数据库菜单树转换为侧栏渲染模型
  *
- * 导航叶子节点与静态路由保持同一地址；顶层分组只表达后台信息架构，不直接触发页面跳转。
+ * 页面组件仍由本地 Vue Router 注册，数据库只决定当前管理员可以看到的层级、名称、顺序和图标。
+ * 一级节点解析 Lucide 图标，二级及更深层级保持纯文本展示。
+ *
+ * @param menus 登录会话返回的可见菜单树
+ * @param root 当前是否处于导航树根层级
+ * @returns Element Plus 侧栏使用的导航节点
  */
-export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
-  {
-    key: '/dashboard',
-    title: '工作台',
-    path: '/dashboard',
-    icon: LayoutDashboard,
-  },
-  {
-    key: 'system',
-    title: '系统管理',
-    icon: Settings,
-    children: [
-      { key: '/system/user', title: '用户管理', path: '/system/user' },
-      { key: '/system/role', title: '角色管理', path: '/system/role' },
-      { key: '/system/menu', title: '菜单管理', path: '/system/menu' },
-    ],
-  },
-  {
-    key: 'component',
-    title: '组件中心',
-    icon: Boxes,
-    children: [
-      { key: '/component/icon', title: '图标', path: '/component/icon' },
-      { key: '/component/video', title: '视频播放器', path: '/component/video' },
-    ],
-  },
-  {
-    key: 'display',
-    title: '展示页面',
-    icon: PanelsTopLeft,
-    children: [
-      { key: '/display/success', title: '成功页', path: '/display/success' },
-      { key: '/display/failure', title: '失败页', path: '/display/failure' },
-      { key: '/display/404', title: '404', path: '/display/404' },
-      { key: '/display/500', title: '500', path: '/display/500' },
-    ],
-  },
-];
+export const createAdminNavItems = (menus: RbacMenuNode[], root = true): AdminNavItem[] => {
+  return menus.map((menu) => ({
+    key: menu.routePath ?? `menu-${menu.id}`,
+    title: menu.name,
+    path: menu.type === 'MENU' ? (menu.routePath ?? undefined) : undefined,
+    icon: root ? resolveMenuIcon(menu.icon) : undefined,
+    children: menu.children.length ? createAdminNavItems(menu.children, false) : undefined,
+  }));
+};
 
 /**
- * 默认展开全部导航分组，便于当前阶段直接检查侧栏层级和视觉效果。
+ * 获取默认展开的全部导航分组
+ *
+ * @param items 当前管理员的侧栏导航树
+ * @returns 拥有子节点的菜单键
  */
-export const ADMIN_NAV_DEFAULT_OPENED_KEYS = ADMIN_NAV_ITEMS.filter((item) => item.children?.length).map(
-  (item) => item.key,
-);
+export const createAdminNavDefaultOpenedKeys = (items: AdminNavItem[]): string[] => {
+  return items.filter((item) => item.children?.length).map((item) => item.key);
+};

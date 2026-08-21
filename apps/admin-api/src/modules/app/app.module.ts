@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 
 import { AuthModule } from '../auth/auth.module';
 import { HealthModule } from '../health/health.module';
+import { MenuModule } from '../menu/menu.module';
 import { PrismaModule } from '../../prisma/prisma.module';
 
 const appEnv = process.env.APP_ENV || 'development';
@@ -22,6 +23,7 @@ const appEnv = process.env.APP_ENV || 'development';
     }),
     AuthModule,
     HealthModule,
+    MenuModule,
     PrismaModule,
   ],
 })
