@@ -48,7 +48,7 @@
 
 <script setup lang="ts">
 /**
- * 导入运行状态使用的 Lucide 图标。
+ * Lucide 图标区分 Admin API、数据库、定时任务和文件服务的运行状态。
  */
 import { Cloud, Database, ServerCog, TimerReset } from '@lucide/vue';
 

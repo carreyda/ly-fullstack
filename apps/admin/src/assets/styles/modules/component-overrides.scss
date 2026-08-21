@@ -59,3 +59,49 @@
     background: var(--color-bg-page);
   }
 }
+
+/**
+ * 登录页表单结构覆盖
+ *
+ * Element Plus 生成的输入框和按钮内部结构无法由页面 scoped 样式直接命中，因此统一在此处以
+ * 登录页 Block 限定作用域，避免影响后台其他表单。
+ */
+.login-page {
+  .el-form-item {
+    margin-bottom: 22px;
+  }
+
+  .el-form-item__label {
+    padding-bottom: 8px;
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 18px;
+  }
+
+  .el-input__wrapper {
+    min-height: 46px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, var(--fill-color) 82%, transparent);
+    box-shadow: none;
+    transition:
+      border-color var(--duration-normal) var(--ease-standard),
+      box-shadow var(--duration-normal) var(--ease-standard);
+
+    &.is-focus {
+      border-color: color-mix(in srgb, var(--color-primary) 72%, transparent);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 10%, transparent);
+    }
+  }
+
+  .el-input__prefix {
+    color: var(--color-text-tertiary);
+  }
+
+  .login-page__submit span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+}

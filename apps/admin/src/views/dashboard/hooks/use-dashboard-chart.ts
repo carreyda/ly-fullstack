@@ -1,22 +1,7 @@
-/**
- * 导入 Vue 生命周期与类型能力。
- */
 import { nextTick, onBeforeUnmount, onMounted } from 'vue';
 import type { ShallowRef } from 'vue';
-
-/**
- * 导入公共图表初始化能力。
- */
 import { initChart } from '@repo/charts';
-
-/**
- * 导入主题变更事件总线。
- */
 import { emitter } from '@/emitter';
-
-/**
- * 导入图表类型声明。
- */
 import type { ChartInstance, ChartOption } from '@repo/charts';
 
 /**

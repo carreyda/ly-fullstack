@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
 /**
- * 导入首页内容面板。
+ * 首页由图表、系统状态、待办和动态面板组合；页面入口只负责布局与演示数据装配。
  */
 import DashboardChartPanel from './components/dashboard-chart-panel/index.vue';
 import DashboardActivityPanel from './components/dashboard-activity-panel/index.vue';

@@ -1,6 +1,11 @@
 /**
- * 服务端横切能力统一出口
+ * Admin API 横切能力统一出口
  *
- * 预留装饰器、DTO、Guard、Pipe 等横切代码的聚合位置。认证相关实现将在五表权限模型
- * 确定后的下一阶段进入本目录，本阶段不得提前落地 JWT 或角色 Guard。
+ * 聚合认证装饰器、Guard 和 DTO 校验 Pipe，业务 Controller 从该入口使用横切能力，
+ * 不需要依赖各实现文件的内部目录结构。
  */
+export * from './decorators/current-admin.decorator';
+export * from './decorators/require-permissions.decorator';
+export * from './guards/admin-jwt.guard';
+export * from './guards/permission.guard';
+export * from './pipes/create-dto-validation-pipe';

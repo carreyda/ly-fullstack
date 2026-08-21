@@ -1,11 +1,4 @@
-/**
- * 导入 Vue 类型声明
- */
 import type { Component } from 'vue';
-
-/**
- * 导入导航图标组件
- */
 import { Boxes, LayoutDashboard, PanelsTopLeft, Settings } from '@lucide/vue';
 
 /**
@@ -41,8 +34,7 @@ export interface AdminNavItem {
 /**
  * 管理后台主导航
  *
- * 当前只负责展示后台信息架构，叶子节点尚未绑定路由。后续页面落地时再为对应节点补充路由地址，
- * 避免占位菜单跳转到不存在的页面。
+ * 导航叶子节点与静态路由保持同一地址；顶层分组只表达后台信息架构，不直接触发页面跳转。
  */
 export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   {

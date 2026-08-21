@@ -28,14 +28,17 @@
 
 <script setup lang="ts">
 /**
- * 导入 Vue Router 模块
+ * 当前路由驱动菜单选中态，Router 实例负责叶子菜单跳转。
  */
 import { useRoute, useRouter } from 'vue-router';
 
+/**
+ * 递归菜单组件负责按导航树层级渲染分组和叶子节点。
+ */
 import LayoutMenuItem from './menu-item.vue';
 
 /**
- * 导入常量
+ * 静态导航树同时提供菜单结构、默认展开项和可跳转地址。
  */
 import { ADMIN_NAV_DEFAULT_OPENED_KEYS, ADMIN_NAV_ITEMS } from '@/constants';
 import type { AdminNavItem } from '@/constants/modules/nav';

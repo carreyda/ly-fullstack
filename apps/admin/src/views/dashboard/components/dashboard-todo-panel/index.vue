@@ -41,12 +41,12 @@
 
 <script setup lang="ts">
 /**
- * 导入 Vue 响应式能力。
+ * 待办列表在页面内维护演示完成状态，并由计算属性实时统计未完成数量。
  */
 import { computed, ref } from 'vue';
 
 /**
- * 导入待办列表使用的 Lucide 图标。
+ * Lucide 图标用于任务完成标记、计划时间和查看全部入口。
  */
 import { ArrowRight, Check, Clock3 } from '@lucide/vue';
 

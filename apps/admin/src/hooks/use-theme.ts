@@ -1,16 +1,7 @@
-/**
- * 导入全局主题事件总线。
- */
+import { computed } from 'vue';
+import { storeToRefs } from 'pinia';
 import { emitter } from '@/emitter';
-
-/**
- * 导入主题状态。
- */
 import { useThemeStore } from '@/stores';
-
-/**
- * 导入类型声明
- */
 import type { ThemeName } from '@/types';
 
 /**

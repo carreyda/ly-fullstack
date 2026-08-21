@@ -1,20 +1,10 @@
 import { isAxiosError } from 'axios';
 
+import { emitter } from '@/emitter';
+import { getRequestAccessToken } from '@/services/auth-token';
 import { showErrorMessage } from '@/utils';
 
-import type { ExpandInternalAxiosRequestConfig, InterceptorHooks } from '@/types';
-
-/**
- * NestJS 默认 HTTP 错误响应
- *
- * 参数校验失败时 `message` 可能是多条校验消息；普通异常通常返回单条字符串。
- */
-interface NestHttpErrorResponse {
-  /**
-   * 可直接展示的业务错误，DTO 校验失败时为字符串数组
-   */
-  message?: string | string[];
-}
+import type { ExpandInternalAxiosRequestConfig, InterceptorHooks, NestHttpErrorResponse } from '@/types';
 
 /**
  * 从 NestJS 错误响应中提取中文提示
@@ -41,11 +31,16 @@ const getResponseErrorMessage = (data: unknown): string => {
  * 响应失败时统一处理网络异常和服务端消息。成功响应保持 Axios 原结构，最终由 `AxiosFactory`
  * 解包一次，匹配当前后端直接返回业务数据的约定。
  *
- * 认证说明：本阶段不注入 Bearer Token、不处理 401 登录失效；下一阶段在本拦截器补齐
- * token 注入与登录失效整页跳转，可参考的迁移文件清单见 `docs/extraction-report.md`。
+ * 请求阶段统一注入 Bearer Token；非登录接口返回 401 时广播会话失效事件，路由跳转由应用入口处理，
+ * 避免请求层直接依赖 Router 或 Pinia。
  */
 export const serviceBaseInterceptor: InterceptorHooks = {
   requestInterceptor(config) {
+    const token = getRequestAccessToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
     return config;
   },
 
@@ -66,6 +61,10 @@ export const serviceBaseInterceptor: InterceptorHooks = {
     const config = error.config as ExpandInternalAxiosRequestConfig | undefined;
     const shouldShowError = config?.requestOptions?.globalErrorMessage !== false;
     const status = error.response?.status;
+
+    if (status === 401 && config?.url !== '/auth/login' && config?.requestOptions?.unauthorizedEvent !== false) {
+      emitter.emit('EVENT_AUTH_UNAUTHORIZED');
+    }
 
     if (shouldShowError) {
       const responseMessage = getResponseErrorMessage(error.response?.data);

@@ -5,17 +5,23 @@ import { serviceBaseInterceptor } from './service-base-interceptor';
 import type { ExpandAxiosRequestConfig } from '@/types';
 
 /**
+ * 管理 API 单次请求最大等待时间
+ *
+ * 数字分隔符只提升源码可读性，`20_000` 在 JavaScript 运行时仍是值为 `20000` 的 number。
+ */
+const ADMIN_API_REQUEST_TIMEOUT_MS = 20_000;
+
+/**
  * 管理 API 的 Axios 请求实例
  *
  * 实例使用 `API_BASE_URL` 作为统一前缀，并在 20 秒后终止无响应请求。当前与后续后台管理接口
  * 共用这套错误处理规则；若未来接入不同后端，应新建独立服务实例和拦截器。
  *
- * 认证说明：本阶段尚未接入登录，请求拦截器不注入 Bearer Token；下一阶段在
- * `service-base-interceptor.ts` 的 `requestInterceptor` 中补齐，不新建第二套服务实例。
+ * 管理端认证请求与业务请求共用该实例，Bearer Token 由服务拦截器统一注入。
  */
 const request = new AxiosFactory({
   baseURL: getServiceBaseUrl(),
-  timeout: 20_000,
+  timeout: ADMIN_API_REQUEST_TIMEOUT_MS,
   interceptorHooks: serviceBaseInterceptor,
 });
 

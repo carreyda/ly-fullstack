@@ -31,7 +31,7 @@
 
 <script setup lang="ts">
 /**
- * 导入动态列表使用的 Lucide 图标。
+ * Lucide 图标按操作类型区分用户、备份、权限、版本发布、导出和登录动态。
  */
 import { DatabaseBackup, FileDown, Rocket, ShieldCheck, UserPlus } from '@lucide/vue';
 

@@ -3,6 +3,18 @@
 import type { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
 /**
+ * NestJS 默认 HTTP 异常响应中允许前端展示的字段
+ *
+ * 普通业务异常返回字符串，DTO 校验失败时返回多条字符串。其他服务端调试字段不进入用户提示。
+ */
+export interface NestHttpErrorResponse {
+  /**
+   * Admin API 返回的业务错误或 DTO 字段校验错误列表
+   */
+  message?: string | string[];
+}
+
+/**
  * 单次请求的展示选项
  *
  * 业务接口通常使用服务层统一错误提示；个别需要自行渲染错误状态的页面可以关闭全局提示。
@@ -12,6 +24,11 @@ export interface RequestOptions {
    * 是否由响应拦截器统一展示错误消息，默认展示
    */
   globalErrorMessage?: boolean;
+
+  /**
+   * 401 时是否广播全局登录失效事件，路由守卫恢复会话时由守卫自行处理
+   */
+  unauthorizedEvent?: boolean;
 }
 
 /**

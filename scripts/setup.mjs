@@ -1,11 +1,13 @@
 /**
  * LY Fullstack 本地开发环境初始化脚本
  *
- * 负责收集 PostgreSQL 本地凭据、启动 Compose 数据库、幂等创建目标数据库，并生成不会提交到 Git 的
- * API development 环境文件。脚本不会把数据库密码写入命令行参数或终端输出。
+ * 负责收集 PostgreSQL 本地凭据、启动 Compose 数据库、幂等创建目标数据库，再生成不会提交到 Git
+ * 的 Admin API development 环境文件、执行 Prisma migration，并初始化本地默认管理员和 RBAC 数据。
+ * 数据库密码不会写入命令行参数或终端输出，JWT 密钥由脚本随机生成。
  */
 
 import { spawn, spawnSync } from 'node:child_process';
+import { randomBytes } from 'node:crypto';
 import { existsSync, writeFileSync } from 'node:fs';
 import { createConnection } from 'node:net';
 import { dirname, resolve } from 'node:path';
@@ -35,6 +37,20 @@ const POSTGRES_HOST = '127.0.0.1';
 const POSTGRES_PORT = 5432;
 const POSTGRES_USER = 'postgres';
 const DEFAULT_DATABASE_NAME = 'ly_fullstack';
+
+/**
+ * 本地首次初始化使用的默认管理员账号
+ *
+ * 该账号只由 Seed 在数据库不存在同名用户时创建，不会在重复执行 Setup 时覆盖已有账号。
+ */
+const DEFAULT_ADMIN_USERNAME = 'admin';
+
+/**
+ * 本地默认管理员的首次初始化密码
+ *
+ * 密码只通过 Seed 子进程环境传递，不会写入 `.env.development`；生产环境不得使用该默认凭证。
+ */
+const DEFAULT_ADMIN_PASSWORD = 'admin123';
 const DATABASE_READY_TIMEOUT_MS = 30_000;
 
 /**
@@ -42,7 +58,7 @@ const DATABASE_READY_TIMEOUT_MS = 30_000;
  */
 const printHelp = () => {
   process.stdout.write(`LY Fullstack 本地环境初始化\n\n`);
-  process.stdout.write(`  pnpm setup    创建本地环境文件并初始化 PostgreSQL 数据库\n`);
+  process.stdout.write(`  pnpm setup    创建数据库、表结构、默认管理员和 RBAC 初始数据\n`);
 };
 
 /**
@@ -115,6 +131,34 @@ const runCommand = (command, args, env) => {
 };
 
 /**
+ * 通过当前 Node.js 进程执行 pnpm CLI
+ *
+ * Windows 的 PATH 通常暴露 `pnpm.cmd` 或 `pnpm.ps1`，`spawn` 在关闭 shell 时无法直接执行这些脚本，
+ * 会产生 `spawn pnpm ENOENT`。优先复用 pnpm 注入的 CLI 路径；直接运行本脚本时，再从 Node.js
+ * 安装目录寻找同级 pnpm CLI。macOS 和 Linux 缺少 CLI 路径时可以继续使用 PATH 中的二进制。
+ *
+ * @param args pnpm 子命令和参数
+ * @param env migration 或 seed 子进程需要继承和追加的环境变量
+ */
+const runPnpmCommand = (args, env) => {
+  const lifecyclePnpmCliPath = process.env.npm_execpath;
+  if (lifecyclePnpmCliPath) {
+    return runCommand(process.execPath, [lifecyclePnpmCliPath, ...args], env);
+  }
+
+  if (process.platform === 'win32') {
+    const adjacentPnpmCliPath = resolve(dirname(process.execPath), 'node_modules/pnpm/bin/pnpm.mjs');
+    if (!existsSync(adjacentPnpmCliPath)) {
+      throw new Error('无法定位 pnpm CLI，请使用 pnpm setup 运行初始化脚本。');
+    }
+
+    return runCommand(process.execPath, [adjacentPnpmCliPath, ...args], env);
+  }
+
+  return runCommand('pnpm', args, env);
+};
+
+/**
  * 将值转换为可安全写入 dotenv 双引号字符串的内容。
  *
  * @param value 原始环境变量值
@@ -122,16 +166,22 @@ const runCommand = (command, args, env) => {
 const escapeDotenvValue = (value) => value.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
 
 /**
- * 生成管理 API 的 development 环境文件。
+ * 生成管理 API 的 development 环境文件
+ *
+ * 文件同时保存数据库连接串、Admin 允许的跨域来源和随机 JWT 密钥，并使用仅当前用户可读写的模式。
+ * 默认管理员密码只通过 seed 子进程环境传递，不写入环境文件。
  *
  * @param databaseUrl 已对用户名和密码进行 URL 编码的 PostgreSQL 连接串
+ * @param jwtSecret 本次初始化生成的 JWT 随机签名密钥
  */
-const writeApplicationEnvFiles = (databaseUrl) => {
+const writeApplicationEnvFiles = (databaseUrl, jwtSecret) => {
   const adminLocalPort = adminApplication.localPort;
   const adminApiEnv = [
     '# 管理 API 本地开发环境配置。',
     `DATABASE_URL="${databaseUrl}"`,
     `CORS_ORIGINS="http://localhost:${adminLocalPort},http://127.0.0.1:${adminLocalPort}"`,
+    `JWT_SECRET="${jwtSecret}"`,
+    'JWT_EXPIRES_IN="7d"',
     '',
   ].join('\n');
 
@@ -215,7 +265,12 @@ const ensureDatabaseExists = async (client, databaseName) => {
 };
 
 /**
- * 收集初始化所需的本地数据库配置。
+ * 收集本地数据库配置
+ *
+ * 数据库名称提供 `ly_fullstack` 默认值并限制为 PostgreSQL 安全标识符；数据库密码使用隐藏输入。
+ * 用户取消任一步骤时返回 `null`，调用方不会继续创建文件或修改数据库。
+ *
+ * @returns 初始化配置；用户取消时返回 `null`
  */
 const promptForDatabaseConfig = async () => {
   const databasePassword = await password({
@@ -281,7 +336,10 @@ const confirmLocalEnvOverwrite = async () => {
 };
 
 /**
- * 执行完整本地环境初始化流程。
+ * 执行完整本地环境初始化流程
+ *
+ * 依次确认配置覆盖、收集凭据、准备 PostgreSQL、生成本地环境文件、执行 migration 和 RBAC seed。
+ * 任一步骤失败都会停止后续流程并由顶层错误处理设置非零退出码，避免输出“初始化完成”的假成功状态。
  */
 const main = async () => {
   if (process.argv.includes('--help') || process.argv.includes('-h')) {
@@ -330,13 +388,31 @@ const main = async () => {
     await client.end();
   }
 
+  log.success(databaseCreated ? `数据库 ${databaseName} 已创建。` : `数据库 ${databaseName} 已存在，将继续初始化。`);
+
   const encodedPassword = encodeURIComponent(databasePassword);
   const encodedDatabaseName = encodeURIComponent(databaseName);
   const databaseUrl = `postgresql://${POSTGRES_USER}:${encodedPassword}@localhost:${POSTGRES_PORT}/${encodedDatabaseName}?schema=public`;
-  writeApplicationEnvFiles(databaseUrl);
+  const jwtSecret = randomBytes(32).toString('hex');
+  writeApplicationEnvFiles(databaseUrl, jwtSecret);
 
-  log.success(databaseCreated ? `数据库 ${databaseName} 已创建。` : `数据库 ${databaseName} 已存在。`);
-  outro('本地环境初始化完成，现在可以运行 pnpm dev。');
+  log.info('正在执行 Prisma migration，创建或更新全部表结构...');
+  await runPnpmCommand(['--filter', '@repo/database', 'db:migrate'], {
+    ...process.env,
+    DATABASE_URL: databaseUrl,
+  });
+
+  log.info(`正在初始化 RBAC 数据和默认管理员 ${DEFAULT_ADMIN_USERNAME}...`);
+  await runPnpmCommand(['--filter', '@repo/database', 'db:seed'], {
+    ...process.env,
+    DATABASE_URL: databaseUrl,
+    ADMIN_INITIAL_PASSWORD: DEFAULT_ADMIN_PASSWORD,
+  });
+
+  log.success(
+    `默认管理员种子已执行：首次创建使用 ${DEFAULT_ADMIN_USERNAME} / ${DEFAULT_ADMIN_PASSWORD}，已有账号不会重置密码。`,
+  );
+  outro('数据库、表结构和 RBAC 初始数据均已就绪，现在可以运行 pnpm dev。');
 };
 
 void main().catch((error) => {

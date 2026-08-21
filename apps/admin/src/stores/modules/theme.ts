@@ -1,6 +1,5 @@
-/**
- * 导入类型声明
- */
+import { ref } from 'vue';
+import { defineStore } from 'pinia';
 import type { ThemeName } from '@/types';
 
 /**
@@ -12,10 +11,16 @@ import type { ThemeName } from '@/types';
 export const useThemeStore = defineStore(
   'theme',
   () => {
+    /**
+     * 当前启用的主题名称，由持久化插件写入浏览器本地存储。
+     */
     const themeName = ref<ThemeName>('dark');
 
     /**
      * 更新当前主题名称
+     *
+     * 触发时机：`useTheme` 应用指定主题或执行明暗主题切换时。
+     * 副作用：更新 Pinia 状态并触发持久化插件写入；DOM 属性和全局事件仍由 `useTheme` 负责。
      *
      * @param value 需要启用的主题
      */

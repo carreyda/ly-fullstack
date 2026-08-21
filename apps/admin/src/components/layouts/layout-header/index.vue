@@ -47,8 +47,8 @@
           :aria-expanded="isProfileOpen"
           @click="handleProfileToggle"
         >
-          <span class="layout-header__avatar">LY</span>
-          <span class="layout-header__profile-name">管理员</span>
+          <span class="layout-header__avatar">{{ avatarText }}</span>
+          <span class="layout-header__profile-name">{{ profileName }}</span>
           <chevron-down
             class="layout-header__profile-arrow"
             :class="{ 'layout-header__profile-arrow--open': isProfileOpen }"
@@ -67,7 +67,7 @@
             <span>修改密码</span>
           </button>
           <div class="layout-header__profile-divider"></div>
-          <button class="layout-header__profile-logout" type="button" role="menuitem" @click="handleProfileCommand">
+          <button class="layout-header__profile-logout" type="button" role="menuitem" @click="handleLogout">
             <log-out :size="16" :stroke-width="1.8" />
             <span>退出登录</span>
           </button>
@@ -79,22 +79,22 @@
 
 <script setup lang="ts">
 /**
- * 导入 Vue 模块
+ * Vue 响应式与生命周期能力用于维护面包屑、全屏状态、头像菜单及其浏览器事件清理。
  */
 import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue';
 
 /**
- * 导入 Vue Router 模块
+ * 路由状态用于生成面包屑，并在退出登录后替换到公开登录页。
  */
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 /**
- * 导入主题 Hook。
+ * `storeToRefs` 保留管理员资料从认证 Store 解构后的响应性。
  */
-import { useTheme } from '@/hooks/use-theme';
+import { storeToRefs } from 'pinia';
 
 /**
- * 导入组件
+ * Lucide 图标承载顶部操作按钮和管理员下拉菜单的统一视觉语言。
  */
 import {
   Bell,
@@ -110,6 +110,16 @@ import {
   Sun,
   UserRound,
 } from '@lucide/vue';
+
+/**
+ * 主题 Hook 统一处理明暗主题状态、持久化与扩散动画。
+ */
+import { useTheme } from '@/hooks/use-theme';
+
+/**
+ * 认证 Store 提供当前管理员资料和退出登录能力。
+ */
+import { useAuthStore } from '@/stores';
 
 /**
  * 定义 props 的类型声明
@@ -141,14 +151,25 @@ interface Emits {
 const emits = defineEmits<Emits>();
 
 /**
- * 引入主题能力
+ * 引入 hooks
+ *
+ * 顶栏只消费主题能力，不自行修改根节点主题属性。
  */
 const { isDarkTheme, toggleTheme } = useTheme();
 
 /**
- * 引入路由
+ * 引入 store
+ *
+ * 管理员资料使用 `storeToRefs` 解构，退出方法直接由 Store 实例调用。
+ */
+const authStore = useAuthStore();
+const { user } = storeToRefs(authStore);
+
+/**
+ * 当前路由用于面包屑，Router 实例用于退出登录后的页面替换。
  */
 const route = useRoute();
+const router = useRouter();
 
 /**
  * 定义响应式数据
@@ -168,6 +189,18 @@ const breadcrumbList = computed(() => {
 
   return ['首页', ...routeTitleList];
 });
+
+/**
+ * 计算属性
+ * 作用：优先显示管理员资料中的展示名称，未设置时回退到登录名
+ */
+const profileName = computed(() => user.value?.displayName || user.value?.username || '管理员');
+
+/**
+ * 计算属性
+ * 作用：从当前展示名称截取两个字符作为无头像时的文字标识
+ */
+const avatarText = computed(() => profileName.value.trim().slice(0, 2).toUpperCase() || 'LY');
 
 /**
  * 切换侧栏折叠状态
@@ -218,6 +251,17 @@ const handleProfileToggle = (): void => {
  */
 const handleProfileCommand = (): void => {
   isProfileOpen.value = false;
+};
+
+/**
+ * 处理用户主动退出登录
+ *
+ * 清空 Auth Store 和 Axios 内存 Token 后使用 replace 返回登录页，避免浏览器后退再次进入需要认证的页面。
+ */
+const handleLogout = (): void => {
+  isProfileOpen.value = false;
+  authStore.logout();
+  void router.replace({ name: 'Login' });
 };
 
 /**

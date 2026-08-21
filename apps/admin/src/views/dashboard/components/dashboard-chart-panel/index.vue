@@ -34,27 +34,27 @@
 
 <script setup lang="ts">
 /**
- * 导入 Vue 响应式能力。
+ * 图表挂载节点使用模板引用，面板标题和图例由 variant 计算得到。
  */
 import { computed, useTemplateRef } from 'vue';
 
 /**
- * 导入标题区域使用的 Lucide 图标。
+ * 标题图标用于区分折线趋势与柱状分布两类演示图表。
  */
 import { ChartNoAxesColumnIncreasing, TrendingUp } from '@lucide/vue';
 
 /**
- * 导入 Dashboard 图表生命周期管理能力。
+ * 图表 Hook 统一处理实例初始化、主题刷新、尺寸监听和资源释放。
  */
 import { useDashboardChart } from '../../hooks/use-dashboard-chart';
 
 /**
- * 导入 Dashboard 演示图表配置。
+ * 图表配置工厂读取当前主题变量，并为每种 variant 生成对应的 ECharts 配置。
  */
 import { createDashboardChartOption, DASHBOARD_CHART_PANEL_CONFIG } from './options';
 
 /**
- * 导入类型声明。
+ * 图表变体类型限制页面只能选择已经实现的流量趋势或模块分布。
  */
 import type { DashboardChartVariant } from '@/types';
 

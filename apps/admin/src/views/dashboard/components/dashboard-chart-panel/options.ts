@@ -1,11 +1,4 @@
-/**
- * 导入公共图表配置类型。
- */
 import type { ChartOption } from '@repo/charts';
-
-/**
- * 导入 Dashboard 图表类型。
- */
 import type { DashboardChartVariant } from '@/types';
 
 /**

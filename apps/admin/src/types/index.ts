@@ -4,3 +4,4 @@
 export * from './modules/base';
 export * from './modules/axios';
 export * from './modules/dashboard';
+export * from './modules/emitter';

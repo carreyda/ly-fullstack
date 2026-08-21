@@ -26,28 +26,28 @@
 
 <script setup lang="ts">
 /**
- * 导入 Vue 模块
+ * Vue 响应式、模板引用和生命周期能力用于管理 WebGL 画布的创建、重建与资源释放。
  */
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue';
 import type { CSSProperties } from 'vue';
 
 /**
- * 导入全局主题事件总线。
+ * 全局主题事件用于在根节点主题切换完成后重建与主题对应的片元着色器。
  */
 import { emitter } from '@/emitter';
 
 /**
- * 导入主题 Hook。
+ * 主题 Hook 提供组件首次挂载时使用的当前主题真相源。
  */
 import { useTheme } from '@/hooks/use-theme';
 
 /**
- * 导入 Fluid Glass 渲染器。
+ * Fluid Glass 渲染器封装 WebGL 程序、指针交互和销毁回调。
  */
 import { createFluidGlassRenderer } from './renderer';
 
 /**
- * 导入类型声明
+ * 主题名称类型约束渲染器只能接收项目已注册的明暗主题。
  */
 import type { ThemeName } from '@/types';
 
@@ -55,20 +55,79 @@ import type { ThemeName } from '@/types';
  * 定义 props 的类型声明
  */
 interface Props {
+  /**
+   * 指标所属的业务分类短文案。
+   */
   eyebrow: string;
+
+  /**
+   * 指标卡片主标题。
+   */
   title: string;
+
+  /**
+   * 指标展示值，允许携带已经格式化的千分位或缩写。
+   */
   value: string;
+
+  /**
+   * 指标值后的可选单位。
+   */
   unit?: string;
+
+  /**
+   * 趋势值左侧的比较口径说明。
+   */
   metaLabel: string;
+
+  /**
+   * 已格式化的趋势或成功率文案。
+   */
   trendText: string;
+
+  /**
+   * 趋势语义，用于选择正向或负向状态色。
+   */
   trendTone?: 'positive' | 'negative';
+
+  /**
+   * WebGL 流体材质的第一主色。
+   */
   colorA?: string;
+
+  /**
+   * WebGL 流体材质的第二主色。
+   */
   colorB?: string;
+
+  /**
+   * WebGL 流体材质的第三主色。
+   */
   colorC?: string;
+
+  /**
+   * 流体噪声随时间变化的速度系数。
+   */
   speed?: number;
+
+  /**
+   * 流体颜色和形变的整体强度系数。
+   */
   intensity?: number;
+
+  /**
+   * 指针移动对流体形变的影响系数。
+   */
   pointer?: number;
+
+  /**
+   * 卡片材质表面层的透明度。
+   */
   surface?: number;
+
+  /**
+   * 噪声随机种子，用于让多张卡片拥有不同纹理分布。
+   */
   seed?: number;
 }
 
@@ -90,6 +149,8 @@ const props = withDefaults(defineProps<Props>(), {
 
 /**
  * 引入主题能力
+ *
+ * 只读取当前主题名称；主题切换仍由全局 Hook 统一修改和广播。
  */
 const { themeName } = useTheme();
 
@@ -105,6 +166,8 @@ let rendererGeneration = 0;
 
 /**
  * 计算属性
+ *
+ * 趋势类名负责选择状态色，卡片行内变量负责把可配置 WebGL 颜色同步给 CSS 降级材质。
  */
 const trendClass = computed(() =>
   props.trendTone === 'positive'

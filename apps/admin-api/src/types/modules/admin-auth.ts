@@ -1,0 +1,58 @@
+import type { AdminProfile, PermissionCode, RbacMenuNode } from '@repo/shared/types';
+
+/**
+ * 管理端 Access Token 的 JWT 载荷
+ *
+ * Token 只保存定位账号所需的信息，不写入角色和权限快照。Guard 每次请求都会重新查询数据库，
+ * 保证账号禁用、角色解绑和权限收回可以立即生效。
+ */
+export interface AdminJwtPayload {
+  /**
+   * RBAC 用户表主键，对应 JWT 标准 subject 字段
+   */
+  sub: number;
+
+  /**
+   * 签发令牌时的管理员登录名，只用于审计和问题排查，不作为授权依据
+   */
+  username: string;
+}
+
+/**
+ * 已通过 JWT 验签和数据库最新状态校验的管理员访问上下文
+ *
+ * Guard 将该对象挂载到当前 Fastify 请求，后续 Controller 和权限 Guard 可以复用同一次查询结果。
+ */
+export interface AuthenticatedAdmin extends AdminProfile {
+  /**
+   * 当前有效角色合并后的可见菜单树
+   */
+  menus: RbacMenuNode[];
+
+  /**
+   * 当前有效角色合并并去重后的操作权限码
+   */
+  permissions: PermissionCode[];
+}
+
+/**
+ * 管理 API 使用的 Fastify 请求扩展
+ *
+ * `admin` 只会在 `AdminJwtGuard` 验证成功后写入，未受保护的公开接口不能假设该字段存在。
+ */
+export interface AdminRequest {
+  /**
+   * Fastify 提供的请求头集合
+   */
+  headers: {
+    /**
+     * 浏览器发送的 Bearer Token 请求头
+     */
+    authorization?: string;
+  };
+
+  /**
+   * 认证守卫写入的当前管理员访问上下文
+   */
+  admin?: AuthenticatedAdmin;
+}

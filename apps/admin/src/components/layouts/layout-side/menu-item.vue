@@ -35,17 +35,17 @@
 
 <script setup lang="ts">
 /**
- * 导入 Vue 模块
+ * 当前节点是否拥有子节点由计算属性派生，递归菜单无需维护额外展开状态。
  */
 import { computed } from 'vue';
 
 /**
- * 导入组件
+ * 展开与收起图标只用于一级菜单标题，二级及更深层级保持纯文本展示。
  */
 import { ChevronDown, ChevronUp } from '@lucide/vue';
 
 /**
- * 导入类型声明
+ * 导航节点类型与侧栏使用的静态导航树保持同源。
  */
 import type { AdminNavItem } from '@/constants/modules/nav';
 

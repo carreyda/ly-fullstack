@@ -1,6 +1,3 @@
-/**
- * 导入类型声明
- */
 import type { ThemeName } from '@/types';
 
 /**

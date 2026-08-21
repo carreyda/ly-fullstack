@@ -22,6 +22,16 @@ declare namespace NodeJS {
     readonly CORS_ORIGINS?: string;
 
     /**
+     * 管理端 Access Token 签名密钥
+     */
+    readonly JWT_SECRET?: string;
+
+    /**
+     * 管理端 Access Token 有效期，例如 7d
+     */
+    readonly JWT_EXPIRES_IN?: string;
+
+    /**
      * 本地启动器或部署平台注入的服务监听端口
      */
     readonly PORT?: string;
