@@ -1,0 +1,12 @@
+.base-aurora {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+
+  &--fallback {
+    background: radial-gradient(circle at 64% 18%, var(--color-primary), transparent 62%);
+    opacity: 0.18;
+  }
+}

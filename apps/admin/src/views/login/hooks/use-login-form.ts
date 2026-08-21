@@ -1,7 +1,7 @@
-import { reactive, ref, useTemplateRef } from 'vue';
+import { reactive, ref, useTemplateRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores';
-import { showSuccessMessage } from '@/utils';
+import { showSuccessMessage, showWarningMessage } from '@/utils';
 import type { FormInstance, FormRules } from 'element-plus';
 import type { AdminLoginParams } from '@repo/shared/types';
 
@@ -27,10 +27,15 @@ export const useLoginForm = () => {
   const submitting = ref(false);
 
   /**
+   * 当前账号密码是否已经完成本次滑块验证
+   */
+  const captchaVerified = ref(false);
+
+  /**
    * 登录表单输入；只在当前页面内存中保存，密码不会进入 Pinia 持久化状态
    */
   const formModel = reactive<AdminLoginParams>({
-    username: 'admin',
+    username: '',
     password: '',
   });
 
@@ -78,6 +83,11 @@ export const useLoginForm = () => {
       return;
     }
 
+    if (!captchaVerified.value) {
+      showWarningMessage('请先完成滑块验证');
+      return;
+    }
+
     submitting.value = true;
     try {
       await authStore.login(formModel);
@@ -85,15 +95,29 @@ export const useLoginForm = () => {
       await router.replace(getRedirectTarget());
     } catch {
       // Axios 响应拦截器已经展示后端错误，页面只保留当前输入并恢复提交状态。
+      captchaVerified.value = false;
     } finally {
       submitting.value = false;
     }
   };
 
+  /**
+   * 监听事件
+   *
+   * 账号或密码变化后撤销已经完成的本地验证，避免一份验证状态跨登录凭据复用。
+   */
+  watch(
+    () => [formModel.username, formModel.password],
+    () => {
+      captchaVerified.value = false;
+    },
+  );
+
   return {
     formRef,
     formModel,
     formRules,
+    captchaVerified,
     submitting,
     handleLogin,
   };

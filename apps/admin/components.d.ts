@@ -23,5 +23,6 @@ declare module 'vue' {
     FluidGlassCard: typeof import('./src/components/base/fluid-glass-card/index.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SlideVerify: typeof import('./src/components/base/slide-verify/index.vue')['default']
   }
 }

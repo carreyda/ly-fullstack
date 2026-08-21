@@ -3,5 +3,6 @@
  */
 export * from './modules/base';
 export * from './modules/axios';
+export * from './modules/aurora';
 export * from './modules/dashboard';
 export * from './modules/emitter';

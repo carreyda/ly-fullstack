@@ -19,6 +19,7 @@
     "axios": "catalog:",
     "element-plus": "catalog:",
     "mitt": "catalog:",
+    "ogl": "catalog:",
     "pinia": "catalog:",
     "pinia-plugin-persistedstate": "catalog:",
     "vue": "catalog:",

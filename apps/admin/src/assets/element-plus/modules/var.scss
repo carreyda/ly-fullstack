@@ -37,5 +37,9 @@
     'base-level-padding': 16px,
     'level-padding': 16px,
     'icon-width': 18px,
+  ),
+  $input: (
+    'text-color': var(--color-text-primary),
+    'placeholder-color': var(--color-text-tertiary),
   )
 );

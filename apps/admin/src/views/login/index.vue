@@ -1,48 +1,51 @@
 <template>
   <main class="login-page">
-    <div class="login-page__ambient login-page__ambient--top" aria-hidden="true"></div>
-    <div class="login-page__ambient login-page__ambient--bottom" aria-hidden="true"></div>
+    <section class="login-page__visual">
+      <aurora
+        :key="themeName"
+        class="login-page__visual-aurora"
+        :color-stops="auroraColorStops"
+        :amplitude="1"
+        :blend="0.5"
+        :speed="1"
+      />
 
-    <button class="login-page__theme" type="button" :aria-label="themeLabel" @click="toggleTheme">
-      <Sun v-if="isDarkTheme" :size="18" />
-      <Moon v-else :size="18" />
-    </button>
-
-    <section class="login-page__shell">
-      <aside class="login-page__hero">
+      <div class="login-page__visual-content">
         <div class="login-page__brand">
-          <img class="login-page__logo" src="@/assets/images/logo.svg" alt="" />
+          <img src="@/assets/images/logo.svg" alt="" />
           <span>LY Fullstack</span>
         </div>
 
-        <div class="login-page__hero-content">
-          <span class="login-page__eyebrow">FULL-STACK ADMIN FOUNDATION</span>
-          <h1>让工程经验，<br />真正成为 AI 的底座。</h1>
-          <p>开箱即用的全栈管理系统基线，为真实 B2B 项目保留清晰、稳定、可扩展的开发边界。</p>
+        <div class="login-page__visual-main">
+          <img class="login-page__visual-machine" :src="loginVisualMachine" alt="" />
 
-          <ul class="login-page__features">
-            <li><CheckCircle2 :size="17" /> NestJS + PostgreSQL 五表 RBAC</li>
-            <li><CheckCircle2 :size="17" /> Vue 3 + Element Plus 管理端规范</li>
-            <li><CheckCircle2 :size="17" /> Monorepo、测试与 CI/CD 工程闭环</li>
-          </ul>
+          <div class="login-page__visual-copy">
+            <span>全栈管理系统基础框架</span>
+            <h1>面向真实项目的全栈管理底座</h1>
+            <p>Vue 3 · NestJS · PostgreSQL</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="login-page__content">
+      <button class="login-page__theme" type="button" :aria-label="themeLabel" @click="toggleTheme">
+        <Sun v-if="isDarkTheme" :size="18" />
+        <Moon v-else :size="18" />
+      </button>
+
+      <div class="login-page__form-stage">
+        <div class="login-page__mobile-brand">
+          <img src="@/assets/images/logo.svg" alt="" />
+          <span>LY Fullstack</span>
         </div>
 
-        <p class="login-page__hero-footer">Built for production, designed for iteration.</p>
-      </aside>
+        <header class="login-page__heading">
+          <h2>欢迎登录</h2>
+          <p>进入 LY Fullstack 管理后台</p>
+        </header>
 
-      <section class="login-page__form-side">
-        <div class="login-page__form-wrap">
-          <div class="login-page__mobile-brand">
-            <img src="@/assets/images/logo.svg" alt="" />
-            <span>LY Fullstack</span>
-          </div>
-
-          <header class="login-page__heading">
-            <span>欢迎回来</span>
-            <h2>登录管理后台</h2>
-            <p>请输入管理员账号和密码继续访问。</p>
-          </header>
-
+        <div class="login-page__card">
           <el-form
             ref="formRef"
             :model="formModel"
@@ -56,9 +59,7 @@
                 autocomplete="username"
                 placeholder="请输入管理员账号"
                 size="large"
-              >
-                <template #prefix><UserRound :size="18" /></template>
-              </el-input>
+              />
             </el-form-item>
 
             <el-form-item label="登录密码" prop="password">
@@ -69,10 +70,10 @@
                 show-password
                 size="large"
                 type="password"
-              >
-                <template #prefix><LockKeyhole :size="18" /></template>
-              </el-input>
+              />
             </el-form-item>
+
+            <slide-verify v-model="captchaVerified" class="login-page__verification" :disabled="submitting" />
 
             <el-button
               class="login-page__submit"
@@ -81,42 +82,71 @@
               size="large"
               type="primary"
             >
-              <span>进入管理后台</span>
-              <ArrowRight v-if="!submitting" :size="18" />
+              登录
             </el-button>
           </el-form>
-
-          <p class="login-page__hint">首次使用请通过 <code>pnpm setup</code> 初始化 admin 账号。</p>
         </div>
-      </section>
+      </div>
+
+      <p class="login-page__copyright">LY Fullstack · Admin Foundation</p>
     </section>
   </main>
 </template>
 
 <script setup lang="ts">
 /**
+ * 导入 Vue 模块
+ *
  * 主题按钮文案由当前主题实时派生，避免视图和无障碍描述出现状态分叉。
  */
 import { computed } from 'vue';
 
 /**
- * Lucide 图标用于登录表单、主题按钮和能力列表，保持登录页与后台布局的图标风格一致。
+ * 导入图标组件
+ *
+ * 登录页只保留主题切换图标，表单本身使用克制的文字层级，避免装饰元素干扰输入。
  */
-import { ArrowRight, CheckCircle2, LockKeyhole, Moon, Sun, UserRound } from '@lucide/vue';
+import { Moon, Sun } from '@lucide/vue';
 
 /**
+ * 导入登录页主体插画
+ *
+ * 图片只承载高分辨率机械装置，主题背景和空间层次由 CSS 绘制，避免整幅位图在宽屏下放大失真。
+ */
+import loginVisualMachine from '@/assets/images/login-visual-machine.png';
+
+/**
+ * 导入 hooks
+ *
  * 主题 Hook 负责全局主题切换，表单 Hook 负责校验、认证请求和登录后回跳。
  */
 import { useTheme } from '@/hooks/use-theme';
 import { useLoginForm } from './hooks/use-login-form';
 
 /**
+ * Aurora 颜色类型确保 WebGL 背景始终接收三个按顺序排列的主题色。
+ */
+import type { AuroraColorStops } from '@/types';
+
+/**
  * 引入 hooks
  *
  * 页面层只装配主题交互和登录表单能力，不直接持有认证请求与路由跳转细节。
  */
-const { isDarkTheme, toggleTheme: toggleAppTheme } = useTheme();
-const { formRef, formModel, formRules, submitting, handleLogin } = useLoginForm();
+const { themeName, isDarkTheme, toggleTheme: toggleAppTheme } = useTheme();
+const { formRef, formModel, formRules, captchaVerified, submitting, handleLogin } = useLoginForm();
+
+/**
+ * 登录页 Aurora 使用的主题 CSS 自定义属性
+ *
+ * Aurora 组件会从自身根节点解析这些变量。主题切换时通过组件 key 重建 WebGL 上下文，保证新主题
+ * 颜色在初始化阶段已经生效，同时避免把具体色值写入 Vue 脚本。
+ */
+const auroraColorStops: AuroraColorStops = [
+  'var(--login-aurora-color-start)',
+  'var(--login-aurora-color-middle)',
+  'var(--login-aurora-color-end)',
+];
 
 /**
  * 计算属性

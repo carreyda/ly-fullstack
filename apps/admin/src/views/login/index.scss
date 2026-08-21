@@ -1,109 +1,86 @@
 .login-page {
   position: relative;
+  display: grid;
   width: 100%;
   height: 100%;
-  min-height: 620px;
-  overflow: auto;
-  padding: 32px;
-  background:
-    linear-gradient(color-mix(in srgb, var(--border-color) 26%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--border-color) 26%, transparent) 1px, transparent 1px),
-    var(--body-bg-color);
-  background-size: 36px 36px;
+  min-height: 640px;
+  overflow: hidden;
+  grid-template-columns: minmax(0, 56%) minmax(420px, 44%);
   color: var(--color-text-primary);
+  background: var(--login-form-background);
 
-  &__ambient {
-    position: fixed;
-    width: 420px;
-    height: 420px;
-    border-radius: 50%;
-    background: color-mix(in srgb, var(--color-primary) 16%, transparent);
-    filter: blur(120px);
-    pointer-events: none;
-
-    &--top {
-      top: -210px;
-      right: 10%;
-    }
-
-    &--bottom {
-      bottom: -260px;
-      left: 4%;
-      opacity: 0.55;
-    }
+  &__visual {
+    position: relative;
+    min-width: 0;
+    height: 100%;
+    overflow: hidden;
+    border-right: 1px solid var(--border-color);
+    background: var(--login-visual-background);
   }
 
-  &__theme {
-    position: fixed;
-    z-index: 4;
-    top: 24px;
-    right: 24px;
-    display: grid;
-    width: 40px;
-    height: 40px;
-    place-items: center;
-    border: 1px solid var(--border-color);
-    border-radius: 50%;
-    background: var(--fill-color);
-    color: var(--color-text-secondary);
-    cursor: pointer;
-    transition:
-      color var(--duration-normal) var(--ease-standard),
-      border-color var(--duration-normal) var(--ease-standard),
-      transform var(--duration-normal) var(--ease-standard);
-
-    &:hover {
-      border-color: color-mix(in srgb, var(--color-primary) 46%, var(--border-color));
-      color: var(--color-primary);
-      transform: rotate(8deg);
-    }
+  &__visual-aurora {
+    position: absolute;
+    z-index: 0;
+    top: -12%;
+    right: -18%;
+    width: 86%;
+    height: 58%;
+    opacity: var(--login-aurora-opacity);
   }
 
-  &__shell {
+  &__visual-machine {
+    display: block;
+    width: min(100%, 500px);
+    height: auto;
+    justify-self: center;
+    filter: var(--login-visual-machine-filter);
+    transition: filter 360ms var(--ease-standard);
+    user-select: none;
+  }
+
+  &__visual-content {
     position: relative;
     z-index: 2;
     display: grid;
-    width: min(1160px, 100%);
-    min-height: min(720px, calc(100vh - 64px));
-    margin: 0 auto;
-    overflow: hidden;
-    grid-template-columns: minmax(0, 1.08fr) minmax(420px, 0.92fr);
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    background: var(--fill-color);
+    height: 100%;
+    padding: clamp(28px, 3.2vw, 52px);
+    grid-template-rows: auto minmax(0, 1fr);
+    pointer-events: none;
   }
 
-  &__hero {
-    position: relative;
-    display: flex;
-    min-width: 0;
-    flex-direction: column;
-    overflow: hidden;
-    padding: 36px 42px;
-    border-right: 1px solid var(--border-color);
-    background: var(--login-hero-background);
-    color: var(--login-hero-text-color);
+  &__visual-main {
+    display: grid;
+    min-height: 0;
+    align-content: center;
+    justify-items: center;
+    grid-template-columns: minmax(0, 1fr);
+  }
 
-    &::before,
-    &::after {
-      position: absolute;
-      border: 1px solid var(--login-hero-line-color);
-      border-radius: 50%;
-      content: '';
+  &__visual-copy {
+    max-width: 420px;
+    text-align: center;
+
+    > span {
+      color: var(--login-visual-kicker-color);
+      font-size: 13px;
+      font-weight: 650;
+      letter-spacing: 0.08em;
     }
 
-    &::before {
-      width: 420px;
-      height: 420px;
-      right: -210px;
-      bottom: -150px;
+    h1 {
+      margin: 8px 0 10px;
+      color: var(--login-visual-title-color);
+      font-size: 26px;
+      font-weight: 680;
+      line-height: 1.24;
+      letter-spacing: -0.035em;
     }
 
-    &::after {
-      width: 280px;
-      height: 280px;
-      right: -140px;
-      bottom: -80px;
+    p {
+      margin: 0;
+      color: var(--login-visual-description-color);
+      font-size: 13px;
+      letter-spacing: 0.04em;
     }
   }
 
@@ -112,115 +89,97 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 16px;
+    color: var(--login-visual-title-color);
+    font-size: 17px;
     font-weight: 650;
     letter-spacing: 0.01em;
+
+    img {
+      display: block;
+      width: 38px;
+      height: 38px;
+    }
   }
 
-  &__logo,
-  &__mobile-brand img {
-    display: block;
-    width: 34px;
-    height: 34px;
-  }
-
-  &__hero-content {
+  &__content {
     position: relative;
-    z-index: 1;
-    max-width: 500px;
-    margin: auto 0;
-
-    h1 {
-      margin: 16px 0 20px;
-      font-size: clamp(34px, 3.2vw, 48px);
-      font-weight: 650;
-      line-height: 1.28;
-      letter-spacing: -0.035em;
-    }
-
-    > p {
-      max-width: 450px;
-      margin: 0;
-      color: var(--login-hero-description-color);
-      font-size: 14px;
-      line-height: 1.9;
-    }
-  }
-
-  &__eyebrow {
-    color: var(--color-accent);
-    font-size: 12px;
-    font-weight: 650;
-    letter-spacing: 0.16em;
-  }
-
-  &__features {
-    display: grid;
-    margin: 34px 0 0;
-    padding: 0;
-    gap: 14px;
-    list-style: none;
-
-    li {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: var(--login-hero-feature-color);
-      font-size: 13px;
-    }
-
-    svg {
-      color: var(--color-accent);
-    }
-  }
-
-  &__hero-footer {
-    position: relative;
-    z-index: 1;
-    margin: 0;
-    color: var(--login-hero-footer-color);
-    font-size: 12px;
-    letter-spacing: 0.04em;
-  }
-
-  &__form-side {
-    display: grid;
+    display: flex;
     min-width: 0;
-    padding: 48px;
-    place-items: center;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+    padding: 72px 48px;
+    background: var(--login-form-background);
   }
 
-  &__form-wrap {
-    width: min(360px, 100%);
+  &__theme {
+    position: absolute;
+    z-index: 2;
+    top: 26px;
+    right: 28px;
+    display: grid;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    place-items: center;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    background: var(--login-card-background);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition:
+      color var(--duration-normal) var(--ease-standard),
+      border-color var(--duration-normal) var(--ease-standard),
+      transform var(--duration-normal) var(--ease-standard);
+
+    &:hover {
+      border-color: color-mix(in srgb, var(--color-primary) 42%, var(--border-color));
+      color: var(--color-primary);
+      transform: rotate(8deg);
+    }
+
+    &:focus-visible {
+      outline: 2px solid color-mix(in srgb, var(--color-primary) 42%, transparent);
+      outline-offset: 3px;
+    }
+  }
+
+  &__form-stage {
+    width: min(420px, 100%);
   }
 
   &__mobile-brand {
     display: none;
-    margin-bottom: 44px;
+    margin-bottom: 42px;
+    color: var(--color-text-primary);
   }
 
   &__heading {
-    margin-bottom: 30px;
-
-    > span {
-      color: var(--color-primary);
-      font-size: 13px;
-      font-weight: 600;
-    }
+    margin-bottom: 24px;
 
     h2 {
-      margin: 8px 0 10px;
+      margin: 0 0 10px;
       color: var(--color-text-primary);
-      font-size: 28px;
+      font-size: 30px;
       font-weight: 650;
+      line-height: 1.25;
       letter-spacing: -0.025em;
     }
 
     p {
       margin: 0;
       color: var(--color-text-tertiary);
-      font-size: 13px;
+      font-size: 14px;
     }
+  }
+
+  &__card {
+    padding: 34px 36px 36px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--login-card-background);
+    box-shadow: var(--login-card-shadow);
   }
 
   &__submit {
@@ -228,43 +187,68 @@
     height: 46px;
     margin-top: 8px;
     border: 0;
-    background: linear-gradient(
-      100deg,
-      var(--color-primary),
-      color-mix(in srgb, var(--color-primary) 72%, var(--color-accent))
-    );
+    background: var(--color-primary);
+    font-size: 14px;
     font-weight: 600;
   }
 
-  &__hint {
-    margin: 22px 0 0;
+  &__verification {
+    margin: 4px 0 18px;
+  }
+
+  &__copyright {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    margin: 0;
     color: var(--color-text-tertiary);
     font-size: 12px;
-    line-height: 1.6;
-    text-align: center;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+}
 
-    code {
-      color: var(--color-primary);
-      font-family: inherit;
+@media (max-width: 1100px) {
+  .login-page {
+    grid-template-columns: minmax(0, 50%) minmax(420px, 50%);
+
+    &__visual-content {
+      padding: 32px;
+    }
+
+    &__visual-copy {
+      max-width: none;
+
+      h1 {
+        margin: 8px 0 10px;
+        font-size: 26px;
+      }
+    }
+
+    &__visual-machine {
+      width: min(68%, 350px);
+    }
+
+    &__content {
+      padding: 72px 36px;
     }
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 820px) {
   .login-page {
-    padding: 20px;
+    display: block;
+    min-height: 600px;
+    overflow-y: auto;
 
-    &__shell {
-      min-height: calc(100vh - 40px);
-      grid-template-columns: 1fr;
-    }
-
-    &__hero {
+    &__visual {
       display: none;
     }
 
-    &__form-side {
-      padding: 48px 32px;
+    &__content {
+      min-height: 100%;
+      padding: 84px 28px 72px;
+      overflow: visible;
     }
 
     &__mobile-brand {
@@ -275,27 +259,35 @@
 
 @media (max-width: 520px) {
   .login-page {
-    min-height: 560px;
-    padding: 0;
+    &__content {
+      padding: 76px 20px 60px;
+    }
 
     &__theme {
-      top: 16px;
-      right: 16px;
+      top: 18px;
+      right: 18px;
     }
 
-    &__shell {
-      min-height: 100%;
-      border: 0;
-      border-radius: 0;
+    &__mobile-brand {
+      margin-bottom: 34px;
     }
 
-    &__form-side {
-      padding: 36px 24px;
+    &__heading h2 {
+      font-size: 26px;
+    }
+
+    &__card {
+      padding: 28px 24px 30px;
+    }
+
+    &__copyright {
+      display: none;
     }
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .login-page__visual-machine,
   .login-page__theme {
     transition: none;
   }
