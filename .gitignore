@@ -6,7 +6,7 @@ coverage
 .log
 .pnpm-store/
 
-# 所有运行环境文件都由 pnpm setup 在本地生成，仓库只提交无密钥模板
+# development 由本地 Setup 生成，test/production 由 CI/CD 注入，仓库只提交无密钥模板
 .env
 .env.*
 !.env.example

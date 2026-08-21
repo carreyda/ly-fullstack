@@ -31,7 +31,7 @@ pnpm setup
 pnpm dev
 ```
 
-`pnpm setup` 会询问 PostgreSQL 密码与数据库名（默认 `ly_fullstack`）。本机 `127.0.0.1:5432` 已有服务时直接复用，否则通过 Docker Compose 启动 PostgreSQL。随后脚本创建数据库和表结构、初始化默认管理员，并为 `admin`、`admin-api` 生成 development、test、production 六个本地环境文件。仓库只提交两个 `.env.example`，运行文件与数据库密码均不会进入 Git，也不会生成根 `.env`。完整说明见 [`docs/environment.md`](docs/environment.md)。
+`pnpm setup` 会询问 PostgreSQL 密码与数据库名（默认 `ly_fullstack`）。本机 `127.0.0.1:5432` 已有服务时直接复用，否则通过 Docker Compose 启动 PostgreSQL。随后脚本创建数据库和表结构、初始化默认管理员，并为 `admin`、`admin-api` 生成两份本地 `.env.development`。test 与 production 配置由 CI/CD 或部署平台注入，不在本地 Setup 中伪造空文件。仓库只提交两个 `.env.example`，运行文件与数据库密码均不会进入 Git，也不会生成根 `.env`。完整说明见 [`docs/environment.md`](docs/environment.md)。
 
 本地地址由根 [`workspace.config.json`](workspace.config.json) 统一维护：
 
@@ -63,7 +63,7 @@ pnpm new:server
 
 | 命令                 | 说明                                           |
 | -------------------- | ---------------------------------------------- |
-| `pnpm setup`         | 初始化数据库、种子数据与六个本地运行环境文件   |
+| `pnpm setup`         | 初始化数据库、种子数据与两份本地开发环境文件   |
 | `pnpm new:server`    | 生成并注册新的 NestJS + Fastify 服务           |
 | `pnpm dev`           | 根据配置表交互选择服务端和前端应用             |
 | `pnpm dev all`       | 非交互启动配置表中的全部应用                   |
@@ -105,9 +105,9 @@ ly-fullstack/
 - 请求层：`AxiosFactory` + 独立服务实例 + 拦截器；认证注入待下一阶段。
 - 管理 API：CORS 白名单、ValidationPipe、shutdown hooks、健康检查与应用级 Prisma 模块。
 - 服务扩展：配置驱动的开发启动器与经过真实生成验证的 NestJS 服务模板。
-- 工程基线：workspace catalog、Turborepo、ESLint、Prettier、Husky、commitlint、Rstest 与 GitHub Actions CI。
+- 工程基线：workspace catalog、Turborepo、ESLint、Prettier、Husky、commitlint 与 Rstest。
 
-尚未实现：管理端登录与五表 RBAC、业务 CRUD、C 端服务及主站。它们会在真实项目需要时从底座继续生长，而不是以空壳应用提前占位。
+尚未实现：自动化部署工作流、业务 CRUD、C 端服务及主站。部署环境变量契约已经明确，但需要在确定 Docker、云平台或 SSH + PM2 等真实目标后实现对应 CI/CD，不能把未落地的流程算作现有能力。
 
 ## 文档
 

@@ -65,7 +65,7 @@ Prisma Client 在安装、database typecheck 和 database build 前生成。修�
 - 超过两端都通用的常量统一放在 `packages/shared/src/constants`，不要在 server 内重复维护。
 - 应用分类、路径、包名、本地端口与健康检查统一维护在根 `workspace.config.json`；服务源码必须读取必填的 `PORT`，不得再维护本地默认端口常量。
 - `scripts/dev.mjs` 根据配置表选择应用、预检端口、注入 `PORT` 并管理进程；部署环境由容器或平台显式注入 `PORT`。
-- 首次本地开发通过 `pnpm setup` 初始化 PostgreSQL、创建数据库和种子数据，并为 admin、admin-api 生成 development、test、production 六个运行环境文件；仓库只提交各应用的 `.env.example`，运行文件与根 `.env` 均不得提交。其他服务新增私密配置时分别维护自己的模板和本地文件。
+- 首次本地开发通过 `pnpm setup` 初始化 PostgreSQL、创建数据库和种子数据，并只为 admin、admin-api 生成两份 `.env.development`；test 配置由测试任务或 CI 注入，production 配置由 CD、容器或部署平台注入。仓库只提交各应用的 `.env.example`，任何运行文件与根 `.env` 均不得提交。其他服务新增私密配置时分别维护自己的模板和环境注入规则。
 
 ## 全局能力
 
