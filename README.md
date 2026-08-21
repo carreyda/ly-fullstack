@@ -31,7 +31,7 @@ pnpm setup
 pnpm dev
 ```
 
-`pnpm setup` 会询问 PostgreSQL 密码与数据库名（默认 `ly_fullstack`）。本机 `127.0.0.1:5432` 已有服务时直接复用，否则通过 Docker Compose 启动 PostgreSQL。随后脚本创建数据库，并生成根 `.env` 与 `apps/admin-api/.env.development`；这两个包含本地密码的文件均被 Git 忽略。完整说明见 [`docs/environment.md`](docs/environment.md)。
+`pnpm setup` 会询问 PostgreSQL 密码与数据库名（默认 `ly_fullstack`）。本机 `127.0.0.1:5432` 已有服务时直接复用，否则通过 Docker Compose 启动 PostgreSQL。随后脚本创建数据库和表结构、初始化默认管理员，并为 `admin`、`admin-api` 生成 development、test、production 六个本地环境文件。仓库只提交两个 `.env.example`，运行文件与数据库密码均不会进入 Git，也不会生成根 `.env`。完整说明见 [`docs/environment.md`](docs/environment.md)。
 
 本地地址由根 [`workspace.config.json`](workspace.config.json) 统一维护：
 
@@ -61,21 +61,21 @@ pnpm new:server
 
 ## 常用命令
 
-| 命令                 | 说明                                                |
-| -------------------- | --------------------------------------------------- |
-| `pnpm setup`         | 初始化本地 PostgreSQL 与 admin-api development 配置 |
-| `pnpm new:server`    | 生成并注册新的 NestJS + Fastify 服务                |
-| `pnpm dev`           | 根据配置表交互选择服务端和前端应用                  |
-| `pnpm dev all`       | 非交互启动配置表中的全部应用                        |
-| `pnpm dev:admin`     | 单独启动 admin                                      |
-| `pnpm dev:admin-api` | 单独启动 admin-api                                  |
-| `pnpm dev:stop`      | 停止本仓库遗留的开发进程                            |
-| `pnpm typecheck`     | 全仓类型检查                                        |
-| `pnpm lint`          | ESLint 检查（`lint:fix` 自动修复）                  |
-| `pnpm format`        | Prettier 格式化（`format:check` 仅检查）            |
-| `pnpm test`          | 服务模板冒烟测试与全仓 Rstest 单元测试              |
-| `pnpm build`         | 构建全部产物                                        |
-| `pnpm check`         | typecheck + lint + format:check + test + build      |
+| 命令                 | 说明                                           |
+| -------------------- | ---------------------------------------------- |
+| `pnpm setup`         | 初始化数据库、种子数据与六个本地运行环境文件   |
+| `pnpm new:server`    | 生成并注册新的 NestJS + Fastify 服务           |
+| `pnpm dev`           | 根据配置表交互选择服务端和前端应用             |
+| `pnpm dev all`       | 非交互启动配置表中的全部应用                   |
+| `pnpm dev:admin`     | 单独启动 admin                                 |
+| `pnpm dev:admin-api` | 单独启动 admin-api                             |
+| `pnpm dev:stop`      | 停止本仓库遗留的开发进程                       |
+| `pnpm typecheck`     | 全仓类型检查                                   |
+| `pnpm lint`          | ESLint 检查（`lint:fix` 自动修复）             |
+| `pnpm format`        | Prettier 格式化（`format:check` 仅检查）       |
+| `pnpm test`          | 服务模板冒烟测试与全仓 Rstest 单元测试         |
+| `pnpm build`         | 构建全部产物                                   |
+| `pnpm check`         | typecheck + lint + format:check + test + build |
 
 ## 目录结构
 

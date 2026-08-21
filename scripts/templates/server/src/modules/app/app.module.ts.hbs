@@ -9,12 +9,13 @@ const appEnv = process.env.APP_ENV || 'development';
  * {{name}} 服务根模块
  *
  * 当前只装配环境配置和健康检查，业务能力按实际需求继续添加独立模块。
+ * 环境配置严格读取当前应用的 `.env.<APP_ENV>`，不回退读取仓库根文件，避免多个服务共享私密变量。
  */
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [`.env.${appEnv}`, '.env'],
+      envFilePath: `.env.${appEnv}`,
     }),
     HealthModule,
   ],

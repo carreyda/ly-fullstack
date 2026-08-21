@@ -1,9 +1,9 @@
 /**
  * LY Fullstack 本地开发环境初始化脚本
  *
- * 负责收集 PostgreSQL 本地凭据、启动 Compose 数据库、幂等创建目标数据库，再生成不会提交到 Git
- * 的 Admin API development 环境文件、执行 Prisma migration，并初始化本地默认管理员和 RBAC 数据。
- * 数据库密码不会写入命令行参数或终端输出，JWT 密钥由脚本随机生成。
+ * 负责收集 PostgreSQL 本地凭据、启动 Compose 数据库、幂等创建目标数据库，再为 Admin 与 Admin API
+ * 生成不会提交到 Git 的三套运行环境文件、执行 Prisma migration，并初始化默认管理员和 RBAC 数据。
+ * 数据库密码不会写入命令行参数或终端输出，JWT 密钥由脚本随机生成，仓库只保留 `.env.example`。
  */
 
 import { spawn, spawnSync } from 'node:child_process';
@@ -30,8 +30,25 @@ if (!adminApplication || !adminApiApplication) {
   throw new Error('workspace.config.json 必须注册 admin 与 admin-api，才能初始化管理系统本地环境。');
 }
 
-const composeEnvPath = resolve(repoRoot, '.env');
-const adminApiDevelopmentPath = resolve(repoRoot, adminApiApplication.path, '.env.development');
+const adminDirectory = resolve(repoRoot, adminApplication.path);
+const adminApiDirectory = resolve(repoRoot, adminApiApplication.path);
+
+/**
+ * Setup 统一维护的运行环境名称
+ *
+ * Admin 与 Admin API 必须同时生成三套文件，避免某个子应用仍依赖仓库中预置的运行配置。
+ */
+const ENVIRONMENT_NAMES = ['development', 'test', 'production'];
+
+/**
+ * Setup 会覆盖的全部本地运行环境文件
+ *
+ * 该清单同时用于覆盖确认和文件生成。所有路径都受根 `.gitignore` 保护，不得提交到仓库。
+ */
+const localEnvPaths = ENVIRONMENT_NAMES.flatMap((environmentName) => [
+  resolve(adminDirectory, `.env.${environmentName}`),
+  resolve(adminApiDirectory, `.env.${environmentName}`),
+]);
 
 const POSTGRES_HOST = '127.0.0.1';
 const POSTGRES_PORT = 5432;
@@ -48,7 +65,7 @@ const DEFAULT_ADMIN_USERNAME = 'admin';
 /**
  * 本地默认管理员的首次初始化密码
  *
- * 密码只通过 Seed 子进程环境传递，不会写入 `.env.development`；生产环境不得使用该默认凭证。
+ * 密码只通过 Seed 子进程环境传递，不会写入任何环境文件；生产环境不得使用该默认凭证。
  */
 const DEFAULT_ADMIN_PASSWORD = 'admin123';
 const DATABASE_READY_TIMEOUT_MS = 30_000;
@@ -58,7 +75,7 @@ const DATABASE_READY_TIMEOUT_MS = 30_000;
  */
 const printHelp = () => {
   process.stdout.write(`LY Fullstack 本地环境初始化\n\n`);
-  process.stdout.write(`  pnpm setup    创建数据库、表结构、默认管理员和 RBAC 初始数据\n`);
+  process.stdout.write(`  pnpm setup    创建六个环境文件、数据库、表结构、默认管理员和 RBAC 初始数据\n`);
 };
 
 /**
@@ -159,50 +176,73 @@ const runPnpmCommand = (args, env) => {
 };
 
 /**
- * 将值转换为可安全写入 dotenv 双引号字符串的内容。
+ * 生成 Admin 与 Admin API 的三套运行环境文件
  *
- * @param value 原始环境变量值
- */
-const escapeDotenvValue = (value) => value.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
-
-/**
- * 生成管理 API 的 development 环境文件
- *
- * 文件同时保存数据库连接串、Admin 允许的跨域来源和随机 JWT 密钥，并使用仅当前用户可读写的模式。
- * 默认管理员密码只通过 seed 子进程环境传递，不写入环境文件。
+ * development 文件写入本次收集的本地数据库连接和随机 JWT 密钥，保证 `pnpm dev` 可以直接运行。
+ * test 与 production 只写入环境结构和安全默认值，数据库、跨域、JWT 与端口由对应部署环境补充。
+ * Admin 的 test 与 production 使用同源 `/api`，使前端产物可以在反向代理场景中直接构建。
+ * 六个文件会使用受限文件模式写入，并由根 `.gitignore` 统一忽略；真实密钥不会进入模板或终端输出。
  *
  * @param databaseUrl 已对用户名和密码进行 URL 编码的 PostgreSQL 连接串
  * @param jwtSecret 本次初始化生成的 JWT 随机签名密钥
  */
 const writeApplicationEnvFiles = (databaseUrl, jwtSecret) => {
   const adminLocalPort = adminApplication.localPort;
-  const adminApiEnv = [
+  const adminApiLocalPort = adminApiApplication.localPort;
+  const adminEnvByName = {
+    development: [
+      '# 管理后台本地开发环境配置，由 pnpm setup 生成。',
+      'APP_ENV=development',
+      `API_BASE_URL=http://127.0.0.1:${adminApiLocalPort}/api`,
+      '',
+    ],
+    test: ['# 管理后台测试环境配置，由 pnpm setup 生成。', 'APP_ENV=test', 'API_BASE_URL=/api', ''],
+    production: ['# 管理后台生产环境配置，由 pnpm setup 生成。', 'APP_ENV=production', 'API_BASE_URL=/api', ''],
+  };
+  const adminApiDevelopmentEnv = [
     '# 管理 API 本地开发环境配置。',
     `DATABASE_URL="${databaseUrl}"`,
     `CORS_ORIGINS="http://localhost:${adminLocalPort},http://127.0.0.1:${adminLocalPort}"`,
     `JWT_SECRET="${jwtSecret}"`,
     'JWT_EXPIRES_IN="7d"',
+    'PORT=""',
     '',
-  ].join('\n');
+  ];
 
-  writeFileSync(adminApiDevelopmentPath, adminApiEnv, { encoding: 'utf-8', mode: 0o600 });
-};
-
-/**
- * 写入 Compose 使用的本地 PostgreSQL 配置。
- *
- * 根 `.env` 与管理 API 的 development 配置均被 Git 忽略，避免数据库密码进入仓库。
- */
-const writeComposeEnv = (databaseName, databasePassword) => {
-  const content = [
-    `POSTGRES_DB="${escapeDotenvValue(databaseName)}"`,
-    `POSTGRES_USER="${POSTGRES_USER}"`,
-    `POSTGRES_PASSWORD="${escapeDotenvValue(databasePassword)}"`,
-    `POSTGRES_PORT=${POSTGRES_PORT}`,
+  /**
+   * 创建管理 API 的部署环境占位配置
+   *
+   * 测试和生产凭据不能复用本地开发值，因此这里只输出完整变量结构，真实值由 CI、容器或部署平台注入。
+   *
+   * @param environmentLabel 写入文件说明的中文环境名称
+   * @returns 可直接序列化为 dotenv 文件的逐行内容
+   */
+  const createAdminApiDeployEnv = (environmentLabel) => [
+    `# 管理 API ${environmentLabel}环境配置，由部署平台或 CI 补充空值。`,
+    'DATABASE_URL=""',
+    'CORS_ORIGINS=""',
+    'JWT_SECRET=""',
+    'JWT_EXPIRES_IN="7d"',
+    'PORT=""',
     '',
-  ].join('\n');
+  ];
+  const adminApiEnvByName = {
+    development: adminApiDevelopmentEnv,
+    test: createAdminApiDeployEnv('测试'),
+    production: createAdminApiDeployEnv('生产'),
+  };
 
-  writeFileSync(composeEnvPath, content, { encoding: 'utf-8', mode: 0o600 });
+  for (const environmentName of ENVIRONMENT_NAMES) {
+    writeFileSync(resolve(adminDirectory, `.env.${environmentName}`), adminEnvByName[environmentName].join('\n'), {
+      encoding: 'utf-8',
+      mode: 0o600,
+    });
+    writeFileSync(
+      resolve(adminApiDirectory, `.env.${environmentName}`),
+      adminApiEnvByName[environmentName].join('\n'),
+      { encoding: 'utf-8', mode: 0o600 },
+    );
+  }
 };
 
 const delay = (milliseconds) => new Promise((resolvePromise) => setTimeout(resolvePromise, milliseconds));
@@ -321,12 +361,12 @@ const promptForDatabaseConfig = async () => {
  * 确认是否允许覆盖已有的本地环境文件。
  */
 const confirmLocalEnvOverwrite = async () => {
-  const existingPaths = [composeEnvPath, adminApiDevelopmentPath].filter(existsSync);
+  const existingPaths = localEnvPaths.filter(existsSync);
   if (existingPaths.length === 0) {
     return true;
   }
 
-  log.warn('检测到已有本地环境配置，继续执行会覆盖根 .env 和 admin-api/.env.development。');
+  log.warn('检测到已有本地环境配置，继续执行会覆盖 Admin 与 Admin API 的六个 .env.<环境> 文件。');
   const shouldOverwrite = await confirm({
     message: '确认使用本次输入重新生成本地配置？',
     initialValue: false,
@@ -362,7 +402,6 @@ const main = async () => {
   }
 
   const { databaseName, databasePassword } = databaseConfig;
-  writeComposeEnv(databaseName, databasePassword);
 
   if (await isPostgresPortOpen()) {
     log.info('检测到本机 127.0.0.1:5432 已有 PostgreSQL 服务，将直接复用。');
@@ -395,6 +434,7 @@ const main = async () => {
   const databaseUrl = `postgresql://${POSTGRES_USER}:${encodedPassword}@localhost:${POSTGRES_PORT}/${encodedDatabaseName}?schema=public`;
   const jwtSecret = randomBytes(32).toString('hex');
   writeApplicationEnvFiles(databaseUrl, jwtSecret);
+  log.success('Admin 与 Admin API 的 development、test、production 环境文件已生成。');
 
   log.info('正在执行 Prisma migration，创建或更新全部表结构...');
   await runPnpmCommand(['--filter', '@repo/database', 'db:migrate'], {
