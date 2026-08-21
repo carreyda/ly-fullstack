@@ -1,0 +1,29 @@
+.admin-table {
+  --el-table-bg-color: transparent;
+  --el-table-tr-bg-color: transparent;
+  --el-table-header-bg-color: transparent;
+  --el-table-row-hover-bg-color: var(--control-hover-fill-color);
+  --el-table-current-row-bg-color: var(--control-active-fill-color);
+  --el-table-border-color: var(--border-color);
+  --el-table-text-color: var(--color-text-secondary);
+  --el-table-header-text-color: var(--color-text-primary);
+  --el-table-fixed-box-shadow: none;
+
+  .el-table__cell {
+    height: 48px;
+    padding: 0;
+  }
+
+  th.el-table__cell {
+    font-weight: 600;
+  }
+
+  .el-table__inner-wrapper::before {
+    background: var(--border-color);
+  }
+
+  .el-table-fixed-column--right,
+  .el-table-fixed-column--left {
+    background: var(--fill-color);
+  }
+}

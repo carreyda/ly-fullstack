@@ -7,3 +7,4 @@
 export * from './modules/admin-auth';
 export * from './modules/menu';
 export * from './modules/rbac';
+export * from './modules/role';

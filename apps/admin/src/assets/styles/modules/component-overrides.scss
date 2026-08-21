@@ -182,3 +182,42 @@
     }
   }
 }
+
+/**
+ * 角色短表单的 Element Plus 结构覆盖
+ */
+.role-form-dialog {
+  .el-form-item {
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .el-input,
+  .el-textarea {
+    width: 100%;
+  }
+
+  .el-form-item__label {
+    color: var(--color-text-secondary);
+    font-size: 13px;
+  }
+}
+
+/**
+ * 角色菜单权限树的 Element Plus 结构覆盖
+ */
+.role-menu-permission-dialog {
+  .el-tree {
+    --el-tree-node-hover-bg-color: var(--menu-hover-background);
+  }
+
+  .el-tree-node__content {
+    min-height: 40px;
+    margin: 2px 0;
+    border-radius: var(--radius-md);
+  }
+
+  .el-tree-node:focus > .el-tree-node__content,
+  .el-tree-node__content:hover {
+    background: var(--el-tree-node-hover-bg-color);
+  }
+}

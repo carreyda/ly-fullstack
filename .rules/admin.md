@@ -76,6 +76,34 @@ rg -o --glob "*.css" -- "--el-color-primary:[^;}]+" apps/admin/dist/css
 
 页面内不要内联复杂表单逻辑；表单弹窗或抽屉放到 `src/components/business/<module>-form-dialog/`。
 
+### 标准 CRUD 落地范本
+
+`src/views/system/role/index.vue` 是当前项目第一个完整 CRUD 范本。新增同类列表模块时，应按以下职责拆分，禁止把请求、表单和表格状态全部堆在页面入口：
+
+```text
+src/views/<module>/index.vue                         页面组合、表格列与弹框入口
+src/hooks/use-<module>-management.ts                 列表、筛选、删除和刷新编排
+src/components/business/<module>-form-dialog/        新增与编辑短表单
+src/api/modules/<module>/                            HTTP 请求与接口类型
+src/constants/modules/model.ts                       筛选配置、默认值和固定选项
+src/types/modules/<module>.ts                        Admin 私有视图模型
+packages/shared/src/types/modules/<module>.ts        前后端 HTTP 契约
+apps/admin-api/src/modules/<module>/                 Controller、DTO、Service 和测试
+```
+
+标准实现顺序：
+
+1. 先在 Shared 定义分页查询、列表项、详情、新增和编辑参数，前后端不得各自复制接口结构。
+2. Server DTO 负责输入格式校验，Service 再执行唯一性、关联关系、系统数据保护等业务约束。
+3. Admin 列表使用 `use-pagination.ts` 管理筛选、分页、loading、请求竞态和刷新；页面不得再维护第二套分页状态。
+4. 筛选统一使用 `data-filter-panel`，表格统一使用 `admin-table`，短状态统一使用自动导入的 `BaseBadge`。
+5. 短且高度稳定的新增、编辑表单使用普通 `el-dialog`；权限树、素材列表等动态内容使用 `el-dialog + use-dialog-size.ts + el-scrollbar`。
+6. 新增成功返回第一页，编辑或关联操作成功刷新当前页；删除当前页最后一条数据后自动回退上一页。
+7. 列表接口和写操作都必须由权限码保护。界面隐藏按钮只能改善体验，不能替代 Server 权限校验。
+8. Service 至少覆盖系统数据保护、关联删除保护和复杂关系写入等高风险边界测试。
+
+角色基础信息与菜单授权是两个独立写入动作：基础编辑使用 `system:role:update`，菜单授权使用 `system:role:assign-menu`。不要因为共用一个页面而合并权限码，也不要允许修改系统内置超级管理员；超级管理员的全权限由 Server 保证，不依赖前端勾选结果。
+
 ## 内容 CRUD 发布状态
 
 成品分类、成品、设备分类、设备产品等面向官网展示的内容模块统一使用一套全局状态，不允许新增 `isActive`、表单发布开关或按语言发布状态：

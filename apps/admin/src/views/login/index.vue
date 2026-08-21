@@ -1,15 +1,6 @@
 <template>
   <main class="login-page">
     <section class="login-page__visual">
-      <aurora
-        :key="themeName"
-        class="login-page__visual-aurora"
-        :color-stops="auroraColorStops"
-        :amplitude="1"
-        :blend="0.5"
-        :speed="1"
-      />
-
       <div class="login-page__visual-content">
         <div class="login-page__brand">
           <img src="@/assets/images/logo.svg" alt="" />
@@ -124,29 +115,12 @@ import { useTheme } from '@/hooks/use-theme';
 import { useLoginForm } from './hooks/use-login-form';
 
 /**
- * Aurora 颜色类型确保 WebGL 背景始终接收三个按顺序排列的主题色。
- */
-import type { AuroraColorStops } from '@/types';
-
-/**
  * 引入 hooks
  *
  * 页面层只装配主题交互和登录表单能力，不直接持有认证请求与路由跳转细节。
  */
-const { themeName, isDarkTheme, toggleTheme: toggleAppTheme } = useTheme();
+const { isDarkTheme, toggleTheme: toggleAppTheme } = useTheme();
 const { formRef, formModel, formRules, captchaVerified, submitting, handleLogin } = useLoginForm();
-
-/**
- * 登录页 Aurora 使用的主题 CSS 自定义属性
- *
- * Aurora 组件会从自身根节点解析这些变量。主题切换时通过组件 key 重建 WebGL 上下文，保证新主题
- * 颜色在初始化阶段已经生效，同时避免把具体色值写入 Vue 脚本。
- */
-const auroraColorStops: AuroraColorStops = [
-  'var(--login-aurora-color-start)',
-  'var(--login-aurora-color-middle)',
-  'var(--login-aurora-color-end)',
-];
 
 /**
  * 计算属性

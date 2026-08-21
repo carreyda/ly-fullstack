@@ -4,3 +4,4 @@
 export * from './modules/app/interface';
 export * from './modules/auth/interface';
 export * from './modules/menu/interface';
+export * from './modules/role/interface';

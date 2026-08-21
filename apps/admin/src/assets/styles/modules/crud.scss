@@ -1,0 +1,68 @@
+/**
+ * 后台列表型 CRUD 页面的统一工作区结构
+ *
+ * 标题、筛选、表格和分页共享一个连续表面，只通过分隔线建立层级，业务页面不再重复维护尺寸。
+ */
+.admin-crud-page {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: var(--spacing-lg);
+  background: var(--body-bg-color);
+
+  &__workspace {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--fill-color);
+  }
+
+  &__header {
+    display: flex;
+    min-height: 64px;
+    flex: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-lg);
+    padding: 0 var(--spacing-xl);
+  }
+
+  &__title {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  &__table {
+    min-height: 0;
+    flex: 1;
+  }
+
+  &__pagination {
+    display: flex;
+    min-height: 60px;
+    flex: none;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 var(--spacing-xl);
+    border-top: 1px solid var(--border-color);
+  }
+}
+
+@media (max-width: 960px) {
+  .admin-crud-page {
+    padding: var(--spacing-md);
+
+    &__header,
+    &__pagination {
+      padding-right: var(--spacing-lg);
+      padding-left: var(--spacing-lg);
+    }
+  }
+}

@@ -4,3 +4,4 @@
 export * from './modules/nav';
 export * from './modules/menu-icons';
 export * from './modules/page-registry';
+export * from './modules/model';

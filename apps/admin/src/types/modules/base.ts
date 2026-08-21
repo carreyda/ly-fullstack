@@ -19,14 +19,14 @@ export type DataFilterFieldType = 'input' | 'select' | 'date' | 'daterange';
 /**
  * 筛选控件能够提交的基础值
  */
-export type DataFilterPrimitive = string | number | boolean;
+export type DataFilterPrimitive = string | number;
 
 /**
  * 筛选模型中的单个字段值
  *
  * 日期范围使用字符串数组；清空控件后使用 `null` 或 `undefined`，请求层应在提交前统一移除空值。
  */
-export type DataFilterValue = DataFilterPrimitive | DataFilterPrimitive[] | null | undefined;
+export type DataFilterValue = DataFilterPrimitive | string[] | number[] | null | undefined;
 
 /**
  * 页面持有的筛选模型
