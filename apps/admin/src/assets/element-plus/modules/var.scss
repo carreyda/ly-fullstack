@@ -23,17 +23,13 @@
     ),
   ),
   $menu: (
-    'active-color': var(--color-primary),
+    'active-color': var(--menu-active-text-color),
     'text-color': var(--color-text-secondary),
-    'hover-text-color': var(--color-text-primary),
+    'hover-text-color': var(--menu-hover-text-color),
     'bg-color': transparent,
-    'hover-bg-color': color-mix(in srgb, var(--color-primary) 8%, transparent),
-    'item-hover-fill': color-mix(in srgb, var(--color-primary) 8%, transparent),
-    'active-bg-color': linear-gradient(
-        90deg,
-        color-mix(in srgb, var(--color-primary) 16%, transparent),
-        color-mix(in srgb, var(--color-primary) 4%, transparent)
-      ),
+    'hover-bg-color': var(--menu-hover-background),
+    'item-hover-fill': var(--menu-hover-background),
+    'active-bg-color': var(--menu-active-background),
     'border-color': transparent,
     'item-height': 42px,
     'sub-item-height': 40px,

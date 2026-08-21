@@ -18,6 +18,7 @@ rs.mock('echarts/charts', () => ({
 rs.mock('echarts/components', () => ({
   GridComponent: { type: 'grid' },
   MarkLineComponent: { type: 'markLine' },
+  TooltipComponent: { type: 'tooltip' },
 }));
 
 rs.mock('echarts/renderers', () => ({
@@ -37,6 +38,7 @@ describe('echarts module', () => {
       { type: 'line' },
       { type: 'grid' },
       { type: 'markLine' },
+      { type: 'tooltip' },
       { type: 'canvas' },
       { type: 'svg' },
     ]);

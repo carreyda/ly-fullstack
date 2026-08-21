@@ -2,23 +2,27 @@
   position: relative;
   width: 100%;
   height: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
-  padding: 16px;
+  overflow: hidden;
   container-type: inline-size;
+
+  &__scrollbar {
+    width: 100%;
+    height: 100%;
+  }
+
+  &__content {
+    min-width: 0;
+    padding: 16px;
+  }
 
   &__shell {
     display: grid;
-    min-height: 100%;
     grid-template-columns: minmax(0, 1fr) clamp(300px, 28%, 360px);
     gap: 16px;
   }
 
   &__main {
-    display: flex;
     min-width: 0;
-    flex-direction: column;
-    gap: 16px;
   }
 
   &__metrics {
@@ -30,7 +34,7 @@
   &__lower {
     display: grid;
     min-height: 360px;
-    flex: 1;
+    margin-top: 16px;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
   }
@@ -44,7 +48,19 @@
   }
 
   &__aside {
-    min-height: 100%;
+    display: grid;
+    min-height: 0;
+    align-self: start;
+    gap: 16px;
+  }
+
+  &__aside-panel {
+    min-height: 0;
+  }
+
+  &__overview {
+    min-height: 0;
+    margin-top: 16px;
   }
 }
 
@@ -57,16 +73,14 @@
     &__metrics {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-
-    &__aside {
-      min-height: 280px;
-    }
   }
 }
 
 @container (max-width: 560px) {
   .dashboard {
-    padding: 12px;
+    &__content {
+      padding: 12px;
+    }
 
     &__metrics,
     &__lower {

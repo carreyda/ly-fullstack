@@ -1,12 +1,12 @@
 import type { BarSeriesOption, LineSeriesOption } from 'echarts/charts';
-import type { GridComponentOption, MarkLineComponentOption } from 'echarts/components';
+import type { GridComponentOption, MarkLineComponentOption, TooltipComponentOption } from 'echarts/components';
 import type { ComposeOption, EChartsInitOpts, EChartsType } from 'echarts/core';
 
 /**
  * 当前公共模块注册能力对应的图表配置。
  */
 export type ChartOption = ComposeOption<
-  BarSeriesOption | LineSeriesOption | GridComponentOption | MarkLineComponentOption
+  BarSeriesOption | LineSeriesOption | GridComponentOption | MarkLineComponentOption | TooltipComponentOption
 >;
 
 /**

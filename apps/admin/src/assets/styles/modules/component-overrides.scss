@@ -22,7 +22,7 @@
     border-left: 2px solid transparent;
 
     &.is-active {
-      border-left-color: var(--el-menu-active-color);
+      border-left-color: var(--menu-active-border-color);
       background: var(--el-menu-active-bg-color);
     }
   }

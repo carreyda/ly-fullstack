@@ -8,6 +8,7 @@
   justify-content: space-between;
   padding: 0 12px;
   border-bottom: 1px solid var(--border-color);
+  background: var(--layout-header-background);
 
   &__left,
   &__right {
@@ -126,11 +127,11 @@
     height: 30px;
     flex: 0 0 30px;
     place-items: center;
-    border: 1px solid color-mix(in srgb, var(--color-primary) 35%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-primary) 45%, transparent);
     border-radius: 50%;
-    color: var(--palette-dark-950);
-    background: linear-gradient(135deg, var(--color-primary), #8fffd6);
-    font-size: 11px;
+    color: var(--color-bg-page);
+    background: linear-gradient(135deg, var(--color-primary), color-mix(in srgb, var(--color-primary) 68%, white));
+    font-size: 12px;
     font-weight: 700;
   }
 

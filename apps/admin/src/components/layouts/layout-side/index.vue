@@ -10,16 +10,18 @@
       <span class="layout-side__status" aria-hidden="true"></span>
     </header>
     <div class="layout-side__body">
-      <el-menu
-        class="layout-side__menu"
-        :collapse="props.collapsed"
-        :collapse-transition="false"
-        :default-active="route.path"
-        :default-openeds="ADMIN_NAV_DEFAULT_OPENED_KEYS"
-        @select="handleMenuSelect"
-      >
-        <layout-menu-item v-for="item in ADMIN_NAV_ITEMS" :key="item.key" :item="item" root />
-      </el-menu>
+      <el-scrollbar class="layout-side__scrollbar">
+        <el-menu
+          class="layout-side__menu"
+          :collapse="props.collapsed"
+          :collapse-transition="false"
+          :default-active="route.path"
+          :default-openeds="ADMIN_NAV_DEFAULT_OPENED_KEYS"
+          @select="handleMenuSelect"
+        >
+          <layout-menu-item v-for="item in ADMIN_NAV_ITEMS" :key="item.key" :item="item" root />
+        </el-menu>
+      </el-scrollbar>
     </div>
   </aside>
 </template>
@@ -29,12 +31,6 @@
  * 导入 Vue Router 模块
  */
 import { useRoute, useRouter } from 'vue-router';
-
-/**
- * 导入组件
- */
-import { ElMenu } from 'element-plus';
-import 'element-plus/es/components/menu/style/index';
 
 import LayoutMenuItem from './menu-item.vue';
 
@@ -189,9 +185,13 @@ const handleMenuSelect = (key: string): void => {
   &__body {
     min-height: 0;
     flex: 1;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden;
     padding: 10px 0;
+  }
+
+  &__scrollbar {
+    width: 100%;
+    height: 100%;
   }
 
   &__menu {

@@ -1,36 +1,53 @@
 <template>
   <div class="dashboard">
-    <div class="dashboard__shell">
-      <div class="dashboard__main">
-        <section class="dashboard__metrics" aria-label="核心指标">
-          <fluid-glass-card
-            v-for="card in METRIC_CARDS"
-            :key="card.key"
-            :eyebrow="card.eyebrow"
-            :title="card.title"
-            :value="card.value"
-            :meta-label="card.metaLabel"
-            :trend-text="card.trendText"
-            :trend-tone="card.trendTone"
-            :speed="card.speed"
-            :intensity="card.intensity"
-            :pointer="card.pointer"
-            :seed="card.seed"
-          />
-        </section>
+    <el-scrollbar class="dashboard__scrollbar">
+      <div class="dashboard__content">
+        <div class="dashboard__shell">
+          <div class="dashboard__main">
+            <section class="dashboard__metrics" aria-label="核心指标">
+              <fluid-glass-card
+                v-for="card in METRIC_CARDS"
+                :key="card.key"
+                :eyebrow="card.eyebrow"
+                :title="card.title"
+                :value="card.value"
+                :meta-label="card.metaLabel"
+                :trend-text="card.trendText"
+                :trend-tone="card.trendTone"
+                :speed="card.speed"
+                :intensity="card.intensity"
+                :pointer="card.pointer"
+                :seed="card.seed"
+              />
+            </section>
 
-        <div class="dashboard__lower">
-          <section class="dashboard__panel" aria-label="左侧内容区域"></section>
-          <section class="dashboard__panel" aria-label="右侧内容区域"></section>
+            <div class="dashboard__lower">
+              <dashboard-chart-panel variant="traffic" />
+              <dashboard-chart-panel variant="module" />
+            </div>
+
+            <dashboard-system-overview class="dashboard__panel dashboard__overview" />
+          </div>
+
+          <aside class="dashboard__aside" aria-label="侧边内容区域">
+            <dashboard-todo-panel class="dashboard__panel dashboard__aside-panel" />
+            <dashboard-activity-panel class="dashboard__panel dashboard__aside-panel" />
+          </aside>
         </div>
       </div>
-
-      <aside class="dashboard__panel dashboard__aside" aria-label="侧边内容区域"></aside>
-    </div>
+    </el-scrollbar>
   </div>
 </template>
 
 <script setup lang="ts">
+/**
+ * 导入首页内容面板。
+ */
+import DashboardChartPanel from './components/dashboard-chart-panel/index.vue';
+import DashboardActivityPanel from './components/dashboard-activity-panel/index.vue';
+import DashboardTodoPanel from './components/dashboard-todo-panel/index.vue';
+import DashboardSystemOverview from './components/dashboard-system-overview/index.vue';
+
 /**
  * 首页指标卡片展示数据
  *

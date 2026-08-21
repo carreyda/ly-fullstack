@@ -1,16 +1,16 @@
 import * as echarts from 'echarts/core';
 import { BarChart, LineChart } from 'echarts/charts';
-import { GridComponent, MarkLineComponent } from 'echarts/components';
+import { GridComponent, MarkLineComponent, TooltipComponent } from 'echarts/components';
 import { CanvasRenderer, SVGRenderer } from 'echarts/renderers';
 
 import type { ChartInitOptions, ChartInstance } from '../types';
 
-echarts.use([BarChart, LineChart, GridComponent, MarkLineComponent, CanvasRenderer, SVGRenderer]);
+echarts.use([BarChart, LineChart, GridComponent, MarkLineComponent, TooltipComponent, CanvasRenderer, SVGRenderer]);
 
 /**
  * 创建按需注册能力范围内的 ECharts 实例。
  *
- * 当前仅注册柱状图、折线图、直角坐标系、标线以及 Canvas/SVG 渲染器。新增图表能力时，
+ * 当前仅注册柱状图、折线图、直角坐标系、标线、提示框以及 Canvas/SVG 渲染器。新增图表能力时，
  * 必须同步扩展注册项与 ChartOption，确保运行时能力和类型声明一致。
  *
  * @param element 图表容器

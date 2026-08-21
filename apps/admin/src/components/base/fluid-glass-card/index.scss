@@ -9,7 +9,7 @@
   overflow: hidden;
   isolation: isolate;
   border: 1px solid var(--fluid-card-border);
-  border-radius: 16px;
+  border-radius: var(--fluid-card-radius);
   background-color: var(--fluid-card-background);
   box-shadow: var(--fluid-card-shadow);
   cursor: default;
@@ -23,7 +23,7 @@
   &:hover {
     border-color: var(--fluid-card-border-hover);
     box-shadow: var(--fluid-card-shadow-hover);
-    transform: translateY(-3px);
+    transform: translateY(var(--fluid-card-hover-translate));
   }
 
   &::before {
@@ -43,6 +43,7 @@
     width: 100%;
     height: 100%;
     border-radius: inherit;
+    mask-image: var(--fluid-card-canvas-mask);
     pointer-events: none;
   }
 
@@ -145,7 +146,7 @@
   &__unit {
     margin-left: 5px;
     color: var(--fluid-card-unit-color);
-    font-size: 10px;
+    font-size: 12px;
   }
 
   &__change {

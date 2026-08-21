@@ -43,9 +43,6 @@ import { computed } from 'vue';
  * 导入组件
  */
 import { ChevronDown, ChevronUp } from '@lucide/vue';
-import { ElMenuItem, ElSubMenu } from 'element-plus';
-import 'element-plus/es/components/menu-item/style/index';
-import 'element-plus/es/components/sub-menu/style/index';
 
 /**
  * 导入类型声明
