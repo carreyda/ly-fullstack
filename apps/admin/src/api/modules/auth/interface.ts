@@ -1,8 +1,8 @@
 import { serviceBase } from '@/services/service-base';
 
-import { API_CREATE_AUTH_SESSION, API_GET_AUTH_SESSION } from './api';
+import { API_CHANGE_ADMIN_PASSWORD, API_CREATE_AUTH_SESSION, API_GET_AUTH_SESSION } from './api';
 
-import type { AdminLoginParams, AdminLoginResponse, AdminSession } from '@repo/shared/types';
+import type { AdminLoginParams, AdminLoginResponse, AdminSession, ChangeAdminPasswordParams } from '@repo/shared/types';
 
 /**
  * 向页面 Composable 和 Store 透出认证接口使用的 Shared HTTP 契约
@@ -37,4 +37,16 @@ export const fetchAdminSession = (): Promise<AdminSession> => {
       unauthorizedEvent: false,
     },
   });
+};
+
+/**
+ * 修改当前管理员的登录密码
+ *
+ * 当前密码和新密码只进入本次 HTTPS 请求体。服务端校验成功后不会继续返回敏感数据，调用方应清除当前
+ * 登录会话并要求用户使用新密码重新登录，避免已有页面继续持有修改前签发的 Token。
+ *
+ * @param params 当前密码和新密码
+ */
+export const changeAdminPassword = (params: ChangeAdminPasswordParams): Promise<void> => {
+  return serviceBase.put<void, ChangeAdminPasswordParams>(API_CHANGE_ADMIN_PASSWORD, params);
 };

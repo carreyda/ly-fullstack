@@ -37,6 +37,7 @@ html[data-theme='dark'] {
   --control-accent-color: var(--color-accent);
   --control-focus-ring-color: color-mix(in srgb, var(--color-primary) 34%, transparent);
   --overlay-fill-color: var(--palette-dark-850);
+  --overlay-shadow: 0 16px 40px color-mix(in srgb, var(--palette-black) 28%, transparent);
   --mask-fill-color: color-mix(in srgb, var(--palette-dark-950) 88%, transparent);
   --mask-extra-light-fill-color: color-mix(in srgb, var(--palette-dark-950) 35%, transparent);
   --empty-fill-color-0: var(--control-fill-color);
@@ -150,6 +151,7 @@ html[data-theme='light'] {
   --control-accent-color: var(--color-primary);
   --control-focus-ring-color: color-mix(in srgb, var(--color-primary) 26%, transparent);
   --overlay-fill-color: var(--palette-white);
+  --overlay-shadow: 0 14px 36px color-mix(in srgb, var(--palette-graphite-925) 10%, transparent);
   --mask-fill-color: color-mix(in srgb, var(--palette-white) 88%, transparent);
   --mask-extra-light-fill-color: color-mix(in srgb, var(--palette-white) 35%, transparent);
   --empty-fill-color-0: var(--palette-white);

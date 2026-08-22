@@ -29,10 +29,22 @@
         <maximize-2 v-else :size="18" :stroke-width="1.8" />
       </button>
 
-      <button class="layout-header__action layout-header__notification" type="button" aria-label="查看通知">
-        <bell :size="18" :stroke-width="1.8" />
-        <span class="layout-header__notification-dot" aria-hidden="true"></span>
-      </button>
+      <el-popover
+        placement="bottom-end"
+        trigger="click"
+        :width="360"
+        :show-arrow="false"
+        popper-class="layout-header-notification-popper"
+      >
+        <template #reference>
+          <button class="layout-header__action layout-header__notification" type="button" aria-label="查看通知">
+            <bell :size="18" :stroke-width="1.8" />
+            <span v-if="hasUnreadNotification" class="layout-header__notification-dot" aria-hidden="true"></span>
+          </button>
+        </template>
+
+        <header-notification @unread-change="handleNotificationUnreadChange" />
+      </el-popover>
 
       <button class="layout-header__action" type="button" aria-label="切换主题" @click="toggleTheme">
         <sun v-if="isDarkTheme" :size="18" :stroke-width="1.8" />
@@ -58,11 +70,7 @@
         </button>
 
         <div v-show="isProfileOpen" class="layout-header__profile-menu" role="menu">
-          <button type="button" role="menuitem" @click="handleProfileCommand">
-            <user-round :size="16" :stroke-width="1.8" />
-            <span>个人中心</span>
-          </button>
-          <button type="button" role="menuitem" @click="handleProfileCommand">
+          <button type="button" role="menuitem" @click="handlePasswordOpen">
             <key-round :size="16" :stroke-width="1.8" />
             <span>修改密码</span>
           </button>
@@ -75,24 +83,11 @@
       </div>
     </div>
   </header>
+
+  <change-password-dialog ref="changePasswordDialogRef" @success="handlePasswordChanged" />
 </template>
 
 <script setup lang="ts">
-/**
- * Vue 响应式与生命周期能力用于维护面包屑、全屏状态、头像菜单及其浏览器事件清理。
- */
-import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue';
-
-/**
- * 路由状态用于生成面包屑，并在退出登录后替换到公开登录页。
- */
-import { useRoute, useRouter } from 'vue-router';
-
-/**
- * `storeToRefs` 保留管理员资料从认证 Store 解构后的响应性。
- */
-import { storeToRefs } from 'pinia';
-
 /**
  * Lucide 图标承载顶部操作按钮和管理员下拉菜单的统一视觉语言。
  */
@@ -108,13 +103,20 @@ import {
   PanelLeftOpen,
   RefreshCw,
   Sun,
-  UserRound,
 } from '@lucide/vue';
+
+import ChangePasswordDialog from './components/change-password-dialog/index.vue';
+import HeaderNotification from './components/header-notification/index.vue';
 
 /**
  * 主题 Composable 统一处理明暗主题状态、持久化与扩散动画。
  */
 import { useTheme } from '@/composables/use-theme';
+
+/**
+ * 全局反馈模块用于在密码修改完成后提示重新登录。
+ */
+import { showSuccessMessage } from '@/feedback';
 
 /**
  * 认证 Store 提供当前管理员资料和退出登录能力。
@@ -168,8 +170,10 @@ const route = useRoute();
 const router = useRouter();
 
 const profileRef = useTemplateRef<HTMLElement>('profileRef');
+const changePasswordDialogRef = useTemplateRef<InstanceType<typeof ChangePasswordDialog>>('changePasswordDialogRef');
 const isFullscreen = ref(false);
 const isProfileOpen = ref(false);
+const hasUnreadNotification = ref(true);
 
 /**
  * 根据当前路由生成以首页为固定起点的顶部面包屑
@@ -188,9 +192,9 @@ const breadcrumbList = computed(() => {
 const profileName = computed(() => user.value?.displayName || user.value?.username || '管理员');
 
 /**
- * 从当前展示名称截取两个字符作为无头像时的文字标识
+ * 从当前展示名称截取首个字符作为无头像时的文字标识
  */
-const avatarText = computed(() => profileName.value.trim().slice(0, 2).toUpperCase() || 'LY');
+const avatarText = computed(() => profileName.value.trim().slice(0, 1).toUpperCase() || '管');
 
 /**
  * 切换侧栏折叠状态
@@ -237,10 +241,32 @@ const handleProfileToggle = (): void => {
 };
 
 /**
- * 关闭头像菜单
+ * 打开当前管理员修改密码弹框
  */
-const handleProfileCommand = (): void => {
+const handlePasswordOpen = (): void => {
   isProfileOpen.value = false;
+  changePasswordDialogRef.value?.open();
+};
+
+/**
+ * 密码修改成功后清除当前会话并返回登录页
+ *
+ * 服务端已经保存新密码，前端立即退出可以避免继续使用修改前签发的 Token。记住密码 Cookie 已由弹框
+ * Composable 删除，登录页不会回填失效的旧密码。
+ */
+const handlePasswordChanged = (): void => {
+  showSuccessMessage('密码修改成功，请使用新密码重新登录');
+  authStore.logout();
+  void router.replace({ name: 'Login' });
+};
+
+/**
+ * 根据通知面板同步顶栏未读红点
+ *
+ * @param count 当前仍未阅读的通知数量
+ */
+const handleNotificationUnreadChange = (count: number): void => {
+  hasUnreadNotification.value = count > 0;
 };
 
 /**

@@ -1,0 +1,199 @@
+.header-notification-panel {
+  width: 100%;
+  color: var(--color-text-primary);
+
+  &__header {
+    display: flex;
+    min-height: 62px;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    padding: 0 var(--spacing-lg);
+    border-bottom: 1px solid var(--border-color);
+
+    div {
+      display: flex;
+      min-width: 0;
+      align-items: baseline;
+      gap: var(--spacing-sm);
+    }
+
+    strong {
+      font-size: var(--font-size-md);
+      font-weight: 600;
+    }
+
+    span {
+      color: var(--color-text-tertiary);
+      font-size: 12px;
+    }
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: 5px 7px;
+      border: 0;
+      border-radius: var(--radius-sm);
+      color: var(--color-primary);
+      background: transparent;
+      cursor: pointer;
+      font-size: 12px;
+
+      &:hover:not(:disabled) {
+        background: var(--control-hover-fill-color);
+      }
+
+      &:disabled {
+        color: var(--color-text-tertiary);
+        cursor: default;
+      }
+    }
+  }
+
+  &__tabs {
+    display: flex;
+    height: 46px;
+    align-items: flex-end;
+    gap: var(--spacing-xl);
+    padding: 0 var(--spacing-lg);
+    border-bottom: 1px solid var(--border-color);
+
+    button {
+      position: relative;
+      display: inline-flex;
+      height: 46px;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: 0 1px;
+      border: 0;
+      color: var(--color-text-secondary);
+      background: transparent;
+      cursor: pointer;
+      font-size: var(--font-size-sm);
+
+      &::after {
+        position: absolute;
+        right: 0;
+        bottom: -1px;
+        left: 0;
+        height: 2px;
+        background: transparent;
+        content: '';
+      }
+    }
+
+    span {
+      color: var(--color-text-tertiary);
+      font-size: 12px;
+    }
+  }
+
+  &__tab--active {
+    color: var(--color-primary) !important;
+
+    &::after {
+      background: var(--color-primary) !important;
+    }
+  }
+
+  &__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li + li {
+      border-top: 1px solid var(--border-color);
+    }
+
+    button {
+      position: relative;
+      display: flex;
+      width: 100%;
+      min-height: 90px;
+      align-items: flex-start;
+      gap: var(--spacing-md);
+      padding: var(--spacing-lg);
+      border: 0;
+      color: inherit;
+      background: transparent;
+      cursor: pointer;
+      text-align: left;
+      transition: background var(--duration-fast) var(--ease-standard);
+
+      &:hover,
+      &:focus-visible {
+        background: var(--control-hover-fill-color);
+        outline: none;
+      }
+    }
+  }
+
+  &__icon {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    place-items: center;
+    border-radius: var(--radius-md);
+
+    &--system {
+      color: var(--status-primary-text-color);
+      background: var(--status-primary-fill-color);
+    }
+
+    &--security {
+      color: var(--status-success-text-color);
+      background: var(--status-success-fill-color);
+    }
+
+    &--task {
+      color: var(--status-warning-text-color);
+      background: var(--status-warning-fill-color);
+    }
+  }
+
+  &__content {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-direction: column;
+
+    strong {
+      overflow: hidden;
+      color: var(--color-text-primary);
+      font-size: var(--font-size-sm);
+      font-weight: 500;
+      line-height: 20px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    span,
+    small {
+      color: var(--color-text-tertiary);
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    span {
+      overflow: hidden;
+      margin-top: 2px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    small {
+      margin-top: 4px;
+    }
+  }
+
+  &__unread {
+    width: 6px;
+    height: 6px;
+    flex: 0 0 6px;
+    margin-top: 7px;
+    border-radius: 50%;
+    background: var(--status-danger-text-color);
+  }
+}

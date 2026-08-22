@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Inject, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Inject, Post, Put, UseGuards } from '@nestjs/common';
 
 import type { AdminLoginResponse, AdminSession } from '@repo/shared/types';
 
@@ -6,6 +6,7 @@ import { AdminJwtGuard, createDtoValidationPipe, CurrentAdmin } from '../../comm
 import type { AuthenticatedAdmin } from '../../types';
 import { AuthService } from './auth.service';
 import { AdminLoginDto } from './dto/admin-login.dto';
+import { ChangeAdminPasswordDto } from './dto/change-admin-password.dto';
 
 /**
  * 管理端登录与当前会话 Controller
@@ -51,5 +52,23 @@ export class AuthController {
       menus: admin.menus,
       permissions: admin.permissions,
     };
+  }
+
+  /**
+   * 修改当前管理员的登录密码
+   *
+   * JWT Guard 先确认当前会话仍然有效，认证服务再比较请求中的当前密码，避免仅凭已登录页面直接覆盖密码。
+   *
+   * @param dto 当前密码和新密码
+   * @param admin JWT Guard 写入的当前管理员访问上下文
+   */
+  @Put('password')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(AdminJwtGuard)
+  changePassword(
+    @Body(createDtoValidationPipe(ChangeAdminPasswordDto)) dto: ChangeAdminPasswordDto,
+    @CurrentAdmin() admin: AuthenticatedAdmin,
+  ): Promise<void> {
+    return this.authService.changePassword(admin.id, dto);
   }
 }

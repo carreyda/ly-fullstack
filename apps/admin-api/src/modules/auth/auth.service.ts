@@ -1,6 +1,6 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { compare } from 'bcryptjs';
+import { compare, hash } from 'bcryptjs';
 
 import type { AdminLoginResponse } from '@repo/shared/types';
 
@@ -8,6 +8,12 @@ import { PrismaService } from '../../prisma/prisma.service';
 import type { AdminJwtPayload } from '../../types';
 import { RbacAccessService } from '../rbac/rbac-access.service';
 import type { AdminLoginDto } from './dto/admin-login.dto';
+import type { ChangeAdminPasswordDto } from './dto/change-admin-password.dto';
+
+/**
+ * 管理员密码使用的 bcrypt 哈希计算轮数
+ */
+const PASSWORD_HASH_ROUNDS = 12;
 
 /**
  * 管理端账号密码认证服务
@@ -70,5 +76,39 @@ export class AuthService {
       menus: admin.menus,
       permissions: admin.permissions,
     };
+  }
+
+  /**
+   * 校验当前密码并替换当前管理员的密码哈希
+   *
+   * 用户记录在 JWT 校验后仍可能被并发删除，因此找不到账号时按会话失效处理。当前密码错误和新旧密码相同
+   * 使用稳定业务提示，不返回密码哈希或比较细节。
+   *
+   * @param userId 当前 JWT 会话中的管理员主键
+   * @param dto 当前密码和新密码
+   * @throws 当前账号不存在、当前密码错误或新旧密码相同时抛出业务异常
+   */
+  async changePassword(userId: number, dto: ChangeAdminPasswordDto): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { passwordHash: true },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('当前登录状态已失效');
+    }
+
+    if (!(await compare(dto.currentPassword, user.passwordHash))) {
+      throw new BadRequestException('当前密码错误');
+    }
+
+    if (await compare(dto.newPassword, user.passwordHash)) {
+      throw new BadRequestException('新密码不能与当前密码相同');
+    }
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash: await hash(dto.newPassword, PASSWORD_HASH_ROUNDS) },
+    });
   }
 }

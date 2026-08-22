@@ -16,6 +16,23 @@ export interface AdminLoginParams {
 }
 
 /**
+ * 当前管理员主动修改登录密码的请求参数
+ *
+ * 与用户管理中的“重置他人密码”不同，本操作必须提供当前密码，由认证服务再次验证账号归属。
+ */
+export interface ChangeAdminPasswordParams {
+  /**
+   * 当前正在使用的登录密码，只参与本次 bcrypt 校验
+   */
+  currentPassword: string;
+
+  /**
+   * 需要替换的新登录密码，服务端只保存 bcrypt 哈希
+   */
+  newPassword: string;
+}
+
+/**
  * 已登录管理员的非敏感资料。
  */
 export interface AdminProfile {

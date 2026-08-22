@@ -1,0 +1,81 @@
+/**
+ * 管理后台通用抽屉结构
+ *
+ * 业务抽屉通过 `modal-class="drawer-custom-common"` 接入。宽度、表面、边框和阴影全部使用主题语义变量，
+ * 具体业务只负责 Body 内部布局，不再重复覆盖 Element Plus 的 Header 和 Footer。
+ */
+.drawer-custom-common {
+  --drawer-width: 860px;
+
+  .el-drawer {
+    width: min(var(--drawer-width), calc(100vw - 32px)) !important;
+    border-left: 1px solid var(--border-color);
+    background: var(--fill-color);
+    box-shadow: var(--overlay-shadow);
+  }
+
+  .el-drawer__header {
+    min-height: 58px;
+    margin-bottom: 0;
+    padding: 0 var(--spacing-xl);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .el-drawer__title {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+  }
+
+  .el-drawer__close-btn {
+    color: var(--color-text-tertiary);
+
+    &:hover,
+    &:focus-visible {
+      color: var(--color-primary);
+    }
+  }
+
+  .el-drawer__body {
+    min-height: 0;
+    padding: 0;
+    color: var(--color-text-primary);
+    overflow: hidden;
+  }
+
+  .el-drawer__footer {
+    padding: 0;
+    border-top: 1px solid var(--border-color);
+  }
+}
+
+/**
+ * 大型资料编辑抽屉使用更宽的桌面工作区
+ */
+.drawer-custom-common--wide {
+  --drawer-width: 1280px;
+}
+
+/**
+ * 全屏抽屉移除左侧边界并占满视口
+ */
+.drawer-custom-common--fullscreen {
+  .el-drawer {
+    width: 100vw !important;
+    border-left: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .drawer-custom-common {
+    .el-drawer {
+      width: calc(100vw - 16px) !important;
+    }
+  }
+
+  .drawer-custom-common--fullscreen {
+    .el-drawer {
+      width: 100vw !important;
+    }
+  }
+}

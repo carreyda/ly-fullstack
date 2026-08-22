@@ -67,6 +67,20 @@
   margin-right: 0;
 }
 
+/**
+ * 顶栏通知 Popover 表面
+ *
+ * Popover 通过 Teleport 挂载到 body，必须使用 Header 的业务 class 命中，不能依赖组件 scoped 属性。
+ */
+.layout-header-notification-popper.el-popover {
+  overflow: hidden;
+  padding: 0;
+  border-color: var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--overlay-fill-color);
+  box-shadow: var(--overlay-shadow);
+}
+
 .layout-side__menu-popper.el-popper.is-light {
   border-color: var(--border-color);
   background: var(--color-bg-page);

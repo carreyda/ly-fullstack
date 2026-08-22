@@ -1,0 +1,20 @@
+.change-password-dialog {
+  padding: var(--spacing-xl);
+
+  &__notice {
+    margin-bottom: var(--spacing-xl);
+    color: var(--color-text-tertiary);
+    font-size: 12px;
+    line-height: 20px;
+  }
+
+  &__footer {
+    display: flex;
+    min-height: 64px;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
+    padding: 0 var(--spacing-xl);
+    border-top: 1px solid var(--border-color);
+  }
+}

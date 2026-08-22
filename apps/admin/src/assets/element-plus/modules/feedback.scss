@@ -1,0 +1,53 @@
+/**
+ * 管理后台统一消息反馈
+ *
+ * `src/feedback/modules/message.ts` 通过 customClass 区分成功、警告和错误消息。消息表面保持与当前主题一致，
+ * 语义色只用于图标、文字和边框，避免深色主题出现刺眼色块，也避免浅色主题退回 Element Plus 默认蓝色。
+ */
+.app-message-success,
+.app-message-warning,
+.app-message-error {
+  --app-message-color: var(--color-text-secondary);
+  --app-message-background: var(--overlay-fill-color);
+
+  padding: 12px 16px !important;
+  border: 1px solid color-mix(in srgb, var(--app-message-color) 34%, var(--border-color)) !important;
+  border-radius: var(--radius-md) !important;
+  background: color-mix(in srgb, var(--app-message-color) 8%, var(--app-message-background)) !important;
+  box-shadow: var(--overlay-shadow) !important;
+
+  .el-message__icon {
+    color: var(--app-message-color) !important;
+    font-size: 17px;
+  }
+
+  .el-message__content {
+    color: var(--color-text-primary) !important;
+    font-size: var(--font-size-base);
+  }
+
+  .el-badge {
+    display: none !important;
+  }
+}
+
+/**
+ * 成功消息使用当前主题的成功语义色
+ */
+.app-message-success {
+  --app-message-color: var(--status-success-text-color);
+}
+
+/**
+ * 警告消息使用当前主题的警告语义色
+ */
+.app-message-warning {
+  --app-message-color: var(--status-warning-text-color);
+}
+
+/**
+ * 错误消息使用当前主题的危险语义色
+ */
+.app-message-error {
+  --app-message-color: var(--status-danger-text-color);
+}
