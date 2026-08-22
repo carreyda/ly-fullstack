@@ -44,9 +44,9 @@ import { computed, useTemplateRef } from 'vue';
 import { ChartNoAxesColumnIncreasing, TrendingUp } from '@lucide/vue';
 
 /**
- * 图表 Hook 统一处理实例初始化、主题刷新、尺寸监听和资源释放。
+ * 图表 Composable 统一处理实例初始化、主题刷新、尺寸监听和资源释放。
  */
-import { useDashboardChart } from '../../hooks/use-dashboard-chart';
+import { useDashboardChart } from '../../composables/use-dashboard-chart';
 
 /**
  * 图表配置工厂读取当前主题变量，并为每种 variant 生成对应的 ECharts 配置。

@@ -7,9 +7,13 @@ import type { RouteRecordRaw } from 'vue-router';
  */
 export const dashboard: RouteRecordRaw = {
   path: 'dashboard',
-  name: 'Dashboard',
+  name: 'dashboard',
   component: () => import('@/views/dashboard/index.vue'),
   meta: {
     title: '工作台',
+    pageBinding: {
+      component: 'dashboard/index',
+      permissionPrefix: null,
+    },
   },
 };

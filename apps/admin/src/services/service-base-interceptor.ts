@@ -1,8 +1,7 @@
 import { isAxiosError } from 'axios';
 
-import { emitter } from '@/emitter';
-import { getRequestAccessToken } from '@/services/auth-token';
-import { showErrorMessage } from '@/utils';
+import { getServiceAccessToken, notifyServiceAuthenticationFailure } from '@/services/service-auth';
+import { showServiceError } from '@/services/service-feedback';
 
 import type { ExpandInternalAxiosRequestConfig, InterceptorHooks, NestHttpErrorResponse } from '@/types';
 
@@ -36,7 +35,7 @@ const getResponseErrorMessage = (data: unknown): string => {
  */
 export const serviceBaseInterceptor: InterceptorHooks = {
   requestInterceptor(config) {
-    const token = getRequestAccessToken();
+    const token = getServiceAccessToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -54,7 +53,7 @@ export const serviceBaseInterceptor: InterceptorHooks = {
 
   responseInterceptorCatch(error) {
     if (!isAxiosError(error)) {
-      showErrorMessage('请求处理失败，请稍后重试');
+      showServiceError('请求处理失败，请稍后重试');
       return Promise.reject(error);
     }
 
@@ -63,7 +62,7 @@ export const serviceBaseInterceptor: InterceptorHooks = {
     const status = error.response?.status;
 
     if (status === 401 && config?.url !== '/auth/login' && config?.requestOptions?.unauthorizedEvent !== false) {
-      emitter.emit('EVENT_AUTH_UNAUTHORIZED');
+      notifyServiceAuthenticationFailure();
     }
 
     if (shouldShowError) {
@@ -73,7 +72,7 @@ export const serviceBaseInterceptor: InterceptorHooks = {
           ? '网络连接失败，请检查 API 服务是否已启动'
           : responseMessage || (status && status >= 500 ? '服务暂时不可用，请稍后重试' : '请求失败，请稍后重试');
 
-      showErrorMessage(message);
+      showServiceError(message);
     }
 
     return Promise.reject(error);

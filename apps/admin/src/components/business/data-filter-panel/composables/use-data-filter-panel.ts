@@ -1,38 +1,11 @@
-import type { Ref } from 'vue';
 import type {
   DataFilterFieldConfig,
   DataFilterModel,
   DataFilterSelectField,
   DataFilterValue,
   SelectOption,
+  UseDataFilterPanelOptions,
 } from '@/types';
-
-interface UseDataFilterPanelOptions {
-  /**
-   * 页面通过 v-model 持有的筛选模型
-   */
-  model: Ref<DataFilterModel>;
-
-  /**
-   * 读取重置时需要恢复的默认筛选模型
-   */
-  getDefaultModel: () => DataFilterModel | undefined;
-
-  /**
-   * 读取当前字段配置，配置引用变化时重新加载异步选项
-   */
-  getConfig: () => readonly DataFilterFieldConfig[];
-
-  /**
-   * 通知页面按当前条件查询列表
-   */
-  onSearch: () => void;
-
-  /**
-   * 通知页面已完成筛选条件重置
-   */
-  onReset: () => void;
-}
 
 /**
  * 克隆筛选模型，避免重置时复用默认对象引用

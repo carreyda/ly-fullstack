@@ -6,9 +6,12 @@
 
 - `src/components/base/`：基础组件，可被自动扫描导入。
 - `src/components/business/`：跨页面业务组件，必须显式导入。
-- `src/views/<module>/index.vue`：页面入口。列表型 CRUD 页面目录下只保留 `index.vue`。
-- `src/hooks/use-*.ts`：后台多页面复用的组合式逻辑，不设置 barrel。
+- `src/views/<module>/index.vue`：页面入口，只负责页面结构和交互编排；私有组件与逻辑继续保留在页面目录。
+- `src/views/<module>/components/`：只服务当前页面的组件，不提升到 `components/business/`。
+- `src/views/<module>/composables/`：当前页面的组合式逻辑，不设置 barrel。
+- `src/composables/use-*.ts`：后台多页面复用的组合式逻辑，不设置 barrel。
 - `src/constants/modules/model.ts`：后台筛选配置、默认筛选值、表单默认值。
+- `src/router/modules/`：静态路由与页面绑定元数据的唯一真相源；菜单选择项由 Router 派生，禁止复制到 constants。
 - `src/types/modules/base.ts`：后台基础类型，例如 `OperationType`、筛选字段类型、通用选项类型。
 
 ## 自动导入
@@ -21,7 +24,7 @@ AutoImport 当前覆盖 Vue、Vue Router、Pinia 和 Element Plus resolver 支�
 - `src/components/business/` 组件。
 - `src/components/layouts/` 组件。
 - `src/layouts/` 路由布局。
-- 本地 hooks、utils、constants、services。
+- 本地 composables、utils、constants、services。
 
 禁止为了省 import 把 `unplugin-vue-components` 的扫描目录扩大到整个 `src/components`。
 
@@ -74,7 +77,7 @@ rg -o --glob "*.css" -- "--el-color-primary:[^;}]+" apps/admin/dist/css
 - 打开新增/编辑弹窗。
 - 在弹窗成功后刷新列表。
 
-页面内不要内联复杂表单逻辑；表单弹窗或抽屉放到 `src/components/business/<module>-form-dialog/`。
+页面内不要内联复杂表单逻辑；只服务当前页面的表单弹窗或抽屉放到页面的 `components/`。只有被两个及以上页面真实复用的稳定业务组件才能进入 `src/components/business/`。
 
 ### 标准 CRUD 落地范本
 
@@ -82,8 +85,9 @@ rg -o --glob "*.css" -- "--el-color-primary:[^;}]+" apps/admin/dist/css
 
 ```text
 src/views/<module>/index.vue                         页面组合、表格列与弹框入口
-src/hooks/use-<module>-management.ts                 列表、筛选、删除和刷新编排
-src/components/business/<module>-form-dialog/        新增与编辑短表单
+src/views/<module>/composables/use-<module>-management.ts
+                                                     列表、筛选、删除和刷新编排
+src/views/<module>/components/<module>-form-dialog/  新增与编辑短表单
 src/api/modules/<module>/                            HTTP 请求与接口类型
 src/constants/modules/model.ts                       筛选配置、默认值和固定选项
 src/types/modules/<module>.ts                        Admin 私有视图模型
@@ -136,7 +140,7 @@ PaginationResult<TItem>;
 前端分页状态统一使用：
 
 ```text
-apps/admin/src/hooks/use-pagination.ts
+apps/admin/src/composables/use-pagination.ts
 ```
 
 `use-pagination.ts` 只管理分页、筛选、列表、loading 和标准分页结果，不直接依赖具体业务 API。
@@ -165,11 +169,13 @@ apps/admin/src/components/business/data-filter-panel/
 
 ## 表单弹窗与抽屉
 
-业务表单弹窗与抽屉统一放在：
+只服务一个页面的业务表单弹窗与抽屉统一放在：
 
 ```text
-apps/admin/src/components/business/<module>-form-dialog/
+apps/admin/src/views/<module>/components/<module>-form-dialog/
 ```
+
+跨页面复用且边界稳定的表单组件才提升到 `apps/admin/src/components/business/`，不能为了保持页面入口简短而提前公共化。
 
 ### 容器选择边界
 
@@ -238,7 +244,7 @@ import type { OperationType } from '@/types';
 - 内容区必须由组件自己的 `__content` 或根容器设置 `padding`，不能依赖 Element Plus 默认边距；
 - Footer 必须使用组件自己的 `__footer` 容器，并独立设置 `padding` 和顶部分隔线；
 - 弹框宽度必须兼顾窄视口，优先使用 `min(<设计宽度>, calc(100vw - 32px))`；
-- 仍使用居中对话框且内容可能超过一屏时，必须复用 `src/hooks/use-dialog-size.ts` 计算可视范围内的固定最大高度；大型表单应改用抽屉；
+- 仍使用居中对话框且内容可能超过一屏时，必须复用 `src/composables/use-dialog-size.ts` 计算可视范围内的固定最大高度；大型表单应改用抽屉；
 - 固定高度容器内必须使用 `el-scrollbar` 承载滚动内容，禁止使用 `overflow-y: auto` 产生浏览器原生滚动条；
 - Header 和 Footer 保持在滚动区之外，不能随长表单一起滚动。
 
@@ -272,7 +278,7 @@ import type { OperationType } from '@/types';
 对应逻辑统一使用：
 
 ```ts
-import { useDialogSize } from '@/hooks/use-dialog-size';
+import { useDialogSize } from '@/composables/use-dialog-size';
 
 const { dialogVisible, dialogHeight, openDialog, closeDialog } = useDialogSize(720);
 ```

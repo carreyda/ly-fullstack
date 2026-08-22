@@ -7,9 +7,23 @@ import { componentCenter } from './modules/component-center';
 import { dashboard } from './modules/dashboard';
 import { display } from './modules/display';
 import { notFound } from './modules/not-found';
+import { createAdminPageOptions } from './modules/page-options';
 import { system } from './modules/system';
 
 import type { RouteRecordRaw } from 'vue-router';
+
+/**
+ * 主布局下可以参与菜单绑定的静态业务路由
+ *
+ * 兜底页不属于可配置导航，因此不进入该集合。菜单管理的页面选项从这里递归派生，避免维护
+ * 与 Vue Router 平行的页面注册表。
+ */
+const ADMIN_PAGE_ROUTES: readonly RouteRecordRaw[] = [dashboard, system, componentCenter, display];
+
+/**
+ * 菜单管理可以绑定的前端页面
+ */
+export const ADMIN_PAGE_OPTIONS = createAdminPageOptions(ADMIN_PAGE_ROUTES);
 
 /**
  * 管理后台静态路由表
@@ -23,7 +37,7 @@ const routes: RouteRecordRaw[] = [
     name: 'AdminLayout',
     component: () => import('@/layouts/index.vue'),
     redirect: '/dashboard',
-    children: [dashboard, system, componentCenter, display, notFound],
+    children: [...ADMIN_PAGE_ROUTES, notFound],
   },
 ];
 
@@ -59,7 +73,6 @@ const resolveInternalRedirect = (value: unknown): string => {
  */
 router.beforeEach(async (to) => {
   const authStore = useAuthStore(pinia);
-  authStore.syncRequestToken();
 
   if (to.meta.public === true) {
     if (authStore.isAuthenticated) {

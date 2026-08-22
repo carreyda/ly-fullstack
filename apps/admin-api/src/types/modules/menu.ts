@@ -32,12 +32,12 @@ export interface AdminMenuRecord {
   routePath: string | null;
 
   /**
-   * 页面注册表使用的稳定标识
+   * 前端 Router 使用的稳定页面标识
    */
   routeName: string | null;
 
   /**
-   * 页面注册表对应的组件标识
+   * 前端 Router 页面绑定元数据中的组件标识
    */
   component: string | null;
 

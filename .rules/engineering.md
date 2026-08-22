@@ -61,6 +61,17 @@ refactor(services): 重构 Axios 拦截器
 
 ---
 
+## 架构边界与 CI
+
+- `pnpm check:architecture` 检查 apps/packages 依赖方向、Admin utils 纯度、服务层依赖倒置和基础组件边界。
+- 修改目录边界、别名或跨包依赖时，必须同步维护 `scripts/check-architecture.mjs`，不能只更新文字规则。
+- `pnpm check` 必须依次通过架构检查、类型检查、ESLint、Prettier、测试和构建，禁止吞掉任一失败码。
+- Admin 的 `.env.development`、`.env.test` 与 `.env.production` 只允许保存会进入浏览器产物的公开构建配置，均应提交仓库；Setup 只校验 development 的 API 端口。任何密钥都必须留在服务端环境。
+- `.github/workflows/ci.yml` 在 main 分支推送和 Pull Request 上执行 `pnpm check`，本地 Husky 不能替代远端门禁。
+- 开源仓库不得以“本地运行过”为合并依据；只有 CI 全绿才表示当前提交满足工程基线。
+
+---
+
 ## EditorConfig
 
 ```ini

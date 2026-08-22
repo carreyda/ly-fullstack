@@ -59,7 +59,7 @@ Element Plus Sass 源码编译生成 --el-* 变量和组件样式
 | `apps/admin/src/assets/element-plus/modules/var.scss`           | 在 Element Plus Sass 首次加载前配置官方 Sass map                  |
 | `apps/admin/src/assets/element-plus/index.scss`                 | Element Plus Sass 定制唯一聚合入口                                |
 | `apps/admin/src/assets/styles/modules/component-overrides.scss` | 必须命中第三方内部 DOM 的业务作用域覆盖                           |
-| `apps/admin/src/hooks/use-theme.ts`                             | 同步 Store、`data-theme`、View Transition 和主题变更事件          |
+| `apps/admin/src/composables/use-theme.ts`                       | 同步 Store、`data-theme`、View Transition 和主题变更事件          |
 | `apps/admin/src/stores/modules/theme.ts`                        | 持久化当前 `ThemeName`，不直接操作 DOM                            |
 | `apps/admin/src/types/modules/base.ts`                          | 维护 `ThemeName = 'dark'                                          | 'light'` |
 | `apps/admin/index.html`                                         | 在 Vue 启动前提供默认 `data-theme="dark"`                         |
@@ -324,7 +324,7 @@ ESLint 已通过 `no-restricted-imports` 对 `apps/admin/src/**/*.{ts,vue}` 执�
 export type ThemeName = 'dark' | 'light';
 ```
 
-Store、Hook、事件参数、Canvas 和 WebGL 组件都必须使用该类型，禁止各自声明字符串联合类型。
+Store、Composable、事件参数、Canvas 和 WebGL 组件都必须使用该类型，禁止各自声明字符串联合类型。
 
 ### Store 是状态真相源
 
@@ -339,7 +339,7 @@ persist: {
 
 Pinia 必须先执行 `app.use(pinia)`，之后才能创建任何依赖插件的 Store。提前创建 Store 会导致持久化插件没有挂载到该实例。
 
-### Hook 负责副作用
+### Composable 负责副作用
 
 组件不得直接同时修改 Store 和 DOM。统一调用 `useTheme()`：
 
@@ -495,7 +495,7 @@ pnpm format:check
 pnpm --filter @repo/admin exec rsbuild build --env-mode development --config build/rsbuild.prod.config.ts
 ```
 
-上面的 Admin 构建命令使用本地开发环境配置，适合主题开发阶段自查。执行正式 `pnpm build` 前，必须按 `docs/environment.md` 提供 Production 环境变量；不要为了让构建通过而提交 `.env.production`。
+上面的 Admin 构建命令使用本地开发环境配置，适合主题开发阶段自查。正式 `pnpm build` 会读取仓库提交的 Admin `.env.production`；该文件只允许保存最终会暴露给浏览器的公开配置，服务端密钥仍按 `docs/environment.md` 注入。
 
 涉及共享类型、Store、事件或跨包代码时执行完整检查：
 

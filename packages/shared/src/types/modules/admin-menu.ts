@@ -33,12 +33,12 @@ export interface AdminMenuTreeNode {
   routePath: string | null;
 
   /**
-   * 前端页面注册表使用的稳定标识
+   * 前端 Router 使用的稳定页面标识
    */
   routeName: string | null;
 
   /**
-   * 前端页面注册表对应的组件标识，只用于核对绑定关系
+   * 前端 Router 页面绑定元数据中的组件标识，只用于核对绑定关系
    */
   component: string | null;
 
@@ -93,17 +93,17 @@ export interface CreateAdminMenuParams {
   type: RbacMenuType;
 
   /**
-   * 页面注册表提供的访问地址
+   * 前端 Router 提供的访问地址
    */
   routePath?: string | null;
 
   /**
-   * 页面注册表提供的稳定标识
+   * 前端 Router 提供的稳定页面标识
    */
   routeName?: string | null;
 
   /**
-   * 页面注册表提供的组件标识
+   * 前端 Router 页面绑定元数据提供的组件标识
    */
   component?: string | null;
 

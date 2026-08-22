@@ -15,6 +15,40 @@ export interface NestHttpErrorResponse {
 }
 
 /**
+ * 请求服务向应用层请求用户反馈时使用的注入协议
+ *
+ * 服务层只认识该协议，不直接依赖 Element Plus。管理后台在启动阶段注入具体实现，测试和未来的
+ * 其他运行环境可以替换为静默或自定义反馈。
+ */
+export interface ServiceFeedback {
+  /**
+   * 展示请求失败提示
+   *
+   * @param message 已转换为用户可读文本的错误信息
+   */
+  showError: (message: string) => void;
+}
+
+/**
+ * 请求服务读取认证状态和通知会话失效时使用的注入协议
+ *
+ * Token 的持久化、Pinia 状态和登录页跳转都属于应用层职责，Axios 拦截器只通过该协议访问。
+ */
+export interface ServiceAuth {
+  /**
+   * 读取当前管理端 Access Token
+   *
+   * @returns 未登录时返回空字符串
+   */
+  getToken: () => string;
+
+  /**
+   * 通知应用层当前会话已经失效
+   */
+  onAuthenticationFailure: () => void;
+}
+
+/**
  * 单次请求的展示选项
  *
  * 业务接口通常使用服务层统一错误提示；个别需要自行渲染错误状态的页面可以关闭全局提示。

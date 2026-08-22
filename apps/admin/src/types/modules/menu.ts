@@ -1,5 +1,5 @@
 import type { Component } from 'vue';
-import type { PermissionCode, RbacMenuType } from '@repo/shared/types';
+import type { AdminMenuTreeNode, PermissionCode, RbacMenuType } from '@repo/shared/types';
 
 /**
  * 菜单图标选择器中的图标分类
@@ -77,36 +77,6 @@ export interface AdminNavItem {
 }
 
 /**
- * 菜单管理可以绑定的前端页面注册项
- */
-export interface AdminPageOption {
-  /**
-   * 与菜单表 `routeName` 对应的稳定页面标识
-   */
-  routeName: string;
-
-  /**
-   * 管理员选择页面时看到的业务名称
-   */
-  title: string;
-
-  /**
-   * Vue Router 已经注册的页面地址
-   */
-  routePath: string;
-
-  /**
-   * 用于核对绑定关系的页面组件标识
-   */
-  component: string;
-
-  /**
-   * 可以生成标准 CRUD 权限时使用的两段式前缀
-   */
-  permissionPrefix: `${string}:${string}` | null;
-}
-
-/**
  * 菜单属性面板使用的完整可编辑模型
  */
 export interface AdminMenuEditorModel {
@@ -136,12 +106,12 @@ export interface AdminMenuEditorModel {
   routePath: string | null;
 
   /**
-   * 页面注册表使用的稳定标识
+   * Router 页面绑定元数据使用的稳定标识
    */
   routeName: string | null;
 
   /**
-   * 页面注册表对应的组件标识
+   * Router 页面绑定元数据对应的组件标识
    */
   component: string | null;
 
@@ -179,4 +149,59 @@ export interface AdminMenuCreateContext {
    * 用户在快捷菜单中选择的新节点类型
    */
   type: Exclude<RbacMenuType, 'BUTTON'>;
+}
+
+/**
+ * 菜单父级选择器使用的扁平选项
+ */
+export interface ParentMenuOption {
+  /**
+   * 菜单主键
+   */
+  id: number;
+
+  /**
+   * 包含层级缩进的菜单名称
+   */
+  label: string;
+}
+
+/**
+ * 菜单编辑表单暴露的最小校验能力
+ */
+export interface MenuFormExpose {
+  /**
+   * 执行当前表单的全部校验规则
+   */
+  validate: () => Promise<boolean>;
+}
+
+/**
+ * 菜单树附加图标和类型文案后的视图节点
+ */
+export interface MenuTreeViewNode extends Omit<AdminMenuTreeNode, 'children'> {
+  /**
+   * 一级菜单对应的 Lucide Vue 组件
+   */
+  iconComponent?: Component;
+
+  /**
+   * 当前节点类型的中文名称
+   */
+  typeLabel: string;
+
+  /**
+   * 不包含按钮权限的下级导航节点
+   */
+  children: MenuTreeViewNode[];
+}
+
+/**
+ * 菜单树组件暴露的筛选能力
+ */
+export interface MenuTreeExpose {
+  /**
+   * 使用当前搜索值重新筛选树节点
+   */
+  filter: (value: string) => void;
 }

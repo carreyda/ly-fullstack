@@ -6,10 +6,15 @@ coverage
 .log
 .pnpm-store/
 
-# development 由本地 Setup 生成，test/production 由 CI/CD 注入，仓库只提交无密钥模板
+# 根环境和服务端环境可能包含数据库密码或密钥，默认全部忽略
 .env
 .env.*
 !.env.example
+
+# Admin 是浏览器应用，三套环境只包含会进入前端产物的公开构建配置
+!apps/admin/.env.development
+!apps/admin/.env.test
+!apps/admin/.env.production
 
 # Prisma 生成产物
 packages/database/generated/prisma/

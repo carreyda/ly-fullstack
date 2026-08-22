@@ -5,7 +5,7 @@ import { API_CREATE_AUTH_SESSION, API_GET_AUTH_SESSION } from './api';
 import type { AdminLoginParams, AdminLoginResponse, AdminSession } from '@repo/shared/types';
 
 /**
- * 向页面 Hook 和 Store 透出认证接口使用的 Shared HTTP 契约
+ * 向页面 Composable 和 Store 透出认证接口使用的 Shared HTTP 契约
  */
 export type { AdminLoginParams, AdminLoginResponse, AdminSession };
 

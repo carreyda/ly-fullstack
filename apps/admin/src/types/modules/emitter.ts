@@ -13,12 +13,4 @@ export type AdminEmitterEvents = {
    * 监听方：需要按主题重建 WebGL 等外部资源的组件。
    */
   EVENT_THEME_CHANGE: ThemeName;
-
-  /**
-   * 管理 API 返回非登录接口的 401 后派发
-   *
-   * 派发方：`service-base-interceptor.ts`。
-   * 监听方：`main.ts`，负责清除 Auth Store 并跳转登录页。
-   */
-  EVENT_AUTH_UNAUTHORIZED: undefined;
 };

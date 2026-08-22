@@ -2,7 +2,7 @@
 
 面向开源展示与未来 B2B 项目的全栈 Monorepo 底座。当前只维护一套管理系统：管理后台 `apps/admin` 与管理服务 `apps/admin-api`；新的 C 端或业务服务通过 NestJS 模板按需生成，不预先保留空应用。
 
-当前处于 **M1 工程骨架阶段**：Admin 外壳、管理 API 健康检查、服务生成器、共享包、数据库包与工程基线已经就绪；登录认证、五表 RBAC 与业务 CRUD 将在后续阶段接入。
+当前已经完成管理后台基础闭环：登录认证、动态菜单、用户/角色/菜单管理、五表 RBAC、数据库迁移与种子数据均已真实贯通；后续阶段聚焦业务组件、示例模块和部署方案，不把尚未实现的 C 端能力算入现有范围。
 
 ## 技术栈
 
@@ -31,7 +31,7 @@ pnpm setup
 pnpm dev
 ```
 
-`pnpm setup` 会询问 PostgreSQL 密码与数据库名（默认 `ly_fullstack`）。本机 `127.0.0.1:5432` 已有服务时直接复用，否则通过 Docker Compose 启动 PostgreSQL。随后脚本创建数据库和表结构、初始化默认管理员，并为 `admin`、`admin-api` 生成两份本地 `.env.development`。test 与 production 配置由 CI/CD 或部署平台注入，不在本地 Setup 中伪造空文件。仓库只提交两个 `.env.example`，运行文件与数据库密码均不会进入 Git，也不会生成根 `.env`。完整说明见 [`docs/environment.md`](docs/environment.md)。
+`pnpm setup` 会询问 PostgreSQL 密码与数据库名（默认 `ly_fullstack`）。本机 `127.0.0.1:5432` 已有服务时直接复用，否则通过 Docker Compose 启动 PostgreSQL。随后脚本校验 Admin development 的 API 端口、创建数据库和表结构、初始化默认管理员，并生成 Admin API 的私有 `.env.development`。Admin 的三套公开环境配置直接提交仓库；Admin API 的 test/production 配置由 CI/CD 或部署平台注入，数据库密码与 JWT 密钥不会进入 Git，也不会生成根 `.env`。完整说明见 [`docs/environment.md`](docs/environment.md)。
 
 本地地址由根 [`workspace.config.json`](workspace.config.json) 统一维护：
 
@@ -61,21 +61,22 @@ pnpm new:server
 
 ## 常用命令
 
-| 命令                 | 说明                                           |
-| -------------------- | ---------------------------------------------- |
-| `pnpm setup`         | 初始化数据库、种子数据与两份本地开发环境文件   |
-| `pnpm new:server`    | 生成并注册新的 NestJS + Fastify 服务           |
-| `pnpm dev`           | 根据配置表交互选择服务端和前端应用             |
-| `pnpm dev all`       | 非交互启动配置表中的全部应用                   |
-| `pnpm dev:admin`     | 单独启动 admin                                 |
-| `pnpm dev:admin-api` | 单独启动 admin-api                             |
-| `pnpm dev:stop`      | 停止本仓库遗留的开发进程                       |
-| `pnpm typecheck`     | 全仓类型检查                                   |
-| `pnpm lint`          | ESLint 检查（`lint:fix` 自动修复）             |
-| `pnpm format`        | Prettier 格式化（`format:check` 仅检查）       |
-| `pnpm test`          | 服务模板冒烟测试与全仓 Rstest 单元测试         |
-| `pnpm build`         | 构建全部产物                                   |
-| `pnpm check`         | typecheck + lint + format:check + test + build |
+| 命令                      | 说明                                             |
+| ------------------------- | ------------------------------------------------ |
+| `pnpm setup`              | 校验前端端口，初始化数据库、种子数据与服务端配置 |
+| `pnpm new:server`         | 生成并注册新的 NestJS + Fastify 服务             |
+| `pnpm dev`                | 根据配置表交互选择服务端和前端应用               |
+| `pnpm dev all`            | 非交互启动配置表中的全部应用                     |
+| `pnpm dev:admin`          | 单独启动 admin                                   |
+| `pnpm dev:admin-api`      | 单独启动 admin-api                               |
+| `pnpm dev:stop`           | 停止本仓库遗留的开发进程                         |
+| `pnpm typecheck`          | 全仓类型检查                                     |
+| `pnpm check:architecture` | 检查跨包依赖、目录纯度和服务层依赖方向           |
+| `pnpm lint`               | ESLint 检查（`lint:fix` 自动修复）               |
+| `pnpm format`             | Prettier 格式化（`format:check` 仅检查）         |
+| `pnpm test`               | 服务模板冒烟测试与全仓 Rstest 单元测试           |
+| `pnpm build`              | 构建全部产物                                     |
+| `pnpm check`              | typecheck + lint + format:check + test + build   |
 
 ## 目录结构
 
@@ -93,6 +94,7 @@ ly-fullstack/
 │   └── *.mjs                  # 启动、初始化、配置读取与模板测试脚本
 ├── docs/                      # 项目文档
 ├── .rules/                    # 开发规范
+├── .github/workflows/ci.yml   # Pull Request 与 main 分支质量门禁
 ├── workspace.config.json      # 应用分类、路径、包名、本地端口与健康检查真相源
 └── compose.yaml               # 本地 PostgreSQL 依赖
 ```
@@ -102,12 +104,18 @@ ly-fullstack/
 已实现：
 
 - 管理后台外壳：可折叠侧栏（含窄屏抽屉）、Header、工作台、404 页与设计 token 体系。
-- 请求层：`AxiosFactory` + 独立服务实例 + 拦截器；认证注入待下一阶段。
-- 管理 API：CORS 白名单、ValidationPipe、shutdown hooks、健康检查与应用级 Prisma 模块。
+- 多主题：深浅主题、Element Plus Sass 变量覆盖、组件级主题适配与主题切换动画。
+- 登录认证：真实账号密码登录、JWT 会话恢复、滑块验证、401 失效处理与路由守卫。
+- 五表 RBAC：用户、角色、菜单、用户角色、角色菜单关系，默认 Admin 超级管理员拥有最高权限。
+- 系统管理：用户、角色、菜单的真实分页、筛选、新增、编辑、状态控制、关联分配和保护规则。
+- 动态导航：侧边栏消费登录会话返回的数据库菜单树，菜单图标通过 Lucide 白名单管理。
+- 请求层：`AxiosFactory` + 独立服务实例 + 拦截器；Token、认证失效和 UI 反馈通过应用启动层注入。
+- 管理 API：CORS 白名单、ValidationPipe、JWT Guard、权限 Guard、健康检查和系统管理 CRUD。
+- 数据库：Prisma Schema、migration、种子数据和默认管理员初始化流程。
 - 服务扩展：配置驱动的开发启动器与经过真实生成验证的 NestJS 服务模板。
-- 工程基线：workspace catalog、Turborepo、ESLint、Prettier、Husky、commitlint 与 Rstest。
+- 工程基线：workspace catalog、Turborepo、架构边界检查、ESLint、Prettier、Husky、commitlint、Rstest 与 GitHub Actions CI。
 
-尚未实现：自动化部署工作流、业务 CRUD、C 端服务及主站。部署环境变量契约已经明确，但需要在确定 Docker、云平台或 SSH + PM2 等真实目标后实现对应 CI/CD，不能把未落地的流程算作现有能力。
+尚未实现：自动化部署、具体 B2B 业务模块、C 端服务及主站。部署环境变量契约已经明确，但需要在确定 Docker、云平台或 SSH + PM2 等真实目标后实现对应 CD；当前 CI 只承担质量门禁，不能把未落地的发布流程算作现有能力。
 
 ## 文档
 

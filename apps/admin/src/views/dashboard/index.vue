@@ -47,6 +47,7 @@ import DashboardChartPanel from './components/dashboard-chart-panel/index.vue';
 import DashboardActivityPanel from './components/dashboard-activity-panel/index.vue';
 import DashboardTodoPanel from './components/dashboard-todo-panel/index.vue';
 import DashboardSystemOverview from './components/dashboard-system-overview/index.vue';
+import FluidGlassCard from './components/fluid-glass-card/index.vue';
 
 /**
  * 首页指标卡片展示数据

@@ -32,6 +32,21 @@ services/
 - **响应拦截**：统一错误提示、401 跳转登录
 - **网络错误**：中文错误提示
 
+拦截器负责判断何时需要认证或反馈，但不能直接导入 Element Plus、Router 或 Pinia。具体实现通过
+`configureServiceAuth`、`configureServiceFeedback` 等注入协议，由应用 `setup.ts` 在启动阶段装配：
+
+```ts
+configureServiceAuth({
+  getToken: () => authStore.token,
+  onAuthenticationFailure: () => {
+    authStore.logout();
+    void router.replace({ name: 'Login' });
+  },
+});
+```
+
+依赖方向必须保持为 `setup/store -> services`。禁止出现 `services -> store/router/feedback` 的反向依赖。
+
 ---
 
 ## 请求函数规范

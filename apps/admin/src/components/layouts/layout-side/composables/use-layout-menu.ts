@@ -1,4 +1,4 @@
-import { resolveMenuIcon } from '@/utils';
+import { resolveMenuIcon } from '@/navigation';
 import { useAuthStore } from '@/stores';
 
 import type { RbacMenuNode } from '@repo/shared/types';

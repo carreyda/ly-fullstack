@@ -1,14 +1,14 @@
 /**
  * LY Fullstack 本地开发环境初始化脚本
  *
- * 负责收集 PostgreSQL 本地凭据、启动 Compose 数据库、幂等创建目标数据库，再为 Admin 与 Admin API
- * 生成不会提交到 Git 的 development 环境文件、执行 Prisma migration，并初始化默认管理员和 RBAC 数据。
- * 数据库密码不会写入命令行参数或终端输出，JWT 密钥由脚本随机生成，仓库只保留 `.env.example`。
+ * 负责校验 Admin 开发 API 端口、收集 PostgreSQL 本地凭据、启动 Compose 数据库、幂等创建目标数据库，
+ * 再为 Admin API 生成不会提交到 Git 的 development 环境文件、执行 Prisma migration，并初始化默认管理员和 RBAC 数据。
+ * 数据库密码不会写入命令行参数或终端输出，JWT 密钥由脚本随机生成；Admin API 仓库只保留 `.env.example`。
  */
 
 import { spawn, spawnSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
-import { existsSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { createConnection } from 'node:net';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -36,12 +36,12 @@ const adminDevelopmentPath = resolve(adminDirectory, '.env.development');
 const adminApiDevelopmentPath = resolve(adminApiDirectory, '.env.development');
 
 /**
- * Setup 会覆盖的本地开发环境文件
+ * Setup 会覆盖的本地私有环境文件
  *
- * Setup 只负责开发者本地初始化，不创建 test 或 production 配置；后两类环境由 CI/CD 负责注入。
- * 两个 development 文件都受根 `.gitignore` 保护，不得提交到仓库。
+ * Admin 的三套环境配置均为仓库内公开的浏览器构建配置。Setup 只生成包含本地密钥的
+ * Admin API development 文件；Admin API 的其他环境由 CI/CD 或部署平台注入。
  */
-const localEnvPaths = [adminDevelopmentPath, adminApiDevelopmentPath];
+const localEnvPaths = [adminApiDevelopmentPath];
 
 const POSTGRES_HOST = '127.0.0.1';
 const POSTGRES_PORT = 5432;
@@ -68,7 +68,7 @@ const DATABASE_READY_TIMEOUT_MS = 30_000;
  */
 const printHelp = () => {
   process.stdout.write(`LY Fullstack 本地环境初始化\n\n`);
-  process.stdout.write(`  pnpm setup    创建本地 development 配置、数据库、表结构和初始数据\n`);
+  process.stdout.write(`  pnpm setup    校验前端 API 端口，创建服务端本地配置、数据库、表结构和初始数据\n`);
 };
 
 /**
@@ -169,24 +169,45 @@ const runPnpmCommand = (args, env) => {
 };
 
 /**
- * 生成 Admin 与 Admin API 的本地开发环境文件
+ * 校验 Admin 开发环境中的 Admin API 端口
  *
- * Admin 文件写入 development 环境标识和本地 Admin API 地址；Admin API 文件写入数据库连接、
- * 跨域来源和随机 JWT 密钥。服务端口仍由 `scripts/dev.mjs` 根据应用注册表注入，避免重复维护。
- * 两个文件会使用受限文件模式写入，并由根 `.gitignore` 统一忽略；真实密钥不会进入模板或终端输出。
+ * Admin development 配置已经提交仓库。端口一致时不写文件，避免正常执行 Setup 产生无意义变更；
+ * 只有应用注册表中的 Admin API 端口发生变化时，才同步修改公开配置。
+ *
+ * @returns 是否修改了 Admin development 配置
+ */
+const syncAdminDevelopmentApiPort = () => {
+  if (!existsSync(adminDevelopmentPath)) {
+    throw new Error('缺少 apps/admin/.env.development，请恢复仓库中的 Admin development 配置。');
+  }
+
+  const expectedApiBaseUrl = `http://127.0.0.1:${adminApiApplication.localPort}/api`;
+  const currentContent = readFileSync(adminDevelopmentPath, 'utf-8');
+  const apiBaseUrlPattern = /^API_BASE_URL=.*$/m;
+  const currentApiBaseUrl = currentContent.match(apiBaseUrlPattern)?.[0];
+
+  if (currentApiBaseUrl === `API_BASE_URL=${expectedApiBaseUrl}`) {
+    return false;
+  }
+
+  const nextContent = apiBaseUrlPattern.test(currentContent)
+    ? currentContent.replace(apiBaseUrlPattern, `API_BASE_URL=${expectedApiBaseUrl}`)
+    : `${currentContent.trimEnd()}\nAPI_BASE_URL=${expectedApiBaseUrl}\n`;
+  writeFileSync(adminDevelopmentPath, nextContent, 'utf-8');
+  return true;
+};
+
+/**
+ * 生成 Admin API 的本地开发环境文件
+ *
+ * 文件写入数据库连接、跨域来源和随机 JWT 密钥。服务端口仍由 `scripts/dev.mjs` 根据应用注册表注入，
+ * 避免重复维护。该文件使用受限文件模式写入并由根 `.gitignore` 忽略。
  *
  * @param databaseUrl 已对用户名和密码进行 URL 编码的 PostgreSQL 连接串
  * @param jwtSecret 本次初始化生成的 JWT 随机签名密钥
  */
-const writeApplicationEnvFiles = (databaseUrl, jwtSecret) => {
+const writeAdminApiDevelopmentEnv = (databaseUrl, jwtSecret) => {
   const adminLocalPort = adminApplication.localPort;
-  const adminApiLocalPort = adminApiApplication.localPort;
-  const adminDevelopmentEnv = [
-    '# 管理后台本地开发环境配置，由 pnpm setup 生成。',
-    'APP_ENV=development',
-    `API_BASE_URL=http://127.0.0.1:${adminApiLocalPort}/api`,
-    '',
-  ].join('\n');
   const adminApiDevelopmentEnv = [
     '# 管理 API 本地开发环境配置，由 pnpm setup 生成。',
     `DATABASE_URL="${databaseUrl}"`,
@@ -196,7 +217,6 @@ const writeApplicationEnvFiles = (databaseUrl, jwtSecret) => {
     '',
   ].join('\n');
 
-  writeFileSync(adminDevelopmentPath, adminDevelopmentEnv, { encoding: 'utf-8', mode: 0o600 });
   writeFileSync(adminApiDevelopmentPath, adminApiDevelopmentEnv, { encoding: 'utf-8', mode: 0o600 });
 };
 
@@ -321,7 +341,7 @@ const confirmLocalEnvOverwrite = async () => {
     return true;
   }
 
-  log.warn('检测到已有本地开发配置，继续执行会覆盖 Admin 与 Admin API 的 .env.development。');
+  log.warn('检测到已有 Admin API 本地开发配置，继续执行会覆盖 admin-api/.env.development。');
   const shouldOverwrite = await confirm({
     message: '确认使用本次输入重新生成本地配置？',
     initialValue: false,
@@ -349,6 +369,13 @@ const main = async () => {
     cancel('未覆盖已有本地配置。');
     return;
   }
+
+  const adminDevelopmentUpdated = syncAdminDevelopmentApiPort();
+  log.info(
+    adminDevelopmentUpdated
+      ? 'Admin development 的 API 端口已根据 workspace.config.json 更新。'
+      : 'Admin development 的 API 端口与 workspace.config.json 一致。',
+  );
 
   const databaseConfig = await promptForDatabaseConfig();
   if (!databaseConfig) {
@@ -388,8 +415,8 @@ const main = async () => {
   const encodedDatabaseName = encodeURIComponent(databaseName);
   const databaseUrl = `postgresql://${POSTGRES_USER}:${encodedPassword}@localhost:${POSTGRES_PORT}/${encodedDatabaseName}?schema=public`;
   const jwtSecret = randomBytes(32).toString('hex');
-  writeApplicationEnvFiles(databaseUrl, jwtSecret);
-  log.success('Admin 与 Admin API 的 .env.development 已生成。');
+  writeAdminApiDevelopmentEnv(databaseUrl, jwtSecret);
+  log.success('Admin API 的 .env.development 已生成。');
 
   log.info('正在执行 Prisma migration，创建或更新全部表结构...');
   await runPnpmCommand(['--filter', '@repo/database', 'db:migrate'], {

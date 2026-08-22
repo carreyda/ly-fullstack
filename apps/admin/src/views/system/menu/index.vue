@@ -26,12 +26,12 @@
 </template>
 
 <script setup lang="ts">
-import MenuEditorPanel from '@/components/business/menu-editor-panel/index.vue';
-import MenuTreePanel from '@/components/business/menu-tree-panel/index.vue';
-import { useMenuManagement } from '@/hooks/use-menu-management';
+import MenuEditorPanel from './components/menu-editor-panel/index.vue';
+import MenuTreePanel from './components/menu-tree-panel/index.vue';
+import { useMenuManagement } from './composables/use-menu-management';
 
 /**
- * 菜单管理页面只负责组合树编辑器和属性面板，异步请求、竞态保护与会话刷新统一由 Hook 管理。
+ * 菜单管理页面只负责组合树编辑器和属性面板，异步请求、竞态保护与会话刷新统一由 Composable 管理。
  */
 const {
   menus,

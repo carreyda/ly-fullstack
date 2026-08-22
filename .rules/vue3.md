@@ -30,9 +30,9 @@ import { fetchUserList } from '@/api';
 import BaseSelector from './components/base-selector/index.vue';
 
 /**
- * 导入 hooks
+ * 导入 composables
  */
-import { useOptionList } from '@/hooks';
+import { useOptionList } from '@/composables/use-option-list';
 
 /**
  * 导入 store
@@ -100,7 +100,7 @@ const modelValue = defineModel<string>({
 });
 
 /**
- * 引入 hooks
+ * 引入 composables
  */
 const { list, getUserList } = useOptionList();
 
@@ -186,7 +186,7 @@ defineExpose({
 4. props
 5. Emits 类型声明
 6. emits
-7. hooks
+7. composables
 8. store
 9. 响应式数据
 10. 计算属性
@@ -217,7 +217,7 @@ defineExpose({
  */
 
 /**
- * 引入 hooks
+ * 引入 composables
  */
 
 /**
@@ -245,7 +245,7 @@ defineExpose({
 规则：
 
 - 结构性注释标签保持固定，不自行改成同义词。
-- `hooks` 先于 `store` 初始化，和 import 分组顺序保持一致。
+- `composables` 先于 `store` 初始化，和 import 分组顺序保持一致。
 - 初始化逻辑统一放在 `setup` 方法中，再由生命周期函数调用。
 - 多个生命周期函数共用一个 `生命周期函数` 分组，不需要每个生命周期单独写一段注释。
 
@@ -260,7 +260,7 @@ import 按固定顺序分组，每组之间使用 JSDoc 注释分隔。不存在
 1. 导入 vue 模块
 2. 导入服务
 3. 导入组件
-4. 导入 hooks
+4. 导入 composables
 5. 导入 store
 6. 导入工具类
 7. 导入常量
@@ -284,9 +284,9 @@ import { fetchUserList } from '@/api';
 import BaseSelector from './components/base-selector/index.vue';
 
 /**
- * 导入 hooks
+ * 导入 composables
  */
-import { useOptionList } from '@/hooks';
+import { useOptionList } from '@/composables/use-option-list';
 
 /**
  * 导入 store
@@ -698,20 +698,20 @@ const useSearch = (keyword: MaybeRefOrGetter<string>) => {
 
 按复用范围分层放置，文件名一律 `use-<职责>.ts`，导出 `use<职责>`：
 
-| 复用范围       | 存放位置                             | barrel                              |
-| -------------- | ------------------------------------ | ----------------------------------- |
-| 跨子包复用     | `packages/hooks/src/hooks/`          | 走包级 `index.ts` 聚合导出          |
-| 子包内多页复用 | `apps/<app>/src/hooks/`              | 不 barrel，`@/hooks/use-*` 显式导入 |
-| 单页逻辑分块   | `apps/<app>/src/pages/<page>/hooks/` | 不 barrel，相对路径显式导入         |
-| 单组件私有     | 组件目录内                           | 不 barrel                           |
+| 复用范围       | 存放位置                                   | barrel                                    |
+| -------------- | ------------------------------------------ | ----------------------------------------- |
+| 跨子包复用     | `packages/composables/src/`                | 走包级 `index.ts` 聚合导出                |
+| 子包内多页复用 | `apps/<app>/src/composables/`              | 不 barrel，`@/composables/use-*` 显式导入 |
+| 单页逻辑分块   | `apps/<app>/src/views/<page>/composables/` | 不 barrel，相对路径显式导入               |
+| 单组件私有     | 组件目录内                                 | 不 barrel                                 |
 
 命名按「职责」而非「合集」拆分，禁止三类反模式：
 
-1. **合集式命名**：`use-<page>.ts`（如 `use-watchlist-detail` 早期把列表分页 + 详情构建 + 码表联动全塞一个 hook）。按职责拆成 `use-watchlist-list`（分页）/ `use-watchlist-detail`（详情）。
+1. **合集式命名**：`use-<page>.ts`（如 `use-watchlist-detail` 早期把列表分页 + 详情构建 + 码表联动全塞一个 composable）。按职责拆成 `use-watchlist-list`（分页）/ `use-watchlist-detail`（详情）。
 2. **职责模糊命名**：`use-data` / `use-logic` / `use-helper` 这类无信息量的名字。
-3. **编排式 hook**：不要为「把多个 hook 串起来」再造一个 `use-<page>` 编排 hook，页面级编排（初始化顺序、跨 hook 联动）直接放 `App.vue` 的 setup。
+3. **编排式 composable**：不要为「把多个 composable 串起来」再造一个无明确职责的 `use-<page>`，页面级编排（初始化顺序、跨 composable 联动）留在对应页面入口。
 
-单页 `hooks/` 目录因此**不设 `index.ts`**：页面私有 hook 无对外复用诉求，barrel 只会诱导「合集式」聚合。`hooks/` 目录一律不走 barrel（仅 `packages/hooks` 作为对外发布的包例外）；页面/子包私有的 `utils`/`types`/`constants` 仍按 [directory.md](directory.md) 走 barrel。
+单页 `composables/` 目录因此**不设 `index.ts`**：页面私有 composable 无对外复用诉求，barrel 只会诱导“合集式”聚合。应用内 `composables/` 一律不走 barrel；页面/子包私有的 `utils`、`types`、`constants` 仍按 [directory.md](directory.md) 走 barrel。
 
 ---
 

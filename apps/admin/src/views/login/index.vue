@@ -85,39 +85,20 @@
 </template>
 
 <script setup lang="ts">
-/**
- * 导入 Vue 模块
- *
- * 主题按钮文案由当前主题实时派生，避免视图和无障碍描述出现状态分叉。
- */
 import { computed } from 'vue';
-
-/**
- * 导入图标组件
- *
- * 登录页只保留主题切换图标，表单本身使用克制的文字层级，避免装饰元素干扰输入。
- */
 import { Moon, Sun } from '@lucide/vue';
+import { useTheme } from '@/composables/use-theme';
+import LoginVisualMachine from './components/login-visual-machine/index.vue';
+import { useLoginForm } from './composables/use-login-form';
 
 /**
- * 导入 hooks
- *
- * 主题 Hook 负责全局主题切换，表单 Hook 负责校验、认证请求和登录后回跳。
- */
-import { useTheme } from '@/hooks/use-theme';
-import { useLoginForm } from './hooks/use-login-form';
-
-/**
- * 引入 hooks
- *
  * 页面层只装配主题交互和登录表单能力，不直接持有认证请求与路由跳转细节。
  */
 const { isDarkTheme, toggleTheme: toggleAppTheme } = useTheme();
 const { formRef, formModel, formRules, captchaVerified, submitting, handleLogin } = useLoginForm();
 
 /**
- * 计算属性
- * 作用：为主题按钮提供与下一主题一致的无障碍说明
+ * 主题按钮面向下一次切换目标的无障碍说明
  */
 const themeLabel = computed(() => (isDarkTheme.value ? '切换到浅色主题' : '切换到深色主题'));
 

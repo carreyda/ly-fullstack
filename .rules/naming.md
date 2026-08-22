@@ -13,7 +13,7 @@
 | 函数/变量          | camelCase                     | `createWindow`、`messageList`        |
 | 事件处理函数       | `handle` 前缀                 | `handleSend`、`handleScroll`         |
 | Store              | `use<Domain>Store`            | `useChatStore`                       |
-| Hook               | `use<Feature>`                | `useChat`、`useScroll`               |
+| Composable         | `use<Feature>`                | `useChat`、`useScroll`               |
 | Helper 对象        | `<domain>Helper`              | `chatHelper`                         |
 | 引擎类             | PascalCase + `Engine`         | `SseEngine`                          |
 | CSS 变量           | `--<语义分类>-<属性>`         | `--color-primary`                    |

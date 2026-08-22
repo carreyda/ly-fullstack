@@ -33,23 +33,16 @@
 </template>
 
 <script setup lang="ts">
-/**
- * 导入图标组件
- */
 import { Check, ChevronsRight } from '@lucide/vue';
+import { useSlideVerify } from './composables/use-slide-verify';
 
 /**
- * 导入 hooks
- */
-import { useSlideVerify } from './hooks/use-slide-verify';
-
-/**
- * 定义双向数据绑定
+ * 父级持有的滑块验证结果
  */
 const verified = defineModel<boolean>({ default: false });
 
 /**
- * 定义 props 的类型声明
+ * 滑块验证组件输入参数
  */
 interface Props {
   /**
@@ -59,16 +52,14 @@ interface Props {
 }
 
 /**
- * 定义 props
+ * 禁用状态默认允许用户操作
  */
 const props = withDefaults(defineProps<Props>(), {
   disabled: false,
 });
 
 /**
- * 引入 hooks
- *
- * 组件只装配可访问性属性与图标，指针、键盘和验证状态由私有 Hook 统一管理。
+ * 组件只装配可访问性属性与图标，指针、键盘和验证状态由私有 Composable 统一管理。
  */
 const {
   trackRef,

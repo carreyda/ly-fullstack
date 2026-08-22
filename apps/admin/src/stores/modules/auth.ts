@@ -1,14 +1,13 @@
 import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
 import { fetchAdminSession, loginAdmin } from '@/api';
-import { setRequestAccessToken } from '@/services/auth-token';
 import type { AdminLoginParams, AdminProfile, AdminSession, PermissionCode, RbacMenuNode } from '@repo/shared/types';
 
 /**
  * 管理端认证与 RBAC 会话 Store
  *
  * 负责持久化 Access Token、当前管理员资料、菜单树和权限码，并在应用恢复时向 Admin API
- * 重新确认账号状态。请求拦截器使用的内存 Token 通过显式 Action 同步，Store 不直接处理路由跳转。
+ * 重新确认账号状态。请求服务通过启动阶段注入的读取函数获取 Token，Store 不依赖 Axios 实现或路由。
  */
 export const useAuthStore = defineStore(
   'auth',
@@ -48,16 +47,6 @@ export const useAuthStore = defineStore(
     const isAuthenticated = computed(() => Boolean(token.value));
 
     /**
-     * 同步请求拦截器使用的内存 Token
-     *
-     * 触发时机：应用启动完成 Pinia 持久状态恢复后、登录成功后和退出登录后。
-     * 副作用：修改 `services/auth-token.ts` 中的模块级内存值，不发起网络请求。
-     */
-    const syncRequestToken = (): void => {
-      setRequestAccessToken(token.value);
-    };
-
-    /**
      * 应用 Admin API 返回的最新 RBAC 会话
      *
      * @param session 已通过后端 JWT、账号状态和角色状态校验的会话快照
@@ -73,7 +62,7 @@ export const useAuthStore = defineStore(
      * 使用账号密码登录并保存 Token 与权限会话
      *
      * 触发时机：登录页表单通过客户端校验后。
-     * 副作用：发起登录请求、更新 Pinia 持久状态并同步 Axios 使用的内存 Token。
+     * 副作用：发起登录请求并更新 Pinia 持久状态。请求服务会在下一次请求时读取最新 Token。
      * 请求失败时异常继续抛给页面，现有登录状态不会被部分写入。
      *
      * @param params 管理员登录名和只在本次请求中使用的明文密码
@@ -81,7 +70,6 @@ export const useAuthStore = defineStore(
     const login = async (params: AdminLoginParams): Promise<void> => {
       const result = await loginAdmin(params);
       token.value = result.token;
-      syncRequestToken();
       applySession(result);
     };
 
@@ -97,7 +85,6 @@ export const useAuthStore = defineStore(
         throw new Error('缺少管理端 Access Token。');
       }
 
-      syncRequestToken();
       applySession(await fetchAdminSession());
     };
 
@@ -105,7 +92,7 @@ export const useAuthStore = defineStore(
      * 清除当前浏览器中的管理端登录状态
      *
      * 触发时机：用户主动退出或 Admin API 返回会话失效的 401。
-     * 副作用：清空 Pinia 持久状态和 Axios 使用的内存 Token；路由跳转由调用方负责。
+     * 副作用：清空 Pinia 持久状态；路由跳转由调用方负责。
      */
     const logout = (): void => {
       token.value = '';
@@ -113,7 +100,6 @@ export const useAuthStore = defineStore(
       menus.value = [];
       permissions.value = [];
       sessionReady.value = false;
-      syncRequestToken();
     };
 
     return {
@@ -123,7 +109,6 @@ export const useAuthStore = defineStore(
       permissions,
       sessionReady,
       isAuthenticated,
-      syncRequestToken,
       login,
       restoreSession,
       logout,

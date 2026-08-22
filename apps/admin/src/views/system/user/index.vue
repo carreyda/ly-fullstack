@@ -121,12 +121,12 @@
 <script setup lang="ts">
 import { fetchAdminUserRoleOptions } from '@/api';
 import DataFilterPanel from '@/components/business/data-filter-panel/index.vue';
-import UserFormDialog from '@/components/business/user-form-dialog/index.vue';
-import UserPasswordDialog from '@/components/business/user-password-dialog/index.vue';
-import UserRoleDialog from '@/components/business/user-role-dialog/index.vue';
 import { ADMIN_PAGE_SIZE_OPTIONS, ADMIN_USER_FILTER_CONFIG, ADMIN_USER_FILTER_MODEL } from '@/constants';
-import { useUserManagement } from '@/hooks/use-user-management';
 import { formatAdminDateTime } from '@/utils';
+import UserFormDialog from './components/user-form-dialog/index.vue';
+import UserPasswordDialog from './components/user-password-dialog/index.vue';
+import UserRoleDialog from './components/user-role-dialog/index.vue';
+import { useUserManagement } from './composables/use-user-management';
 
 import type { AdminUserListItem } from '@repo/shared/types';
 import type { DataFilterFieldConfig } from '@/types';

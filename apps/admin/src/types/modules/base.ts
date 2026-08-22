@@ -165,3 +165,72 @@ export interface DataFilterDateRangeField extends Omit<DataFilterFieldBase, 'pla
  */
 export type DataFilterFieldConfig =
   DataFilterInputField | DataFilterSelectField | DataFilterDateField | DataFilterDateRangeField;
+
+/**
+ * 分页 Composable 可以清理空值的筛选参数
+ */
+export type PaginationFilters = PaginationParams & DataFilterModel;
+
+/**
+ * 通用分页 Composable 初始化参数
+ *
+ * @template TFilters 当前页面的完整分页筛选模型
+ */
+export interface UsePaginationOptions<TFilters extends PaginationFilters> {
+  /**
+   * 页面首次加载和重置筛选时使用的完整查询参数
+   */
+  defaultFilters: TFilters;
+
+  /**
+   * 是否在页面挂载后立即请求列表，默认开启
+   */
+  immediate?: boolean;
+}
+
+/**
+ * 数据筛选面板内部交互参数
+ */
+export interface UseDataFilterPanelOptions {
+  /**
+   * 页面通过 v-model 持有的筛选模型
+   */
+  model: Ref<DataFilterModel>;
+
+  /**
+   * 读取重置时需要恢复的默认筛选模型
+   */
+  getDefaultModel: () => DataFilterModel | undefined;
+
+  /**
+   * 读取当前字段配置，配置引用变化时重新加载异步选项
+   */
+  getConfig: () => readonly DataFilterFieldConfig[];
+
+  /**
+   * 通知页面按当前条件查询列表
+   */
+  onSearch: () => void;
+
+  /**
+   * 通知页面已完成筛选条件重置
+   */
+  onReset: () => void;
+}
+
+/**
+ * 滑块验证 Composable 的受控状态参数
+ */
+export interface UseSlideVerifyOptions {
+  /**
+   * 父级持有的双向验证状态
+   */
+  verified: Ref<boolean>;
+
+  /**
+   * 获取组件当前禁用状态
+   */
+  getDisabled: () => boolean;
+}
+import type { PaginationParams } from '@repo/shared/types';
+import type { Ref } from 'vue';

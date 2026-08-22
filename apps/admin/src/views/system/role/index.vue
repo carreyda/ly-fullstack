@@ -116,11 +116,11 @@
 
 <script setup lang="ts">
 import DataFilterPanel from '@/components/business/data-filter-panel/index.vue';
-import RoleFormDialog from '@/components/business/role-form-dialog/index.vue';
-import RoleMenuPermissionDialog from '@/components/business/role-menu-permission-dialog/index.vue';
 import { ADMIN_PAGE_SIZE_OPTIONS, ADMIN_ROLE_FILTER_CONFIG, ADMIN_ROLE_FILTER_MODEL } from '@/constants';
-import { useRoleManagement } from '@/hooks/use-role-management';
 import { formatAdminDateTime } from '@/utils';
+import RoleFormDialog from './components/role-form-dialog/index.vue';
+import RoleMenuPermissionDialog from './components/role-menu-permission-dialog/index.vue';
+import { useRoleManagement } from './composables/use-role-management';
 
 import type { AdminRoleListItem } from '@repo/shared/types';
 

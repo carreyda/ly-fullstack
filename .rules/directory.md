@@ -40,7 +40,7 @@ ly-fullstack/
 例外：
 
 - Vue 单文件组件目录不强制 barrel，按组件引用便利性决定。
-- `hooks/` 不使用 barrel 聚合，业务代码直接从具体 `use-*.ts` 文件导入。
+- `composables/` 不使用 barrel 聚合，业务代码直接从具体 `use-*.ts` 文件导入。
 - 框架自动扫描的入口目录是否使用 barrel，以对应框架的实际加载规则为准。
 - 只有一个文件且短期没有扩展需求的目录，不为了形式拆 `modules/`。
 - 构建脚本、测试配置、环境声明保持在仓库根目录或 `build/`、`tests/` 中。
@@ -117,14 +117,16 @@ apps/admin/
 │   ├── chat/                    # IM SDK 初始化、消息适配、会话能力
 │   ├── components/
 │   │   ├── base/                # 通用基础组件
-│   │   ├── business/            # 跨页面业务组件
+│   │   ├── business/            # 已被多个页面复用的跨页面业务组件
 │   │   ├── overlay/             # 命令式覆盖层调用能力（barrel + modules）
 │   │   └── <feature>/           # 按业务域分组的组件
 │   ├── constants/               # 常量（barrel + modules）
 │   ├── emitter/                 # 类型化事件总线
 │   ├── env/                     # 运行时环境读取与归一化
-│   ├── hooks/                   # Composition API hooks，统一 use-*.ts
+│   ├── feedback/                # 用户反馈能力（barrel + modules）
+│   ├── composables/             # 跨页面组合式函数，不放页面 CRUD 业务逻辑
 │   ├── layouts/                 # SPA 布局组件
+│   ├── navigation/              # 导航领域能力（barrel + modules）
 │   ├── plugins/                 # Vue 插件注册、第三方库装配
 │   ├── router/                  # Vue Router（barrel + modules）
 │   ├── services/                # HTTP/SDK 服务实例与拦截器
@@ -133,7 +135,9 @@ apps/admin/
 │   ├── utils/                   # 纯工具函数（barrel + modules）
 │   └── views/                   # 页面级路由组件
 │       └── <feature>/
-│           └── index.vue
+│           ├── index.vue
+│           ├── components/      # 只服务当前页面的组件
+│           └── composables/     # 当前页面的列表、表单和请求编排逻辑
 ├── env.d.ts                     # 环境变量与全局类型声明
 ├── rstest.config.ts             # 测试配置
 └── tsconfig.json
@@ -152,8 +156,15 @@ apps/admin/
 
 - `apps/admin` 是 SPA，页面统一放在 `src/views/`。
 - Admin 路由模块统一放在 `src/router/modules/`。
+- 菜单可以绑定的页面必须在静态路由 `meta.pageBinding` 中声明，Router `name` 与数据库 `routeName` 使用同一个稳定标识。
+- `ADMIN_PAGE_OPTIONS` 只能由 Router 递归派生并通过 `@/router` 导出，禁止在 `constants/` 维护第二份页面注册表。
 - 页面目录使用 kebab-case；Admin 页面入口统一命名为 `index.vue`。
 - 页面私有组件放在页面目录下的 `components/`，不要提升到全局 `components/`。
+- 只服务一个 CRUD 页面的 `use-xxx-management.ts` 放在页面的 `composables/`，禁止放入全局 `composables/`。
+- 页面私有组件即使是弹窗、树或表单，也不能仅因为“它是组件”就进入 `components/business/`。
+- `components/business/` 只接收已经被两个及以上页面真实复用、且边界稳定的业务组件。
+- 禁止在 `components/business/` 下按页面复制 `dashboard/`、`menu/` 等私有模块，也不创建含义模糊的 `common/` 收容目录。
+- 类型声明仍按 `.rules/typescript.md` 统一维护在 `src/types/modules/`；业务逻辑就近不意味着类型随文件散落。
 
 ```text
 src/views/chat/
@@ -162,6 +173,29 @@ src/views/chat/
 └── components/
     └── message-list.vue
 ```
+
+系统管理页面的推荐结构：
+
+```text
+src/views/system/user/
+├── index.vue
+├── components/
+    ├── user-form-dialog/
+    ├── user-password-dialog/
+    └── user-role-dialog/
+└── composables/
+    └── use-user-management.ts
+```
+
+## 通用目录边界
+
+- `utils/` 只保存无业务语义、无 Vue/Element Plus/Router/Pinia 依赖的纯函数。
+- 依赖 Element Plus 的消息提示放 `feedback/`，不能伪装成 `utils`。
+- 菜单图标解析、导航树转换等应用导航逻辑放 `navigation/` 或布局私有 composable，不能放 `utils/`。
+- `feedback/` 与 `navigation/` 使用 `index.ts + modules/`，外部只从目录入口导入，禁止绕过 barrel 访问内部实现。
+- `components/base/` 只保存与具体页面、接口和业务状态无关的基础组件；单页视觉组件优先放页面附近。
+- `services/` 不能直接依赖 UI、Router 或 Store，必须暴露注入协议并由 `setup.ts` 在应用启动时装配。
+- `setup.ts` 是 Router、Pinia、服务适配器和全局副作用的应用装配入口；`main.ts` 只创建和挂载应用。
 
 ---
 

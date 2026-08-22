@@ -1,6 +1,6 @@
 import type { AdminUserQueryParams, CreateAdminUserParams } from '@repo/shared/types';
 
-import type { DataFilterModel } from './base';
+import type { DataFilterModel, OperationType } from './base';
 
 /**
  * 用户管理页面的分页筛选模型
@@ -32,4 +32,24 @@ export interface AdminUserPasswordFormModel {
    * 再次输入的新密码，只参与浏览器校验
    */
   confirmPassword: string;
+}
+
+/**
+ * 用户表单 Composable 的页面回调参数
+ */
+export interface UseUserFormOptions {
+  /**
+   * 用户保存成功后的页面回调
+   */
+  onSuccess: (operationType: OperationType) => void;
+}
+
+/**
+ * 用户角色分配 Composable 的页面回调参数
+ */
+export interface UseUserRoleOptions {
+  /**
+   * 用户角色保存成功后的页面回调
+   */
+  onSuccess: () => void;
 }

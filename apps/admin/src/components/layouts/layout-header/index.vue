@@ -112,9 +112,9 @@ import {
 } from '@lucide/vue';
 
 /**
- * 主题 Hook 统一处理明暗主题状态、持久化与扩散动画。
+ * 主题 Composable 统一处理明暗主题状态、持久化与扩散动画。
  */
-import { useTheme } from '@/hooks/use-theme';
+import { useTheme } from '@/composables/use-theme';
 
 /**
  * 认证 Store 提供当前管理员资料和退出登录能力。
@@ -146,20 +146,16 @@ interface Emits {
 }
 
 /**
- * 定义 emits
+ * 顶栏向布局层提供的交互事件
  */
 const emits = defineEmits<Emits>();
 
 /**
- * 引入 hooks
- *
  * 顶栏只消费主题能力，不自行修改根节点主题属性。
  */
 const { isDarkTheme, toggleTheme } = useTheme();
 
 /**
- * 引入 store
- *
  * 管理员资料使用 `storeToRefs` 解构，退出方法直接由 Store 实例调用。
  */
 const authStore = useAuthStore();
@@ -171,16 +167,12 @@ const { user } = storeToRefs(authStore);
 const route = useRoute();
 const router = useRouter();
 
-/**
- * 定义响应式数据
- */
 const profileRef = useTemplateRef<HTMLElement>('profileRef');
 const isFullscreen = ref(false);
 const isProfileOpen = ref(false);
 
 /**
- * 计算属性
- * 作用：根据当前路由生成顶部面包屑，首页作为固定起点。
+ * 根据当前路由生成以首页为固定起点的顶部面包屑
  */
 const breadcrumbList = computed(() => {
   const routeTitleList = route.matched
@@ -191,14 +183,12 @@ const breadcrumbList = computed(() => {
 });
 
 /**
- * 计算属性
- * 作用：优先显示管理员资料中的展示名称，未设置时回退到登录名
+ * 优先显示管理员资料中的展示名称，未设置时回退到登录名
  */
 const profileName = computed(() => user.value?.displayName || user.value?.username || '管理员');
 
 /**
- * 计算属性
- * 作用：从当前展示名称截取两个字符作为无头像时的文字标识
+ * 从当前展示名称截取两个字符作为无头像时的文字标识
  */
 const avatarText = computed(() => profileName.value.trim().slice(0, 2).toUpperCase() || 'LY');
 

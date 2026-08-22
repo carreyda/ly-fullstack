@@ -382,7 +382,7 @@ export class MenuService {
   /**
    * 校验路由标识和权限码没有被其他节点占用
    *
-   * @param routeName 页面注册表标识
+   * @param routeName 前端 Router 的稳定页面标识
    * @param permissionCode 三段式权限码
    * @param currentId 编辑时排除的当前节点主键
    */
