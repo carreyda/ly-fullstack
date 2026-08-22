@@ -10,7 +10,7 @@ const VERTEX_SHADER = `
   }
 `;
 
-const DARK_FRAGMENT_SHADER = `
+const FRAGMENT_SHADER = `
   precision highp float;
   varying vec2 v_uv;
   uniform vec2 u_resolution;
@@ -107,92 +107,6 @@ const DARK_FRAGMENT_SHADER = `
   }
 `;
 
-/**
- * 浅色主题流体材质
- *
- * 浅色卡片自身负责白色表面，着色器只输出集中在右侧的半透明翡翠流体。这样既保留动态材质，
- * 又不会产生覆盖整张卡片的泛白云雾，并通过左侧留白保证指标文字始终清晰。
- */
-const LIGHT_FRAGMENT_SHADER = `
-  precision highp float;
-  varying vec2 v_uv;
-  uniform vec2 u_resolution;
-  uniform vec2 u_mouse;
-  uniform float u_mouseMix;
-  uniform float u_time;
-  uniform float u_speed;
-  uniform float u_intensity;
-  uniform float u_pointer;
-  uniform float u_seed;
-  uniform vec3 u_colorA;
-  uniform vec3 u_colorB;
-  uniform vec3 u_colorC;
-
-  float hash(vec2 p) {
-    p = fract(p * vec2(123.34, 456.21) + u_seed);
-    p += dot(p, p + 45.32);
-    return fract(p.x * p.y);
-  }
-
-  float noise(vec2 p) {
-    vec2 i = floor(p);
-    vec2 f = fract(p);
-    f = f * f * (3.0 - 2.0 * f);
-    float a = hash(i);
-    float b = hash(i + vec2(1.0, 0.0));
-    float c = hash(i + vec2(0.0, 1.0));
-    float d = hash(i + vec2(1.0, 1.0));
-    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
-  }
-
-  float fbm(vec2 p) {
-    float value = 0.0;
-    float amplitude = .55;
-    mat2 rotation = mat2(.8, .6, -.6, .8);
-    for (int i = 0; i < 5; i++) {
-      value += amplitude * noise(p);
-      p = rotation * p * 2.0 + 3.7;
-      amplitude *= .5;
-    }
-    return value;
-  }
-
-  void main() {
-    vec2 uv = v_uv;
-    float aspect = u_resolution.x / max(1.0, u_resolution.y);
-    vec2 p = uv * vec2(aspect, 1.0) * 1.6;
-    vec2 pointerDelta = uv - u_mouse;
-    float pointerField = exp(-dot(pointerDelta, pointerDelta) * 8.0) * u_mouseMix * u_pointer;
-    p += pointerDelta * pointerField * .075;
-
-    float t = u_time * u_speed * .24;
-    vec2 q = vec2(
-      fbm(p + t * vec2(.6, .2)),
-      fbm(p + t * vec2(-.4, .5) + 5.2)
-    );
-    vec2 r = vec2(
-      fbm(p + 2.2 * q + t * vec2(.3, -.4) + 1.7),
-      fbm(p + 2.2 * q + t * vec2(-.2, .3) + 8.3)
-    );
-    float field = fbm(p + 2.4 * r);
-
-    vec3 paleMint = mix(u_colorA, vec3(1.0), .68);
-    vec3 emerald = mix(u_colorC, u_colorA, .52);
-    vec3 softAqua = mix(u_colorA, u_colorB, .16);
-    vec3 fluid = mix(paleMint, emerald, smoothstep(.24, .82, field + .12 * r.x));
-    fluid = mix(fluid, softAqua, smoothstep(.62, .94, r.y) * .22);
-    fluid = mix(fluid, fluid * fluid * 1.18 + fluid * .08, clamp(u_mouseMix, 0.0, 1.0) * .28);
-
-    float colorZone = smoothstep(.42, .82, uv.x + .12 * (q.y - .5));
-    float density = smoothstep(.30, .84, field + .20 * r.x);
-    float filament = smoothstep(.56, .88, abs(q.x - q.y) + field * .42);
-    float alpha = colorZone * (.10 + density * .42 + filament * .08);
-    alpha *= .78 + u_intensity * .18;
-    alpha += pointerField * colorZone * .08;
-    gl_FragColor = vec4(fluid, clamp(alpha, 0.0, .58));
-  }
-`;
-
 const UNIFORM_NAMES = [
   'u_resolution',
   'u_mouse',
@@ -220,6 +134,19 @@ const hexToRgb = (hex: string): [number, number, number] => {
 
   return [((value >> 16) & 255) / 255, ((value >> 8) & 255) / 255, (value & 255) / 255];
 };
+
+/**
+ * 为浅色主题生成同一套流体动画的高明度色板
+ *
+ * 此处只改变传入着色器的颜色，不改变噪声、形变、指针反馈和透明度计算，因此明暗主题共享
+ * 完全相同的 WebGL 运动形态。混白比例保持克制，避免浅色卡片重新退化成大面积青色云雾。
+ *
+ * @param color 原始 RGB 颜色
+ * @param whiteMix 混入白色的比例
+ * @returns 提高明度后的 RGB 颜色
+ */
+const mixWithWhite = (color: [number, number, number], whiteMix: number): [number, number, number] =>
+  color.map((channel) => channel + (1 - channel) * whiteMix) as [number, number, number];
 
 /**
  * 限制数值范围
@@ -261,10 +188,9 @@ const compileShader = (gl: WebGLRenderingContext, type: number, source: string):
  * 创建 Fluid Glass WebGL 程序
  *
  * @param gl WebGL 上下文
- * @param themeName 当前主题，用于选择对应的片元着色器
  * @returns 链接完成的 WebGL 程序
  */
-const createProgram = (gl: WebGLRenderingContext, themeName: ThemeName): WebGLProgram => {
+const createProgram = (gl: WebGLRenderingContext): WebGLProgram => {
   const program = gl.createProgram();
 
   if (!program) {
@@ -272,11 +198,7 @@ const createProgram = (gl: WebGLRenderingContext, themeName: ThemeName): WebGLPr
   }
 
   const vertexShader = compileShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER);
-  const fragmentShader = compileShader(
-    gl,
-    gl.FRAGMENT_SHADER,
-    themeName === 'dark' ? DARK_FRAGMENT_SHADER : LIGHT_FRAGMENT_SHADER,
-  );
+  const fragmentShader = compileShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER);
   gl.attachShader(program, vertexShader);
   gl.attachShader(program, fragmentShader);
   gl.linkProgram(program);
@@ -297,7 +219,7 @@ const createProgram = (gl: WebGLRenderingContext, themeName: ThemeName): WebGLPr
  * @param host 卡片根元素
  * @param canvas WebGL 画布
  * @param options 渲染参数
- * @param themeName 当前主题，用于选择深色玻璃或浅色水彩材质
+ * @param themeName 当前主题，只用于调整共享流体动画的输入色板
  * @param onFallback WebGL 不可用时的回调
  * @returns 组件卸载时使用的清理函数
  */
@@ -326,7 +248,7 @@ export const createFluidGlassRenderer = (
   let program: WebGLProgram;
 
   try {
-    program = createProgram(gl, themeName);
+    program = createProgram(gl);
   } catch {
     onFallback();
     return (): void => undefined;
@@ -365,6 +287,11 @@ export const createFluidGlassRenderer = (
   let lastFrame = 0;
   let active = true;
   let animationFrame = 0;
+  const baseColors = [hexToRgb(options.colorA), hexToRgb(options.colorB), hexToRgb(options.colorC)] as const;
+  const renderColors =
+    themeName === 'light'
+      ? [mixWithWhite(baseColors[0], 0.12), mixWithWhite(baseColors[1], 0.18), mixWithWhite(baseColors[2], 0.1)]
+      : baseColors;
 
   /**
    * 根据卡片实际尺寸同步画布像素
@@ -440,9 +367,9 @@ export const createFluidGlassRenderer = (
     gl.uniform1f(uniforms.u_pointer, options.pointer);
     gl.uniform1f(uniforms.u_seed, options.seed);
     gl.uniform1f(uniforms.u_surfaceOpacity, options.surface);
-    gl.uniform3fv(uniforms.u_colorA, hexToRgb(options.colorA));
-    gl.uniform3fv(uniforms.u_colorB, hexToRgb(options.colorB));
-    gl.uniform3fv(uniforms.u_colorC, hexToRgb(options.colorC));
+    gl.uniform3fv(uniforms.u_colorA, renderColors[0]);
+    gl.uniform3fv(uniforms.u_colorB, renderColors[1]);
+    gl.uniform3fv(uniforms.u_colorC, renderColors[2]);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
   };
