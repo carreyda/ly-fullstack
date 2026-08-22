@@ -23,7 +23,8 @@
     "pinia": "catalog:",
     "pinia-plugin-persistedstate": "catalog:",
     "vue": "catalog:",
-    "vue-router": "catalog:"
+    "vue-router": "catalog:",
+    "xgplayer": "catalog:"
   },
   "devDependencies": {
     "@rsbuild/core": "catalog:",
