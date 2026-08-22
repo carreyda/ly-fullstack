@@ -78,7 +78,7 @@
 
   &--fallback &__fallback {
     z-index: 0;
-    opacity: 0.92;
+    opacity: var(--fluid-card-fallback-opacity);
   }
 
   &__noise {

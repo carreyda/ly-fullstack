@@ -120,6 +120,7 @@ html[data-theme='dark'] {
   --fluid-card-canvas-opacity: 0.96;
   --fluid-card-canvas-filter: saturate(1.1) contrast(1.04) blur(1.8px);
   --fluid-card-canvas-mask: linear-gradient(var(--palette-black), var(--palette-black));
+  --fluid-card-fallback-opacity: 0.92;
   --fluid-card-noise-opacity: 0.075;
   --fluid-card-text-shadow: 0 1px 10px color-mix(in srgb, var(--palette-black) 34%, transparent);
   --fluid-card-eyebrow-color: var(--palette-mint-400);
@@ -232,41 +233,48 @@ html[data-theme='light'] {
   );
   --menu-hover-text-color: var(--color-primary);
   --menu-hover-background: color-mix(in srgb, var(--color-primary) 8%, transparent);
-  --fluid-card-background: var(--palette-white);
+  --fluid-card-background: linear-gradient(
+    135deg,
+    var(--palette-white) 0%,
+    var(--palette-white) 58%,
+    var(--palette-green-25) 100%
+  );
   --fluid-card-radius: var(--radius-md);
   --fluid-card-hover-translate: -1px;
   --fluid-card-border: var(--border-color);
-  --fluid-card-border-hover: color-mix(in srgb, var(--palette-green-650) 20%, transparent);
+  --fluid-card-border-hover: color-mix(in srgb, var(--palette-green-650) 32%, transparent);
   --fluid-card-overlay-horizontal: linear-gradient(
     90deg,
     var(--palette-white) 0%,
-    color-mix(in srgb, var(--palette-white) 98%, transparent) 38%,
-    color-mix(in srgb, var(--palette-white) 88%, transparent) 56%,
-    color-mix(in srgb, var(--palette-white) 34%, transparent) 82%,
-    color-mix(in srgb, var(--palette-white) 8%, transparent) 100%
+    var(--palette-white) 42%,
+    color-mix(in srgb, var(--palette-white) 96%, transparent) 54%,
+    color-mix(in srgb, var(--palette-white) 54%, transparent) 74%,
+    color-mix(in srgb, var(--palette-white) 8%, transparent) 94%
   );
   --fluid-card-overlay-vertical: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--palette-white) 28%, transparent),
-    transparent 45%,
-    color-mix(in srgb, var(--palette-green-700) 2.5%, transparent)
+    color-mix(in srgb, var(--palette-white) 42%, transparent),
+    transparent 52%,
+    color-mix(in srgb, var(--palette-green-700) 3.5%, transparent)
   );
-  --fluid-card-canvas-opacity: 0.68;
-  --fluid-card-canvas-filter: saturate(0.42) contrast(0.88) brightness(1.06);
+  --fluid-card-canvas-opacity: 0.88;
+  --fluid-card-canvas-filter: saturate(0.78) contrast(0.96) brightness(1.01);
   --fluid-card-canvas-mask: linear-gradient(
     90deg,
     transparent 0%,
-    color-mix(in srgb, var(--palette-black) 4%, transparent) 38%,
-    color-mix(in srgb, var(--palette-black) 58%, transparent) 70%,
+    transparent 38%,
+    color-mix(in srgb, var(--palette-black) 16%, transparent) 50%,
+    color-mix(in srgb, var(--palette-black) 76%, transparent) 68%,
     var(--palette-black) 100%
   );
+  --fluid-card-fallback-opacity: 0.4;
   --fluid-card-noise-opacity: 0;
   --fluid-card-text-shadow: none;
-  --fluid-card-eyebrow-color: var(--palette-graphite-500);
+  --fluid-card-eyebrow-color: var(--color-primary);
   --fluid-card-title-color: var(--palette-graphite-700);
   --fluid-card-value-color: var(--palette-green-950);
-  --fluid-card-unit-color: var(--palette-graphite-400);
-  --fluid-card-change-color: var(--palette-graphite-400);
+  --fluid-card-unit-color: var(--palette-graphite-500);
+  --fluid-card-change-color: var(--palette-graphite-500);
   --fluid-card-positive-color: var(--palette-green-700);
   --fluid-card-negative-color: var(--palette-red-600);
   --fluid-card-highlight: linear-gradient(

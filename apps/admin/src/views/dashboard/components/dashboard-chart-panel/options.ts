@@ -177,7 +177,7 @@ export const createDashboardChartOption = (variant: DashboardChartVariant): Char
           smooth: 0.42,
           showSymbol: false,
           lineStyle: {
-            width: 2.5,
+            width: 1,
             color: primaryColor,
           },
           areaStyle: {
@@ -194,7 +194,7 @@ export const createDashboardChartOption = (variant: DashboardChartVariant): Char
           smooth: 0.42,
           showSymbol: false,
           lineStyle: {
-            width: 2,
+            width: 1,
             color: secondaryColor,
           },
           areaStyle: {

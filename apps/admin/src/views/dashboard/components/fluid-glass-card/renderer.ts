@@ -110,8 +110,8 @@ const DARK_FRAGMENT_SHADER = `
 /**
  * 浅色主题流体材质
  *
- * 保留 Flux 参考卡片的域扭曲水彩效果，并通过左侧留白区保证深色指标文字始终清晰。
- * 画布输出不透明的浅色表面，不再把深色主题的半透明光效直接叠加到白色页面上。
+ * 浅色卡片自身负责白色表面，着色器只输出集中在右侧的半透明翡翠流体。这样既保留动态材质，
+ * 又不会产生覆盖整张卡片的泛白云雾，并通过左侧留白保证指标文字始终清晰。
  */
 const LIGHT_FRAGMENT_SHADER = `
   precision highp float;
@@ -176,21 +176,20 @@ const LIGHT_FRAGMENT_SHADER = `
     );
     float field = fbm(p + 2.4 * r);
 
-    vec3 fluid = mix(u_colorA, u_colorB, smoothstep(.15, .62, field));
-    fluid = mix(fluid, u_colorC, smoothstep(.60, .95, clamp(q.x * 1.3, 0.0, 1.0)));
-    fluid += .15 * r.y * u_colorB;
-    fluid = mix(fluid, fluid * fluid * 1.35 + fluid * .12, clamp(u_mouseMix, 0.0, 1.0) * .42);
+    vec3 paleMint = mix(u_colorA, vec3(1.0), .68);
+    vec3 emerald = mix(u_colorC, u_colorA, .52);
+    vec3 softAqua = mix(u_colorA, u_colorB, .16);
+    vec3 fluid = mix(paleMint, emerald, smoothstep(.24, .82, field + .12 * r.x));
+    fluid = mix(fluid, softAqua, smoothstep(.62, .94, r.y) * .22);
+    fluid = mix(fluid, fluid * fluid * 1.18 + fluid * .08, clamp(u_mouseMix, 0.0, 1.0) * .28);
 
-    float colorZone = smoothstep(.30, .80, uv.x + .15 * (q.y - .5));
-    float topMist = smoothstep(.50, 1.05, uv.y) * .55;
-    float density = smoothstep(.32, .85, field + .22 * r.x);
-    float mask = colorZone * density;
-    mask = clamp((mask + colorZone * .15) * (.78 + u_intensity * .22), 0.0, 1.0);
-
-    vec3 surface = vec3(.985);
-    vec3 outputColor = mix(surface, fluid, mask);
-    outputColor = mix(outputColor, surface, topMist * (1.0 - mask * .55));
-    gl_FragColor = vec4(outputColor, 1.0);
+    float colorZone = smoothstep(.42, .82, uv.x + .12 * (q.y - .5));
+    float density = smoothstep(.30, .84, field + .20 * r.x);
+    float filament = smoothstep(.56, .88, abs(q.x - q.y) + field * .42);
+    float alpha = colorZone * (.10 + density * .42 + filament * .08);
+    alpha *= .78 + u_intensity * .18;
+    alpha += pointerField * colorZone * .08;
+    gl_FragColor = vec4(fluid, clamp(alpha, 0.0, .58));
   }
 `;
 

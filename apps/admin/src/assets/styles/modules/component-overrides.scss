@@ -11,19 +11,47 @@
  * 颜色由 Element Plus 菜单变量提供，这里只处理业务侧栏需要的间距、圆角和选中态。
  */
 .layout-side__menu {
+  --layout-side-menu-horizontal-margin: 10px;
+  --layout-side-menu-icon-gap: 10px;
+  --layout-side-menu-text-start: calc(
+    var(--el-menu-base-level-padding) + var(--el-menu-icon-width) + var(--layout-side-menu-icon-gap)
+  );
+
   .el-sub-menu__title,
   .el-menu-item {
-    margin: 2px 10px;
+    margin: 2px var(--layout-side-menu-horizontal-margin);
     border-radius: var(--radius-md);
   }
 
   .el-menu-item {
     min-width: 0;
-    border-left: 2px solid transparent;
+    box-shadow: inset 2px 0 transparent;
 
     &.is-active {
-      border-left-color: var(--menu-active-border-color);
       background: var(--el-menu-active-bg-color);
+      box-shadow: inset 2px 0 var(--menu-active-border-color);
+    }
+  }
+
+  &.el-menu--vertical:not(.el-menu--collapse) {
+    /**
+     * 二级菜单不展示图标，文字直接对齐一级菜单的文字起点。
+     */
+    > .el-sub-menu > .el-menu {
+      > .el-menu-item,
+      > .el-sub-menu > .el-sub-menu__title {
+        padding-left: var(--layout-side-menu-text-start);
+      }
+
+      /**
+       * 三级菜单在二级文字起点上继续缩进一个标准层级。
+       */
+      > .el-sub-menu > .el-menu {
+        > .el-menu-item,
+        > .el-sub-menu > .el-sub-menu__title {
+          padding-left: calc(var(--layout-side-menu-text-start) + var(--el-menu-level-padding));
+        }
+      }
     }
   }
 }
@@ -32,7 +60,7 @@
   width: 18px;
   height: 18px;
   flex: 0 0 18px;
-  margin-right: 10px;
+  margin-right: var(--layout-side-menu-icon-gap);
 }
 
 .layout-side--collapsed .layout-side__menu-icon {

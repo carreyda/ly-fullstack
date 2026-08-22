@@ -4,22 +4,6 @@
   padding: 18px 20px 20px;
   container-type: inline-size;
 
-  &::before {
-    position: absolute;
-    top: 0;
-    right: 20px;
-    left: 20px;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      color-mix(in srgb, var(--color-primary) 48%, transparent),
-      transparent
-    );
-    content: '';
-    pointer-events: none;
-  }
-
   &__header {
     display: flex;
     align-items: flex-start;
