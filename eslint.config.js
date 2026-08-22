@@ -116,6 +116,17 @@ export default tseslint.config(
       ],
     },
   },
+  /**
+   * Service Worker 模板运行在 WorkerGlobalScope，不具备普通浏览器 Window 或 Node.js 全局对象。
+   */
+  {
+    files: ['apps/admin/build/runtime/offline/sw-template.js'],
+    languageOptions: {
+      globals: {
+        ...globals.serviceworker,
+      },
+    },
+  },
   {
     files: [
       ...serverSourceGlobs,

@@ -15,6 +15,7 @@ declare module 'vue' {
     BaseEmptyState: typeof import('./src/components/base/base-empty-state/index.vue')['default']
     CircleLoading: typeof import('./src/components/base/circle-loading/index.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']
+    ElCheckbox: typeof import('element-plus/es')['ElCheckbox']
     ElConfigProvider: typeof import('element-plus/es')['ElConfigProvider']
     ElDatePicker: typeof import('element-plus/es')['ElDatePicker']
     ElDialog: typeof import('element-plus/es')['ElDialog']

@@ -1,15 +1,47 @@
-import { reactive, ref, useTemplateRef, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import Cookies from 'js-cookie';
+import { COOKIE_ADMIN_CREDENTIALS_KEY } from '@/constants';
 import { useAuthStore } from '@/stores';
 import { showSuccessMessage, showWarningMessage } from '@/feedback';
 import type { FormInstance, FormRules } from 'element-plus';
 import type { AdminLoginParams } from '@repo/shared/types';
 
+const REMEMBER_CREDENTIALS_COOKIE_OPTIONS = {
+  expires: 30,
+  path: '/',
+  sameSite: 'lax',
+  secure: window.location.protocol === 'https:',
+} as const;
+
 /**
- * 管理登录页的表单校验、认证请求和登录后回跳
+ * 校验 Cookie 中的登录凭据
  *
- * 页面组件只负责渲染表单和主题按钮。本 Composable 负责调用认证 Store，并在登录成功后恢复用户原本
- * 想访问的站内地址；失败时保留当前输入，由 Axios 拦截器展示服务端错误。
+ * Cookie 内容属于浏览器侧不可信输入，回填表单前必须检查对象结构和字段类型；无效内容由调用方删除。
+ *
+ * @param raw Cookie 中保存的 JSON 字符串
+ * @returns 可安全回填登录表单的管理员账号密码
+ */
+const parseRememberedCredentials = (raw: string): AdminLoginParams => {
+  const parsed: unknown = JSON.parse(raw);
+  if (!parsed || typeof parsed !== 'object') {
+    throw new Error('登录凭据格式无效');
+  }
+
+  const credentials = parsed as Record<string, unknown>;
+  if (typeof credentials.username !== 'string' || typeof credentials.password !== 'string') {
+    throw new Error('登录凭据字段无效');
+  }
+
+  return {
+    username: credentials.username,
+    password: credentials.password,
+  };
+};
+
+/**
+ * 管理登录页的凭据记忆、表单校验、认证请求和登录后回跳
+ *
+ * 页面组件只负责渲染表单和主题按钮。本 Composable 使用 Cookie 保存用户主动勾选的账号密码，避免
+ * 版本更新清理本地缓存时丢失；登录成功后恢复用户原本想访问的站内地址，失败提示交给 Axios 拦截器。
  */
 export const useLoginForm = () => {
   const route = useRoute();
@@ -25,6 +57,11 @@ export const useLoginForm = () => {
    * 登录请求提交状态，用于阻止重复提交并驱动按钮加载反馈
    */
   const submitting = ref(false);
+
+  /**
+   * 用户是否选择在当前浏览器中记住管理员账号密码
+   */
+  const rememberCredentials = ref(false);
 
   /**
    * 当前账号密码是否已经完成本次滑块验证
@@ -51,6 +88,42 @@ export const useLoginForm = () => {
       { required: true, message: '请输入登录密码', trigger: 'blur' },
       { min: 8, max: 72, message: '密码长度应为 8 到 72 个字符', trigger: 'blur' },
     ],
+  };
+
+  /**
+   * 从 Cookie 恢复用户主动保存的管理员账号密码
+   *
+   * 解析失败说明 Cookie 已损坏或被手动修改，直接删除并保持空表单，避免异常内容影响登录页初始化。
+   */
+  const restoreRememberedCredentials = (): void => {
+    const storedCredentials = Cookies.get(COOKIE_ADMIN_CREDENTIALS_KEY);
+    if (!storedCredentials) {
+      return;
+    }
+
+    try {
+      const credentials = parseRememberedCredentials(storedCredentials);
+      formModel.username = credentials.username;
+      formModel.password = credentials.password;
+      rememberCredentials.value = true;
+    } catch {
+      Cookies.remove(COOKIE_ADMIN_CREDENTIALS_KEY, REMEMBER_CREDENTIALS_COOKIE_OPTIONS);
+    }
+  };
+
+  /**
+   * 在登录成功后同步记住账号密码的 Cookie
+   *
+   * Cookie 保存 30 天且只允许同站请求携带。该功能按产品需求保存明文凭据，不使用 Base64 伪装加密；
+   * 未勾选时删除历史 Cookie，确保用户可以主动撤销记忆。
+   */
+  const persistRememberedCredentials = (): void => {
+    if (!rememberCredentials.value) {
+      Cookies.remove(COOKIE_ADMIN_CREDENTIALS_KEY, REMEMBER_CREDENTIALS_COOKIE_OPTIONS);
+      return;
+    }
+
+    Cookies.set(COOKIE_ADMIN_CREDENTIALS_KEY, JSON.stringify(formModel), REMEMBER_CREDENTIALS_COOKIE_OPTIONS);
   };
 
   /**
@@ -91,6 +164,7 @@ export const useLoginForm = () => {
     submitting.value = true;
     try {
       await authStore.login(formModel);
+      persistRememberedCredentials();
       showSuccessMessage('登录成功');
       await router.replace(getRedirectTarget());
     } catch {
@@ -111,11 +185,14 @@ export const useLoginForm = () => {
     },
   );
 
+  onMounted(restoreRememberedCredentials);
+
   return {
     formRef,
     formModel,
     formRules,
     captchaVerified,
+    rememberCredentials,
     submitting,
     handleLogin,
   };

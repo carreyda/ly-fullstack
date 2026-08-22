@@ -8,7 +8,7 @@
         </div>
 
         <div class="login-page__visual-main">
-          <login-visual-machine class="login-page__visual-machine" />
+          <img class="login-page__visual-machine" :src="loginVisualMachine" alt="" />
 
           <div class="login-page__visual-copy">
             <span>全栈管理系统基础框架</span>
@@ -66,6 +66,10 @@
 
             <SlideVerify v-model="captchaVerified" class="login-page__verification" :disabled="submitting" />
 
+            <div class="login-page__remember">
+              <el-checkbox v-model="rememberCredentials">记住账号密码</el-checkbox>
+            </div>
+
             <el-button
               class="login-page__submit"
               :loading="submitting"
@@ -85,10 +89,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
 import { Moon, Sun } from '@lucide/vue';
+import loginVisualMachine from '@/assets/images/login-visual-machine.png';
 import { useTheme } from '@/composables/use-theme';
-import LoginVisualMachine from './components/login-visual-machine/index.vue';
 import SlideVerify from './components/slide-verify/index.vue';
 import { useLoginForm } from './composables/use-login-form';
 
@@ -96,7 +99,7 @@ import { useLoginForm } from './composables/use-login-form';
  * 页面层只装配主题交互和登录表单能力，不直接持有认证请求与路由跳转细节。
  */
 const { isDarkTheme, toggleTheme: toggleAppTheme } = useTheme();
-const { formRef, formModel, formRules, captchaVerified, submitting, handleLogin } = useLoginForm();
+const { formRef, formModel, formRules, captchaVerified, rememberCredentials, submitting, handleLogin } = useLoginForm();
 
 /**
  * 主题按钮面向下一次切换目标的无障碍说明

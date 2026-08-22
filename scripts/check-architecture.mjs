@@ -115,6 +115,10 @@ getSourceFiles(adminSourceRoot).forEach((filePath) => {
     violations.push(`${workspacePath}: Vue 组合式逻辑目录统一命名为 composables，禁止重新创建 hooks`);
   }
 
+  if (workspacePath === 'apps/admin/src/setup.ts') {
+    violations.push(`${workspacePath}: 应用启动装配统一维护在 bootstrap 目录，禁止重新创建根 setup.ts`);
+  }
+
   if (
     workspacePath !== 'apps/admin/src/components/base/base-empty-state/index.vue' &&
     /<el-empty\b|<ElEmpty\b/.test(source)

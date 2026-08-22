@@ -102,6 +102,18 @@ trim_trailing_whitespace = true
 
 ---
 
+## Admin 版本检测与离线缓存
+
+- `apps/admin/build/runtime/version.ts` 是版本清单唯一生成入口，构建号必须根据最终静态资源内容计算，并同时写入 `version.json` 和 HTML meta。
+- HTML 当前构建号统一使用 `meta[name="build-id"]`，禁止添加公司、旧项目或业务品牌前缀；应用名称和构建时间分别使用 `app-name`、`build-time`。
+- `apps/admin/build/runtime/check.ts` 只在 test 和 production 构建作为 `preEntry` 注入；开发环境不得请求 `version.json` 或注册 Service Worker。
+- 离线缓存只缓存同源入口、带内容哈希的静态资源和离线兜底页，禁止缓存业务 API、非 GET 请求或跨域资源。
+- `apps/admin/src/bootstrap/` 统一监听 `app-update-ready`。用户确认更新后可以清理 localStorage、sessionStorage、CacheStorage 和旧 Service Worker，但禁止清理 Cookie。
+- 版本检查、Service Worker 注册和缓存清理都属于增强能力；失败时不得阻断应用启动、登录和正常联网使用。
+- 版本检测与离线缓存的完整实现和部署边界见 `docs/admin-version-offline.md`，修改构建路径、资源前缀或缓存策略时必须同步更新该文档。
+
+---
+
 ## Node / pnpm 版本
 
 - Node >= 22

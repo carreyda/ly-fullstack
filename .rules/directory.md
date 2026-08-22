@@ -93,6 +93,7 @@ apps/admin/
 │   ├── rsbuild.base.config.ts
 │   ├── rsbuild.dev.config.ts
 │   ├── rsbuild.prod.config.ts
+│   └── runtime/                 # 版本清单、运行时检测和离线缓存构建能力
 ├── docs/                        # 专题文档，例如鉴权、部署、接口说明
 │   └── auth.md
 ├── public/                      # 不经构建处理的静态资源
@@ -100,7 +101,7 @@ apps/admin/
 ├── src/
 │   ├── main.ts                  # SPA 入口
 │   ├── App.vue                  # 根组件
-│   ├── setup.ts                 # 应用启动装配：router/store/plugins 等
+│   ├── bootstrap/               # 应用启动装配、全局事件和版本更新处理
 │   ├── api/                     # API 层（barrel + modules）
 │   │   └── modules/<domain>/
 │   │       ├── api.ts           # URL 常量
@@ -194,8 +195,8 @@ src/views/system/user/
 - 菜单图标解析、导航树转换等应用导航逻辑放 `navigation/` 或布局私有 composable，不能放 `utils/`。
 - `feedback/` 与 `navigation/` 使用 `index.ts + modules/`，外部只从目录入口导入，禁止绕过 barrel 访问内部实现。
 - `components/base/` 只保存与具体页面、接口和业务状态无关的基础组件；单页视觉组件优先放页面附近。
-- `services/` 不能直接依赖 UI、Router 或 Store，必须暴露注入协议并由 `setup.ts` 在应用启动时装配。
-- `setup.ts` 是 Router、Pinia、服务适配器和全局副作用的应用装配入口；`main.ts` 只创建和挂载应用。
+- `services/` 不能直接依赖 UI、Router 或 Store，必须暴露注入协议并由 `bootstrap/` 在应用启动时装配。
+- `bootstrap/` 是 Router、Pinia、服务适配器、版本更新监听和其他启动期全局副作用的装配入口；禁止重新创建根 `setup.ts`，`main.ts` 只创建、启动和挂载应用。
 
 ---
 

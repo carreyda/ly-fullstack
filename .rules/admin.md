@@ -434,3 +434,6 @@ apps/admin/src/assets/element-plus/index.scss
 - 桌面端左侧视觉区和右侧表单区必须占满视口高度；窄屏隐藏视觉区，只保留品牌、表单和版权信息。
 - 登录页只保留一个主标题，禁止在视觉区和表单区重复展示同义欢迎标题。
 - 输入框和登录按钮基础高度为 `44px`，错误、加载、禁用和键盘焦点状态必须完整。
+- “记住账号密码”只能在用户主动勾选且登录成功后写入 `js-cookie`，Cookie 键统一维护在 `src/constants/modules/storage.ts`，页面和 Store 禁止复制键名。
+- 记住的账号密码与 Token、Pinia 状态和版本缓存使用不同存储边界；版本更新可以清理 localStorage、sessionStorage、CacheStorage 和旧 Service Worker，但禁止全量清除 Cookie。
+- 浏览器可读 Cookie 无法安全保存真正的密钥，禁止使用 Base64 冒充加密；界面应明确由用户主动选择，代码中必须保留同站、HTTPS 和有效期约束。

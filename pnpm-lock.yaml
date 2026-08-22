@@ -57,6 +57,9 @@ catalogs:
     '@rstest/core':
       specifier: 0.11.9
       version: 0.11.9
+    '@types/js-cookie':
+      specifier: 3.0.6
+      version: 3.0.6
     '@types/node':
       specifier: 26.2.0
       version: 26.2.0
@@ -108,6 +111,9 @@ catalogs:
     husky:
       specifier: 9.1.7
       version: 9.1.7
+    js-cookie:
+      specifier: 3.0.8
+      version: 3.0.8
     lint-staged:
       specifier: 17.3.0
       version: 17.3.0
@@ -253,6 +259,9 @@ importers:
       element-plus:
         specifier: 'catalog:'
         version: 2.14.4(vue@3.5.41(typescript@6.0.2))
+      js-cookie:
+        specifier: 'catalog:'
+        version: 3.0.8
       mitt:
         specifier: 'catalog:'
         version: 3.0.1
@@ -281,6 +290,9 @@ importers:
       '@rsbuild/plugin-vue':
         specifier: 'catalog:'
         version: 2.0.1(@rsbuild/core@2.1.13)(@rspack/core@2.1.10(@swc/helpers@0.5.23))(@vue/compiler-sfc@3.5.41)(vue@3.5.41(typescript@6.0.2))
+      '@types/js-cookie':
+        specifier: 'catalog:'
+        version: 3.0.6
       compression-webpack-plugin:
         specifier: 'catalog:'
         version: 12.0.0(webpack@5.109.2(csso@5.0.5)(esbuild@0.28.2)(postcss@8.5.26)(uglify-js@3.19.3))
@@ -1551,6 +1563,9 @@ packages:
 
   '@types/inquirer@9.0.10':
     resolution: {integrity: sha512-vFW2WbXwO9eZpRT5GJGFJ/shgyMNnYozmnjakt9jCQSS1lvqX8pZEQMjJ9RdDPct/YxwciQ8+V8OYn9euIrZDA==}
+
+  '@types/js-cookie@3.0.6':
+    resolution: {integrity: sha512-wkw9yd1kEXOPnvEeEV1Go1MmxtBJL0RR79aOTAApecWFVu7w0NNXNqhcWgvw2YgZDYadliXkl14pa3WXw5jlCQ==}
 
   '@types/jsesc@2.5.1':
     resolution: {integrity: sha512-9VN+6yxLOPLOav+7PwjZbxiID2bVaeq0ED4qSQmdQTdjnXJSaCVKTR58t15oqH1H5t8Ng2ZX1SabJVoN9Q34bw==}
@@ -2929,6 +2944,9 @@ packages:
   jiti@2.7.0:
     resolution: {integrity: sha512-AC/7JofJvZGrrneWNaEnJeOLUx+JlGt7tNa0wZiRPT4MY1wmfKjt2+6O2p2uz2+skll8OZZmJMNqeke7kKbNgQ==}
     hasBin: true
+
+  js-cookie@3.0.8:
+    resolution: {integrity: sha512-yeJd4aNAdYZQjaon2bpD/Gb0B/omw7HQOsynXXcOiWVCacbBcPlgn8S/d1X6blFSaHao7ozqtW7NZW19xpCtIw==}
 
   js-tokens@10.0.0:
     resolution: {integrity: sha512-lM/UBzQmfJRo9ABXbPWemivdCW8V2G8FHaHdypQaIy523snUjog0W71ayWXTjiR+ixeMyVHN2XcpnTd/liPg/Q==}
@@ -5293,6 +5311,8 @@ snapshots:
       '@types/through': 0.0.33
       rxjs: 7.8.2
 
+  '@types/js-cookie@3.0.6': {}
+
   '@types/jsesc@2.5.1': {}
 
   '@types/json-schema@7.0.15': {}
@@ -6823,6 +6843,8 @@ snapshots:
   jiti@2.6.1: {}
 
   jiti@2.7.0: {}
+
+  js-cookie@3.0.8: {}
 
   js-tokens@10.0.0: {}
 

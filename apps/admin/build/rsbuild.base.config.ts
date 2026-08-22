@@ -7,6 +7,8 @@ import AutoImport from 'unplugin-auto-import/rspack';
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 
 import { loadAdminEnv } from './runtime/env';
+import { buildOfflineIntegration } from './runtime/offline';
+import { createVersionPlugin } from './runtime/version';
 
 import type { RsbuildConfig } from '@rsbuild/core';
 
@@ -14,7 +16,7 @@ import type { RsbuildConfig } from '@rsbuild/core';
  * 创建管理后台共享的 Rsbuild 配置
  *
  * 负责加载并校验环境变量、定义浏览器入口和产物路径、注入 Element Plus Sass 定制入口，
- * 同时注册 API 自动导入和基础组件自动导入能力。开发与生产配置在此基础上继续合并。
+ * 同时注册版本检测、离线缓存、API 自动导入和基础组件自动导入能力。开发与生产配置在此基础上继续合并。
  *
  * @param envMode Rsbuild CLI 传入的环境文件模式，对应 `.env.development`、`.env.test` 或 `.env.production`
  * @returns 可与开发或生产差异配置合并的 Rsbuild 公共配置
@@ -23,10 +25,30 @@ export const getBaseConfig = (envMode = 'development'): RsbuildConfig => {
   const env = loadAdminEnv(envMode);
 
   /**
-   * 管理后台当前部署在站点根路径；调整部署子路径时必须同步影响静态资源前缀。
+   * 管理后台当前部署在站点根路径；调整部署子路径时必须同步影响静态资源、版本清单和 Worker 作用域。
    */
   const assetPrefix = '/';
   const isDev: boolean = env.appEnv === 'development';
+
+  /**
+   * 版本清单和 Service Worker 使用的部署基础路径
+   */
+  const basePath = assetPrefix.endsWith('/') ? assetPrefix : `${assetPrefix}/`;
+
+  /**
+   * 离线缓存默认只在 test 和 production 构建启用，开发环境返回 null，避免 Worker 干扰 HMR。
+   */
+  const offlineIntegration = buildOfflineIntegration(env.appEnv, assetPrefix);
+
+  /**
+   * 构建运行时入口
+   *
+   * 非开发构建先注册版本轮询，再按离线配置注册 Service Worker；本地开发不请求不存在的构建产物。
+   */
+  const preEntry = [
+    ...(isDev ? [] : [resolve(process.cwd(), './build/runtime/check.ts')]),
+    ...(offlineIntegration?.preEntry ?? []),
+  ];
 
   const config: RsbuildConfig = {
     /**
@@ -38,9 +60,13 @@ export const getBaseConfig = (envMode = 'development'): RsbuildConfig => {
       entry: {
         index: resolve(process.cwd(), './src/main.ts'),
       },
+      preEntry,
       define: {
         'import.meta.env.APP_ENV': JSON.stringify(env.appEnv),
         'import.meta.env.API_BASE_URL': JSON.stringify(env.apiBaseUrl),
+        __APP_VERSION_URL__: JSON.stringify(`${basePath}version.json`),
+        __APP_VERSION_SW_SCOPE__: JSON.stringify(basePath),
+        ...(offlineIntegration?.define ?? {}),
       },
     },
 
@@ -80,7 +106,7 @@ export const getBaseConfig = (envMode = 'development'): RsbuildConfig => {
     },
 
     /**
-     * Vue、Sass 插件
+     * Vue、Sass、离线缓存和版本产物插件
      *
      * Sass additionalData 会把 Element Plus 变量与覆盖样式注入每个 SCSS 编译单元，
      * 业务样式不需要重复引入 `assets/element-plus/index.scss`。
@@ -92,6 +118,8 @@ export const getBaseConfig = (envMode = 'development'): RsbuildConfig => {
           additionalData: `@use "@/assets/element-plus/index.scss" as *;`,
         },
       }),
+      ...(offlineIntegration ? [offlineIntegration.plugin] : []),
+      createVersionPlugin(env.appEnv),
     ],
 
     /**
