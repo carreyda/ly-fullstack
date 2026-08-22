@@ -47,6 +47,36 @@ export interface MenuIconOption {
 }
 
 /**
+ * 管理后台侧栏使用的导航视图节点
+ */
+export interface AdminNavItem {
+  /**
+   * Element Plus Menu 使用的唯一标识
+   */
+  key: string;
+
+  /**
+   * 菜单展示文本
+   */
+  title: string;
+
+  /**
+   * 页面节点对应的路由地址
+   */
+  path?: string;
+
+  /**
+   * 顶层菜单使用的 Lucide Vue 图标组件
+   */
+  icon?: Component;
+
+  /**
+   * 当前管理员有权访问的子菜单节点
+   */
+  children?: AdminNavItem[];
+}
+
+/**
  * 菜单管理可以绑定的前端页面注册项
  */
 export interface AdminPageOption {

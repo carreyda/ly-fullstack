@@ -7,3 +7,4 @@ export * from './modules/dashboard';
 export * from './modules/emitter';
 export * from './modules/menu';
 export * from './modules/role';
+export * from './modules/user';

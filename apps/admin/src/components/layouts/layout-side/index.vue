@@ -15,7 +15,7 @@
           class="layout-side__menu"
           :collapse="props.collapsed"
           :collapse-transition="false"
-          :default-active="route.path"
+          :default-active="activeMenuKey"
           :default-openeds="defaultOpenedKeys"
           @select="handleMenuSelect"
         >
@@ -28,21 +28,15 @@
 
 <script setup lang="ts">
 /**
- * 当前路由驱动菜单选中态，Router 实例负责叶子菜单跳转。
- */
-import { useRoute, useRouter } from 'vue-router';
-
-/**
  * 递归菜单组件负责按导航树层级渲染分组和叶子节点。
  */
 import LayoutMenuItem from './menu-item.vue';
+import { useLayoutMenu } from './composables/use-layout-menu';
 
 /**
- * 数据库菜单树决定当前管理员可以看到的侧栏结构，本地注册表只解析一级 Lucide 图标。
+ * 侧栏专属 Composable 负责消费数据库会话菜单、建立视图树和处理路由跳转。
  */
-import { createAdminNavDefaultOpenedKeys, createAdminNavItems } from '@/constants';
-import { useAuthStore } from '@/stores';
-import type { AdminNavItem } from '@/constants/modules/nav';
+const { navigationItems, defaultOpenedKeys, activeMenuKey, handleMenuSelect } = useLayoutMenu();
 
 /**
  * 定义 props 的类型声明
@@ -60,62 +54,6 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   collapsed: false,
 });
-
-/**
- * 引入路由
- */
-const router = useRouter();
-const route = useRoute();
-const authStore = useAuthStore();
-const { menus } = storeToRefs(authStore);
-
-/**
- * 当前登录会话转换后的侧栏导航树
- */
-const navigationItems = computed(() => createAdminNavItems(menus.value));
-
-/**
- * 当前菜单树中默认展开的一级分组
- */
-const defaultOpenedKeys = computed(() => createAdminNavDefaultOpenedKeys(navigationItems.value));
-
-/**
- * 在导航树中查找节点对应的路由地址
- *
- * @param items 导航树节点
- * @param key 菜单唯一标识
- * @returns 路由地址，不存在时返回 undefined
- */
-const findNavPath = (items: AdminNavItem[], key: string): string | undefined => {
-  for (const item of items) {
-    if (item.key === key) {
-      return item.path;
-    }
-
-    if (item.children?.length) {
-      const childPath = findNavPath(item.children, key);
-
-      if (childPath) {
-        return childPath;
-      }
-    }
-  }
-
-  return undefined;
-};
-
-/**
- * 打开叶子菜单绑定的页面
- *
- * @param key 菜单唯一标识
- */
-const handleMenuSelect = (key: string): void => {
-  const path = findNavPath(navigationItems.value, key);
-
-  if (path && path !== route.path) {
-    void router.push(path);
-  }
-};
 </script>
 
 <style lang="scss" scoped>

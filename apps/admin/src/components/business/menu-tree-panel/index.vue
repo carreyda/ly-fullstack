@@ -88,7 +88,7 @@
 <script setup lang="ts">
 import { GripVertical, Plus, Trash2 } from '@lucide/vue';
 
-import { resolveMenuIcon } from '@/constants';
+import { resolveMenuIcon } from '@/utils';
 
 import type { Component } from 'vue';
 import type { AllowDropFunction, FilterNodeMethodFunction } from 'element-plus';

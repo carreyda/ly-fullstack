@@ -21,11 +21,7 @@
   &__visual-machine {
     display: block;
     width: min(100%, 500px);
-    height: auto;
     justify-self: center;
-    filter: var(--login-visual-machine-filter);
-    transition: filter 360ms var(--ease-standard);
-    user-select: none;
   }
 
   &__visual-content {
@@ -276,7 +272,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .login-page__visual-machine,
   .login-page__theme {
     transition: none;
   }

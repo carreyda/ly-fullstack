@@ -1,0 +1,56 @@
+.user-role-dialog {
+  padding: var(--spacing-xl);
+
+  &__account {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-xl);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--control-fill-color);
+    color: var(--color-text-secondary);
+
+    strong {
+      color: var(--color-text-primary);
+      font-weight: 600;
+    }
+
+    code {
+      margin-left: auto;
+      color: var(--color-text-tertiary);
+      font-size: 12px;
+    }
+  }
+
+  &__option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-xl);
+
+    code {
+      color: var(--color-text-tertiary);
+      font-size: 12px;
+    }
+  }
+
+  &__help {
+    width: 100%;
+    margin-top: 6px;
+    color: var(--color-text-tertiary);
+    font-size: 12px;
+    line-height: 18px;
+  }
+
+  &__footer {
+    display: flex;
+    min-height: 64px;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
+    padding: 0 var(--spacing-xl);
+    border-top: 1px solid var(--border-color);
+  }
+}

@@ -45,9 +45,9 @@ import { computed } from 'vue';
 import { ChevronDown, ChevronUp } from '@lucide/vue';
 
 /**
- * 导航节点类型与侧栏使用的静态导航树保持同源。
+ * 导航节点类型与当前登录会话转换后的侧栏树保持同源。
  */
-import type { AdminNavItem } from '@/constants/modules/nav';
+import type { AdminNavItem } from '@/types';
 
 defineOptions({
   name: 'LayoutMenuItem',

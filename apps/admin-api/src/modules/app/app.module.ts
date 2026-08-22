@@ -5,6 +5,7 @@ import { AuthModule } from '../auth/auth.module';
 import { HealthModule } from '../health/health.module';
 import { MenuModule } from '../menu/menu.module';
 import { RoleModule } from '../role/role.module';
+import { UserModule } from '../user/user.module';
 import { PrismaModule } from '../../prisma/prisma.module';
 
 const appEnv = process.env.APP_ENV || 'development';
@@ -26,6 +27,7 @@ const appEnv = process.env.APP_ENV || 'development';
     HealthModule,
     MenuModule,
     RoleModule,
+    UserModule,
     PrismaModule,
   ],
 })

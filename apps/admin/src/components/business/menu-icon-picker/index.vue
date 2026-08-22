@@ -59,7 +59,8 @@
 </template>
 
 <script setup lang="ts">
-import { MENU_ICON_CATEGORIES, MENU_ICON_OPTIONS, resolveMenuIcon } from '@/constants';
+import { MENU_ICON_CATEGORIES, MENU_ICON_OPTIONS } from '@/constants';
+import { resolveMenuIcon } from '@/utils';
 
 import type { MenuIconCategory } from '@/types';
 

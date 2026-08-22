@@ -38,6 +38,7 @@ declare module 'vue' {
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
     ElTree: typeof import('element-plus/es')['ElTree']
     FluidGlassCard: typeof import('./src/components/base/fluid-glass-card/index.vue')['default']
+    LoginVisualMachine: typeof import('./src/components/base/login-visual-machine/index.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SlideVerify: typeof import('./src/components/base/slide-verify/index.vue')['default']

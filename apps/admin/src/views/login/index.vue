@@ -8,7 +8,7 @@
         </div>
 
         <div class="login-page__visual-main">
-          <img class="login-page__visual-machine" :src="loginVisualMachine" alt="" />
+          <login-visual-machine class="login-page__visual-machine" />
 
           <div class="login-page__visual-copy">
             <span>全栈管理系统基础框架</span>
@@ -98,13 +98,6 @@ import { computed } from 'vue';
  * 登录页只保留主题切换图标，表单本身使用克制的文字层级，避免装饰元素干扰输入。
  */
 import { Moon, Sun } from '@lucide/vue';
-
-/**
- * 导入登录页主体插画
- *
- * 图片只承载高分辨率机械装置，主题背景和空间层次由 CSS 绘制，避免整幅位图在宽屏下放大失真。
- */
-import loginVisualMachine from '@/assets/images/login-visual-machine.png';
 
 /**
  * 导入 hooks

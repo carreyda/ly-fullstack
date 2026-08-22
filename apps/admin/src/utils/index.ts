@@ -3,3 +3,4 @@
  */
 export * from './modules/message';
 export * from './modules/date';
+export * from './modules/menu-icon';

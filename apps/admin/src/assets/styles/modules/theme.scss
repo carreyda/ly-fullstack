@@ -54,8 +54,32 @@ html[data-theme='dark'] {
     radial-gradient(circle at 70% 76%, color-mix(in srgb, var(--palette-green-400) 15%, transparent), transparent 32%),
     radial-gradient(circle at 18% 12%, color-mix(in srgb, var(--palette-green-400) 5.5%, transparent), transparent 28%),
     linear-gradient(145deg, var(--palette-dark-950) 0%, var(--palette-dark-925) 56%, var(--palette-dark-950) 100%);
-  --login-visual-machine-filter: brightness(0.5) saturate(1.6) contrast(1.34)
-    drop-shadow(0 28px 48px color-mix(in srgb, var(--palette-black) 52%, transparent));
+  --login-machine-accent: var(--palette-green-400);
+  --login-machine-accent-soft: color-mix(in srgb, var(--palette-green-400) 28%, transparent);
+  --login-machine-deck-highlight: color-mix(in srgb, var(--palette-white) 7%, var(--palette-dark-850));
+  --login-machine-deck-base: var(--palette-dark-875);
+  --login-machine-deck-shadow: var(--palette-dark-950);
+  --login-machine-platform-fill: var(--palette-dark-900);
+  --login-machine-track-fill: var(--palette-dark-925);
+  --login-machine-shell-highlight: color-mix(in srgb, var(--palette-white) 8%, var(--palette-dark-850));
+  --login-machine-shell-top: color-mix(in srgb, var(--palette-green-400) 6%, var(--palette-dark-875));
+  --login-machine-shell-shadow: var(--palette-dark-950);
+  --login-machine-screen-frame: var(--palette-dark-850);
+  --login-machine-screen-start: var(--palette-dark-950);
+  --login-machine-screen-end: var(--palette-green-950);
+  --login-machine-keyboard-fill: var(--palette-dark-850);
+  --login-machine-glass-highlight: color-mix(in srgb, var(--palette-green-400) 13%, var(--palette-dark-875));
+  --login-machine-glass-base: color-mix(in srgb, var(--palette-dark-950) 88%, transparent);
+  --login-machine-glow-color: var(--palette-green-400);
+  --login-machine-stroke: color-mix(in srgb, var(--palette-mint-200) 14%, transparent);
+  --login-machine-panel-stroke: color-mix(in srgb, var(--palette-green-400) 52%, transparent);
+  --login-machine-grid: color-mix(in srgb, var(--palette-mint-200) 19%, transparent);
+  --login-machine-orbit-color: color-mix(in srgb, var(--palette-green-400) 32%, transparent);
+  --login-machine-node-fill: var(--palette-dark-850);
+  --login-machine-vent: var(--palette-mint-600);
+  --login-machine-scan-color: color-mix(in srgb, var(--palette-green-400) 22%, transparent);
+  --login-machine-shadow-color: var(--palette-black);
+  --login-machine-shadow: 0 24px 38px color-mix(in srgb, var(--palette-black) 38%, transparent);
   --login-visual-title-color: var(--palette-mint-50);
   --login-visual-kicker-color: var(--palette-green-400);
   --login-visual-description-color: color-mix(in srgb, var(--palette-mint-50) 58%, transparent);
@@ -163,8 +187,32 @@ html[data-theme='light'] {
     radial-gradient(circle at 70% 76%, color-mix(in srgb, var(--palette-green-400) 18%, transparent), transparent 33%),
     radial-gradient(circle at 16% 8%, color-mix(in srgb, var(--palette-green-700) 8%, transparent), transparent 30%),
     linear-gradient(145deg, var(--palette-green-25) 0%, var(--palette-green-50) 54%, var(--palette-green-75) 100%);
-  --login-visual-machine-filter: saturate(0.94) contrast(1.04)
-    drop-shadow(0 26px 42px color-mix(in srgb, var(--palette-green-900) 14%, transparent));
+  --login-machine-accent: var(--palette-green-700);
+  --login-machine-accent-soft: color-mix(in srgb, var(--palette-green-400) 30%, var(--palette-white));
+  --login-machine-deck-highlight: var(--palette-white);
+  --login-machine-deck-base: var(--palette-mint-75);
+  --login-machine-deck-shadow: color-mix(in srgb, var(--palette-green-900) 16%, var(--palette-white));
+  --login-machine-platform-fill: color-mix(in srgb, var(--palette-green-50) 68%, var(--palette-white));
+  --login-machine-track-fill: color-mix(in srgb, var(--palette-green-75) 72%, var(--palette-white));
+  --login-machine-shell-highlight: var(--palette-white);
+  --login-machine-shell-top: var(--palette-mint-50);
+  --login-machine-shell-shadow: color-mix(in srgb, var(--palette-green-900) 12%, var(--palette-mint-75));
+  --login-machine-screen-frame: var(--palette-white);
+  --login-machine-screen-start: var(--palette-green-25);
+  --login-machine-screen-end: var(--palette-green-75);
+  --login-machine-keyboard-fill: var(--palette-mint-75);
+  --login-machine-glass-highlight: color-mix(in srgb, var(--palette-white) 78%, var(--palette-green-50));
+  --login-machine-glass-base: color-mix(in srgb, var(--palette-green-400) 10%, var(--palette-white));
+  --login-machine-glow-color: var(--palette-green-400);
+  --login-machine-stroke: color-mix(in srgb, var(--palette-green-900) 18%, transparent);
+  --login-machine-panel-stroke: color-mix(in srgb, var(--palette-green-700) 46%, transparent);
+  --login-machine-grid: color-mix(in srgb, var(--palette-green-700) 18%, transparent);
+  --login-machine-orbit-color: color-mix(in srgb, var(--palette-green-700) 26%, transparent);
+  --login-machine-node-fill: var(--palette-white);
+  --login-machine-vent: var(--palette-green-600);
+  --login-machine-scan-color: color-mix(in srgb, var(--palette-green-400) 20%, transparent);
+  --login-machine-shadow-color: var(--palette-green-900);
+  --login-machine-shadow: 0 22px 36px color-mix(in srgb, var(--palette-green-900) 13%, transparent);
   --login-visual-title-color: var(--palette-neutral-800);
   --login-visual-kicker-color: var(--palette-green-700);
   --login-visual-description-color: var(--palette-neutral-600);

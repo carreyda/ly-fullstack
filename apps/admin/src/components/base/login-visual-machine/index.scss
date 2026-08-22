@@ -1,0 +1,231 @@
+.login-visual-machine {
+  display: block;
+  width: 100%;
+  color: var(--login-machine-accent);
+  filter: drop-shadow(var(--login-machine-shadow));
+  user-select: none;
+
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  &__floor-glow {
+    opacity: 0.72;
+  }
+
+  &__orbit {
+    fill: none;
+    stroke: var(--login-machine-orbit-color);
+    stroke-width: 1.5;
+
+    &--back {
+      opacity: 0.72;
+    }
+  }
+
+  &__data-flow {
+    stroke: var(--login-machine-accent);
+    stroke-dasharray: 5 17;
+    stroke-linecap: round;
+  }
+
+  &__satellites {
+    fill: var(--login-machine-node-fill);
+    stroke: var(--login-machine-accent);
+    stroke-width: 2;
+    transform-box: view-box;
+    transform-origin: 360px 390px;
+  }
+
+  &__base,
+  &__database,
+  &__panel,
+  &__core {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  &__ring-pulse {
+    fill: none;
+    stroke: var(--login-machine-accent);
+    stroke-linecap: round;
+    stroke-width: 3;
+    stroke-dasharray: 68 430;
+  }
+
+  &__connections {
+    fill: var(--login-machine-accent);
+    stroke: var(--login-machine-panel-stroke);
+    stroke-dasharray: 4 6;
+    stroke-linecap: round;
+  }
+
+  &__panel {
+    filter: url('#machine-glow');
+
+    &--left {
+      transform-origin: 162px 265px;
+    }
+
+    &--right {
+      transform-origin: 565px 264px;
+    }
+  }
+
+  &__screen-content {
+    transform-origin: center;
+  }
+
+  &__scan-line {
+    opacity: 0;
+  }
+
+  &__foreground-nodes {
+    fill: var(--login-machine-node-fill);
+    stroke: var(--login-machine-panel-stroke);
+  }
+
+  &__status-pulse {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  &--active {
+    .login-visual-machine__core {
+      animation: login-machine-float 5.4s ease-in-out infinite;
+    }
+
+    .login-visual-machine__panel--left {
+      animation: login-machine-panel-left 6.2s ease-in-out infinite;
+    }
+
+    .login-visual-machine__panel--right,
+    .login-visual-machine__float-delay {
+      animation: login-machine-panel-right 6.8s ease-in-out -1.4s infinite;
+    }
+
+    .login-visual-machine__satellites--slow {
+      animation: login-machine-orbit 32s linear infinite;
+    }
+
+    .login-visual-machine__satellites--fast {
+      animation: login-machine-orbit-reverse 22s linear infinite;
+    }
+
+    .login-visual-machine__data-flow {
+      animation: login-machine-data-flow 8s linear infinite;
+    }
+
+    .login-visual-machine__ring-pulse {
+      animation: login-machine-ring-flow 9s linear infinite;
+    }
+
+    .login-visual-machine__status-pulse,
+    .login-visual-machine__server-lights {
+      animation: login-machine-pulse 2.8s ease-in-out infinite;
+    }
+
+    .login-visual-machine__scan-line {
+      animation: login-machine-scan 4.8s ease-in-out infinite;
+    }
+  }
+}
+
+@keyframes login-machine-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes login-machine-panel-left {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-0.4deg);
+  }
+
+  50% {
+    transform: translate3d(-4px, -5px, 0) rotate(0.7deg);
+  }
+}
+
+@keyframes login-machine-panel-right {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0.35deg);
+  }
+
+  50% {
+    transform: translate3d(4px, -6px, 0) rotate(-0.6deg);
+  }
+}
+
+@keyframes login-machine-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes login-machine-orbit-reverse {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes login-machine-data-flow {
+  to {
+    stroke-dashoffset: -176;
+  }
+}
+
+@keyframes login-machine-ring-flow {
+  to {
+    stroke-dashoffset: -498;
+  }
+}
+
+@keyframes login-machine-pulse {
+  0%,
+  100% {
+    opacity: 0.52;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes login-machine-scan {
+  0%,
+  18% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  28% {
+    opacity: 0.48;
+  }
+
+  72% {
+    opacity: 0.12;
+    transform: translateY(102px);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(102px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-visual-machine * {
+    animation: none !important;
+  }
+}

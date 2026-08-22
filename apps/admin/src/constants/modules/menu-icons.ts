@@ -74,7 +74,6 @@ import {
   Wrench,
 } from '@lucide/vue';
 
-import type { Component } from 'vue';
 import type { MenuIconCategory, MenuIconOption } from '@/types';
 
 /**
@@ -294,20 +293,3 @@ export const MENU_ICON_OPTIONS: readonly MenuIconOption[] = [
   { name: 'Archive', label: '归档', category: '状态工具', keywords: 'archive 归档 收纳', component: Archive },
   { name: 'Rocket', label: '发布部署', category: '状态工具', keywords: 'rocket 发布 部署', component: Rocket },
 ];
-
-/**
- * 菜单图标名称到 Vue 组件的解析表
- */
-const MENU_ICON_COMPONENTS = new Map<string, Component>(
-  MENU_ICON_OPTIONS.map((option) => [option.name, option.component]),
-);
-
-/**
- * 解析数据库菜单保存的 Lucide 图标名称
- *
- * @param name 菜单表中的图标名称
- * @returns 白名单中的 Vue 图标组件；名称为空或已移除时返回 `undefined`
- */
-export const resolveMenuIcon = (name: string | null | undefined): Component | undefined => {
-  return name ? MENU_ICON_COMPONENTS.get(name) : undefined;
-};
