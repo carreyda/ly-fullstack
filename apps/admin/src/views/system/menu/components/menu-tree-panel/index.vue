@@ -79,7 +79,12 @@
           </template>
         </el-tree>
 
-        <el-empty v-if="!props.loading && !treeData.length" description="暂无菜单，先创建一个根节点" />
+        <base-empty-state
+          v-if="!props.loading && !treeData.length"
+          description="暂无菜单，先创建一个根节点"
+          layout="inline"
+          :image-size="72"
+        />
       </el-scrollbar>
     </div>
   </section>

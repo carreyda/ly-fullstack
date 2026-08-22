@@ -64,7 +64,7 @@
               />
             </el-form-item>
 
-            <slide-verify v-model="captchaVerified" class="login-page__verification" :disabled="submitting" />
+            <SlideVerify v-model="captchaVerified" class="login-page__verification" :disabled="submitting" />
 
             <el-button
               class="login-page__submit"
@@ -89,6 +89,7 @@ import { computed } from 'vue';
 import { Moon, Sun } from '@lucide/vue';
 import { useTheme } from '@/composables/use-theme';
 import LoginVisualMachine from './components/login-visual-machine/index.vue';
+import SlideVerify from './components/slide-verify/index.vue';
 import { useLoginForm } from './composables/use-login-form';
 
 /**

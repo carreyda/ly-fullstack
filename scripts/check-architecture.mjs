@@ -108,10 +108,18 @@ const reportViolation = (filePath, specifier, reason) => {
 const adminSourceRoot = join(WORKSPACE_ROOT, 'apps', 'admin', 'src');
 getSourceFiles(adminSourceRoot).forEach((filePath) => {
   const workspacePath = getWorkspacePath(filePath);
-  const specifiers = getImportSpecifiers(readFileSync(filePath, 'utf8'));
+  const source = readFileSync(filePath, 'utf8');
+  const specifiers = getImportSpecifiers(source);
 
   if (workspacePath.includes('/hooks/')) {
     violations.push(`${workspacePath}: Vue 组合式逻辑目录统一命名为 composables，禁止重新创建 hooks`);
+  }
+
+  if (
+    workspacePath !== 'apps/admin/src/components/base/base-empty-state/index.vue' &&
+    /<el-empty\b|<ElEmpty\b/.test(source)
+  ) {
+    violations.push(`${workspacePath}: 业务空状态统一使用 BaseEmptyState，禁止直接使用 el-empty`);
   }
 
   specifiers.forEach((specifier) => {

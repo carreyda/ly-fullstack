@@ -1,16 +1,10 @@
 <template>
-  <div
-    ref="trackRef"
-    class="base-slide-verify"
-    :class="stateClass"
-    :aria-disabled="props.disabled"
-    @selectstart.prevent
-  >
-    <div class="base-slide-verify__progress" :style="progressStyle"></div>
-    <span class="base-slide-verify__label">{{ statusText }}</span>
+  <div ref="trackRef" class="slide-verify" :class="stateClass" :aria-disabled="props.disabled" @selectstart.prevent>
+    <div class="slide-verify__progress" :style="progressStyle"></div>
+    <span class="slide-verify__label">{{ statusText }}</span>
 
     <button
-      class="base-slide-verify__handle"
+      class="slide-verify__handle"
       :style="handleStyle"
       type="button"
       role="slider"

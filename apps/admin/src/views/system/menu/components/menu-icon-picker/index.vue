@@ -41,7 +41,7 @@
         </button>
       </div>
 
-      <el-empty v-else class="menu-icon-picker__empty" description="没有匹配的图标" :image-size="64" />
+      <base-empty-state v-else class="menu-icon-picker__empty" description="没有匹配的图标" :image-size="64" />
 
       <footer class="menu-icon-picker__footer">
         <button class="menu-icon-picker__clear" type="button" @click="selectIcon(null)">清除图标</button>

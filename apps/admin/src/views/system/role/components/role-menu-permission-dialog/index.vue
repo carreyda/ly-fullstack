@@ -38,7 +38,7 @@
             </template>
           </el-tree>
 
-          <el-empty v-else-if="!loading" description="暂无可分配菜单" />
+          <base-empty-state v-else-if="!loading" description="暂无可分配菜单" />
         </el-scrollbar>
       </div>
     </div>

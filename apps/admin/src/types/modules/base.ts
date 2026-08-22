@@ -218,19 +218,5 @@ export interface UseDataFilterPanelOptions {
   onReset: () => void;
 }
 
-/**
- * 滑块验证 Composable 的受控状态参数
- */
-export interface UseSlideVerifyOptions {
-  /**
-   * 父级持有的双向验证状态
-   */
-  verified: Ref<boolean>;
-
-  /**
-   * 获取组件当前禁用状态
-   */
-  getDisabled: () => boolean;
-}
 import type { PaginationParams } from '@repo/shared/types';
 import type { Ref } from 'vue';

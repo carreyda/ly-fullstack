@@ -29,9 +29,9 @@ export const useSlideVerify = (options: UseSlideVerifyOptions) => {
    * 根据拖动、验证和禁用状态生成组件状态类名
    */
   const stateClass = computed(() => ({
-    'base-slide-verify--active': activePointerId.value !== null,
-    'base-slide-verify--success': options.verified.value,
-    'base-slide-verify--disabled': options.getDisabled(),
+    'slide-verify--active': activePointerId.value !== null,
+    'slide-verify--success': options.verified.value,
+    'slide-verify--disabled': options.getDisabled(),
   }));
 
   /**

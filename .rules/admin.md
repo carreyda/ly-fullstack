@@ -101,10 +101,12 @@ apps/admin-api/src/modules/<module>/                 Controller、DTO、Service 
 2. Server DTO 负责输入格式校验，Service 再执行唯一性、关联关系、系统数据保护等业务约束。
 3. Admin 列表使用 `use-pagination.ts` 管理筛选、分页、loading、请求竞态和刷新；页面不得再维护第二套分页状态。
 4. 筛选统一使用 `data-filter-panel`，表格统一使用 `admin-table`，短状态统一使用自动导入的 `BaseBadge`。
-5. 短且高度稳定的新增、编辑表单使用普通 `el-dialog`；权限树、素材列表等动态内容使用 `el-dialog + use-dialog-size.ts + el-scrollbar`。
-6. 新增成功返回第一页，编辑或关联操作成功刷新当前页；删除当前页最后一条数据后自动回退上一页。
-7. 列表接口和写操作都必须由权限码保护。界面隐藏按钮只能改善体验，不能替代 Server 权限校验。
-8. Service 至少覆盖系统数据保护、关联删除保护和复杂关系写入等高风险边界测试。
+5. 空数据统一使用自动导入的 `BaseEmptyState`，禁止业务页面直接使用 `el-empty`；表格和局部内容使用 `layout="inline"`，占满剩余区域的空面板使用默认 `fill` 布局。
+6. 行内或按钮内需要独立加载反馈时使用自动导入的 `CircleLoading`；页面遮罩仍按实际场景使用 `v-loading`，不得为加载动画重复引入第三方依赖。
+7. 短且高度稳定的新增、编辑表单使用普通 `el-dialog`；权限树、素材列表等动态内容使用 `el-dialog + use-dialog-size.ts + el-scrollbar`。
+8. 新增成功返回第一页，编辑或关联操作成功刷新当前页；删除当前页最后一条数据后自动回退上一页。
+9. 列表接口和写操作都必须由权限码保护。界面隐藏按钮只能改善体验，不能替代 Server 权限校验。
+10. Service 至少覆盖系统数据保护、关联删除保护和复杂关系写入等高风险边界测试。
 
 角色基础信息与菜单授权是两个独立写入动作：基础编辑使用 `system:role:update`，菜单授权使用 `system:role:assign-menu`。不要因为共用一个页面而合并权限码，也不要允许修改系统内置超级管理员；超级管理员的全权限由 Server 保证，不依赖前端勾选结果。
 

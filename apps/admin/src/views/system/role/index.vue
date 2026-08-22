@@ -90,7 +90,7 @@
           </el-table-column>
 
           <template #empty>
-            <el-empty description="暂无角色数据" />
+            <base-empty-state description="暂无角色数据" layout="inline" :image-size="84" />
           </template>
         </el-table>
       </div>

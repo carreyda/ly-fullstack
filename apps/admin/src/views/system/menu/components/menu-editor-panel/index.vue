@@ -128,7 +128,7 @@
                   </button>
                 </div>
               </div>
-              <el-empty v-else description="暂未配置操作权限" :image-size="56" />
+              <base-empty-state v-else description="暂未配置操作权限" layout="inline" :image-size="56" />
 
               <p v-if="!permissionPrefix" class="menu-editor-panel__help">
                 当前页面没有配置权限前缀，不能自动生成标准 CRUD 权限。
@@ -144,7 +144,7 @@
       </footer>
     </template>
 
-    <el-empty v-else class="menu-editor-panel__empty" description="选择左侧菜单开始编辑" />
+    <base-empty-state v-else class="menu-editor-panel__empty" description="选择左侧菜单开始编辑" />
   </section>
 </template>
 

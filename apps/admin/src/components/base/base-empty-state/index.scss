@@ -1,0 +1,30 @@
+.base-empty-state {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  justify-content: center;
+
+  &--fill {
+    height: 100%;
+    min-height: inherit;
+    align-items: center;
+  }
+
+  &--inline {
+    padding: var(--spacing-xl) 0;
+  }
+
+  :deep(.el-empty) {
+    padding: 0;
+  }
+
+  :deep(.el-empty__description) {
+    margin-top: var(--spacing-sm);
+  }
+
+  :deep(.el-empty__description p) {
+    color: var(--color-text-tertiary);
+    font-size: 12px;
+    line-height: 20px;
+  }
+}

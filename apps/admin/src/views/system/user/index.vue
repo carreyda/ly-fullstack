@@ -93,7 +93,7 @@
           </el-table-column>
 
           <template #empty>
-            <el-empty description="暂无用户数据" />
+            <base-empty-state description="暂无用户数据" layout="inline" :image-size="84" />
           </template>
         </el-table>
       </div>

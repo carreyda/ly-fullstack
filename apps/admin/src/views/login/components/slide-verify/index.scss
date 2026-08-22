@@ -1,4 +1,4 @@
-.base-slide-verify {
+.slide-verify {
   position: relative;
   height: 44px;
   overflow: hidden;
@@ -59,12 +59,12 @@
   &--active {
     color: var(--color-text-secondary);
 
-    .base-slide-verify__progress,
-    .base-slide-verify__handle {
+    .slide-verify__progress,
+    .slide-verify__handle {
       transition: none;
     }
 
-    .base-slide-verify__handle {
+    .slide-verify__handle {
       cursor: grabbing;
     }
   }
@@ -73,12 +73,12 @@
     border-color: color-mix(in srgb, var(--color-primary) 48%, var(--border-color));
     color: var(--color-primary);
 
-    .base-slide-verify__progress {
+    .slide-verify__progress {
       border-right-color: var(--color-primary);
       background: color-mix(in srgb, var(--color-primary) 15%, transparent);
     }
 
-    .base-slide-verify__handle {
+    .slide-verify__handle {
       border-color: var(--color-primary);
       color: var(--login-form-background);
       background: var(--color-primary);
@@ -89,15 +89,15 @@
   &--disabled {
     opacity: 0.62;
 
-    .base-slide-verify__handle {
+    .slide-verify__handle {
       cursor: not-allowed;
     }
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .base-slide-verify__progress,
-  .base-slide-verify__handle {
+  .slide-verify__progress,
+  .slide-verify__handle {
     transition: none;
   }
 }
