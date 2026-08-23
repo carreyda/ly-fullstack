@@ -67,7 +67,7 @@
             <SlideVerify v-model="captchaVerified" class="login-page__verification" :disabled="submitting" />
 
             <div class="login-page__remember">
-              <el-checkbox v-model="rememberCredentials">记住账号密码</el-checkbox>
+              <el-checkbox v-model="rememberUsername">记住账号</el-checkbox>
             </div>
 
             <el-button
@@ -99,7 +99,7 @@ import { useLoginForm } from './composables/use-login-form';
  * 页面层只装配主题交互和登录表单能力，不直接持有认证请求与路由跳转细节。
  */
 const { isDarkTheme, toggleTheme: toggleAppTheme } = useTheme();
-const { formRef, formModel, formRules, captchaVerified, rememberCredentials, submitting, handleLogin } = useLoginForm();
+const { formRef, formModel, formRules, captchaVerified, rememberUsername, submitting, handleLogin } = useLoginForm();
 
 /**
  * 主题按钮面向下一次切换目标的无障碍说明

@@ -350,7 +350,7 @@ Dashboard 是展示型页面，不套用 CRUD 工作区：
 - 机械图片在视觉区居中，图片在上、文字在下。
 - 右侧表单卡片宽度不超过 420px，保持真实登录产品的克制感。
 - 小于 820px 隐藏左侧视觉，展示移动端品牌并让表单独占页面。
-- “记住账号密码”使用 Cookie 保存，不能依赖可能被版本更新清理的 Local Storage。
+- “记住账号”使用 Cookie 保存，不能依赖可能被版本更新清理的 Local Storage；密码交给浏览器密码管理器，禁止写入应用 Cookie。
 
 标准样例：`apps/admin/src/views/login/index.vue`。
 

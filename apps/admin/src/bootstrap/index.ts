@@ -14,7 +14,7 @@ let updatePromptVisible = false;
  * 清理当前管理后台的浏览器键值存储
  *
  * 更新页面前清空 localStorage 和 sessionStorage，避免新版代码继续读取结构已经变化的 Pinia 持久化状态、
- * 版本缓存或页面临时数据。该方法不会清理 Cookie，因此用户主动勾选的登录账号密码能够跨版本保留。
+ * 版本缓存或页面临时数据。该方法不会清理 Cookie，因此用户主动勾选的登录账号能够跨版本保留。
  */
 const clearBrowserStorage = (): void => {
   window.localStorage.clear();
@@ -131,7 +131,7 @@ const setupAdminApp = (app: App): void => {
  * 启动管理后台全部运行时能力
  *
  * 该入口统一承接原 `setup.ts` 的应用装配能力，并注册 `app-update-ready` 全局事件。检测到新构建后会提示用户，
- * 用户确认时清理可能不兼容的客户端状态并刷新页面；Cookie 不会被清理，记住账号密码能力不受发版影响。
+ * 用户确认时清理可能不兼容的客户端状态并刷新页面；Cookie 不会被清理，记住账号能力不受发版影响。
  *
  * @param app Vue 管理后台应用实例
  * @returns 取消全局事件监听的函数，供测试、微前端卸载或未来应用销毁时调用

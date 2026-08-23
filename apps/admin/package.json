@@ -10,6 +10,7 @@
     "build:prod": "rsbuild build --env-mode production --config build/rsbuild.prod.config.ts",
     "preview": "rsbuild preview",
     "typecheck": "vue-tsc --noEmit -p tsconfig.json",
+    "test": "rstest run",
     "clean": "rimraf dist"
   },
   "dependencies": {
@@ -31,8 +32,10 @@
     "@rsbuild/plugin-image-compress": "catalog:",
     "@rsbuild/plugin-sass": "catalog:",
     "@rsbuild/plugin-vue": "catalog:",
+    "@rstest/core": "catalog:",
     "@types/js-cookie": "catalog:",
     "compression-webpack-plugin": "catalog:",
+    "happy-dom": "catalog:",
     "rimraf": "catalog:",
     "sass": "catalog:",
     "typescript": "catalog:",

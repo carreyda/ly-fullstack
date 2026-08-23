@@ -11,5 +11,13 @@
       "@repo/shared/utils": ["../../packages/shared/src/utils/index.ts"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.vue", "build/**/*.ts", "env.d.ts", "components.d.ts", "auto-imports.d.ts"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.vue",
+    "build/**/*.ts",
+    "rstest.config.ts",
+    "env.d.ts",
+    "components.d.ts",
+    "auto-imports.d.ts"
+  ]
 }

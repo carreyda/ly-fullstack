@@ -109,7 +109,7 @@ test 和 production 构建会额外生成：
 
 CacheStorage 或 Service Worker 清理失败不会阻止刷新。
 
-Cookie 不在清理范围内。登录页“记住账号密码”使用 `js-cookie` 保存，版本升级不能因为清理 Pinia 持久化状态而抹掉用户主动保留的账号密码。禁止用遍历 Cookie、覆盖过期时间或清空站点数据的方式实现版本更新。
+Cookie 不在清理范围内。登录页“记住账号”使用 `js-cookie` 保存，版本升级不能因为清理 Pinia 持久化状态而抹掉用户主动保留的账号。密码交给浏览器密码管理器，禁止写入应用 Cookie；也禁止用遍历 Cookie、覆盖过期时间或清空站点数据的方式实现版本更新。
 
 ## 部署要求
 
@@ -134,4 +134,4 @@ pnpm --filter @repo/admin build:prod
 3. `dist/sw.js`、`dist/offline.html` 存在。
 4. `dist/sw.js` 的预缓存路径与当前构建资产一致。
 5. 重新构建并替换部署产物后，旧页面能出现一次更新提示。
-6. 点击确认后 Web Storage 和缓存被清理、页面刷新，但记住账号密码的 Cookie 仍存在。
+6. 点击确认后 Web Storage 和缓存被清理、页面刷新，但记住账号的 Cookie 仍存在。

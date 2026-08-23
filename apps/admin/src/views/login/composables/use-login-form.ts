@@ -1,11 +1,11 @@
 import Cookies from 'js-cookie';
-import { COOKIE_ADMIN_CREDENTIALS_KEY } from '@/constants';
+import { COOKIE_ADMIN_LEGACY_CREDENTIALS_KEY, COOKIE_ADMIN_USERNAME_KEY } from '@/constants';
 import { useAuthStore } from '@/stores';
 import { showSuccessMessage, showWarningMessage } from '@/feedback';
 import type { FormInstance, FormRules } from 'element-plus';
 import type { AdminLoginParams } from '@repo/shared/types';
 
-const REMEMBER_CREDENTIALS_COOKIE_OPTIONS = {
+const REMEMBER_USERNAME_COOKIE_OPTIONS = {
   expires: 30,
   path: '/',
   sameSite: 'lax',
@@ -13,35 +13,23 @@ const REMEMBER_CREDENTIALS_COOKIE_OPTIONS = {
 } as const;
 
 /**
- * 校验 Cookie 中的登录凭据
+ * 校验 Cookie 中的管理员账号
  *
- * Cookie 内容属于浏览器侧不可信输入，回填表单前必须检查对象结构和字段类型；无效内容由调用方删除。
+ * Cookie 内容属于浏览器侧不可信输入，回填表单前必须再次校验长度；无效内容由调用方删除。
  *
- * @param raw Cookie 中保存的 JSON 字符串
- * @returns 可安全回填登录表单的管理员账号密码
+ * @param raw Cookie 中保存的管理员账号
+ * @returns 可安全回填登录表单的管理员账号；无效时返回 `undefined`
  */
-const parseRememberedCredentials = (raw: string): AdminLoginParams => {
-  const parsed: unknown = JSON.parse(raw);
-  if (!parsed || typeof parsed !== 'object') {
-    throw new Error('登录凭据格式无效');
-  }
-
-  const credentials = parsed as Record<string, unknown>;
-  if (typeof credentials.username !== 'string' || typeof credentials.password !== 'string') {
-    throw new Error('登录凭据字段无效');
-  }
-
-  return {
-    username: credentials.username,
-    password: credentials.password,
-  };
+const parseRememberedUsername = (raw: string): string | undefined => {
+  const username = raw.trim();
+  return username.length >= 3 && username.length <= 50 ? username : undefined;
 };
 
 /**
  * 管理登录页的凭据记忆、表单校验、认证请求和登录后回跳
  *
- * 页面组件只负责渲染表单和主题按钮。本 Composable 使用 Cookie 保存用户主动勾选的账号密码，避免
- * 版本更新清理本地缓存时丢失；登录成功后恢复用户原本想访问的站内地址，失败提示交给 Axios 拦截器。
+ * 页面组件只负责渲染表单和主题按钮。本 Composable 使用 Cookie 保存用户主动勾选的账号，避免
+ * 版本更新清理本地缓存时丢失；密码不进入 Cookie，登录成功后恢复用户原本想访问的站内地址。
  */
 export const useLoginForm = () => {
   const route = useRoute();
@@ -59,9 +47,9 @@ export const useLoginForm = () => {
   const submitting = ref(false);
 
   /**
-   * 用户是否选择在当前浏览器中记住管理员账号密码
+   * 用户是否选择在当前浏览器中记住管理员账号
    */
-  const rememberCredentials = ref(false);
+  const rememberUsername = ref(false);
 
   /**
    * 当前账号密码是否已经完成本次滑块验证
@@ -91,39 +79,42 @@ export const useLoginForm = () => {
   };
 
   /**
-   * 从 Cookie 恢复用户主动保存的管理员账号密码
+   * 从 Cookie 恢复用户主动保存的管理员账号
    *
-   * 解析失败说明 Cookie 已损坏或被手动修改，直接删除并保持空表单，避免异常内容影响登录页初始化。
+   * 初始化时同时删除历史版本保存明文账号密码的 Cookie。新 Cookie 只回填账号，密码仍由用户输入或
+   * 浏览器密码管理器提供。
    */
-  const restoreRememberedCredentials = (): void => {
-    const storedCredentials = Cookies.get(COOKIE_ADMIN_CREDENTIALS_KEY);
-    if (!storedCredentials) {
+  const restoreRememberedUsername = (): void => {
+    Cookies.remove(COOKIE_ADMIN_LEGACY_CREDENTIALS_KEY, { path: '/' });
+
+    const storedUsername = Cookies.get(COOKIE_ADMIN_USERNAME_KEY);
+    if (!storedUsername) {
       return;
     }
 
-    try {
-      const credentials = parseRememberedCredentials(storedCredentials);
-      formModel.username = credentials.username;
-      formModel.password = credentials.password;
-      rememberCredentials.value = true;
-    } catch {
-      Cookies.remove(COOKIE_ADMIN_CREDENTIALS_KEY, REMEMBER_CREDENTIALS_COOKIE_OPTIONS);
+    const username = parseRememberedUsername(storedUsername);
+    if (!username) {
+      Cookies.remove(COOKIE_ADMIN_USERNAME_KEY, { path: '/' });
+      return;
     }
+
+    formModel.username = username;
+    rememberUsername.value = true;
   };
 
   /**
-   * 在登录成功后同步记住账号密码的 Cookie
+   * 在登录成功后同步记住账号的 Cookie
    *
-   * Cookie 保存 30 天且只允许同站请求携带。该功能按产品需求保存明文凭据，不使用 Base64 伪装加密；
-   * 未勾选时删除历史 Cookie，确保用户可以主动撤销记忆。
+   * Cookie 保存 30 天且只允许同站请求携带。密码绝不写入 Cookie；未勾选时删除历史账号 Cookie，
+   * 确保用户可以主动撤销记忆。
    */
-  const persistRememberedCredentials = (): void => {
-    if (!rememberCredentials.value) {
-      Cookies.remove(COOKIE_ADMIN_CREDENTIALS_KEY, REMEMBER_CREDENTIALS_COOKIE_OPTIONS);
+  const persistRememberedUsername = (): void => {
+    if (!rememberUsername.value) {
+      Cookies.remove(COOKIE_ADMIN_USERNAME_KEY, { path: '/' });
       return;
     }
 
-    Cookies.set(COOKIE_ADMIN_CREDENTIALS_KEY, JSON.stringify(formModel), REMEMBER_CREDENTIALS_COOKIE_OPTIONS);
+    Cookies.set(COOKIE_ADMIN_USERNAME_KEY, formModel.username.trim(), REMEMBER_USERNAME_COOKIE_OPTIONS);
   };
 
   /**
@@ -164,7 +155,7 @@ export const useLoginForm = () => {
     submitting.value = true;
     try {
       await authStore.login(formModel);
-      persistRememberedCredentials();
+      persistRememberedUsername();
       showSuccessMessage('登录成功');
       await router.replace(getRedirectTarget());
     } catch {
@@ -185,14 +176,14 @@ export const useLoginForm = () => {
     },
   );
 
-  onMounted(restoreRememberedCredentials);
+  onMounted(restoreRememberedUsername);
 
   return {
     formRef,
     formModel,
     formRules,
     captchaVerified,
-    rememberCredentials,
+    rememberUsername,
     submitting,
     handleLogin,
   };

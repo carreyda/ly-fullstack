@@ -1,7 +1,4 @@
-import Cookies from 'js-cookie';
-
 import { changeAdminPassword } from '@/api';
-import { COOKIE_ADMIN_CREDENTIALS_KEY } from '@/constants';
 
 import type { FormInstance, FormRules } from 'element-plus';
 import type { AdminPasswordChangeFormModel, UseAdminPasswordChangeOptions } from '@/types';
@@ -9,8 +6,8 @@ import type { AdminPasswordChangeFormModel, UseAdminPasswordChangeOptions } from
 /**
  * 管理当前管理员修改密码弹框的敏感输入、校验和提交
  *
- * 提交成功后删除登录页记住的旧账号密码 Cookie，避免重新登录时自动回填已经失效的密码。会话清理和路由跳转
- * 由顶栏组件通过 `onSuccess` 处理，Composable 不直接依赖 Router 或 Auth Store。
+ * 会话清理和路由跳转由顶栏组件通过 `onSuccess` 处理，Composable 不直接依赖 Router 或 Auth Store。
+ * 登录页只记住账号、不保存密码，因此修改密码不需要清理账号 Cookie。
  *
  * @param options 密码修改成功后的调用方回调
  * @returns 弹框状态、表单状态和交互方法
@@ -121,7 +118,6 @@ export const useAdminPasswordChange = (options: UseAdminPasswordChangeOptions) =
         currentPassword: form.currentPassword,
         newPassword: form.newPassword,
       });
-      Cookies.remove(COOKIE_ADMIN_CREDENTIALS_KEY, { path: '/' });
       dialogVisible.value = false;
       resetForm();
       options.onSuccess();
