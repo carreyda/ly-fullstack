@@ -1,5 +1,5 @@
 /**
- * LY Fullstack 本地开发环境初始化脚本
+ * LY Fullstack 开发环境初始化脚本
  *
  * 负责校验 Admin 开发 API 端口、收集 PostgreSQL 本地凭据、启动 Compose 数据库、幂等创建目标数据库，
  * 再为 Admin API 生成不会提交到 Git 的 development 环境文件、执行 Prisma migration，并初始化默认管理员和 RBAC 数据。
@@ -47,6 +47,9 @@ const POSTGRES_HOST = '127.0.0.1';
 const POSTGRES_PORT = 5432;
 const POSTGRES_USER = 'postgres';
 const DEFAULT_DATABASE_NAME = 'ly_fullstack';
+const SETUP_DATABASE_PASSWORD_ENV = 'SETUP_DATABASE_PASSWORD';
+const SETUP_DATABASE_NAME_ENV = 'SETUP_DATABASE_NAME';
+const isNonInteractive = process.argv.includes('--non-interactive');
 
 /**
  * 本地首次初始化使用的默认管理员账号
@@ -69,6 +72,10 @@ const DATABASE_READY_TIMEOUT_MS = 30_000;
 const printHelp = () => {
   process.stdout.write(`LY Fullstack 本地环境初始化\n\n`);
   process.stdout.write(`  pnpm setup    校验前端 API 端口，创建服务端本地配置、数据库、表结构和初始数据\n`);
+  process.stdout.write(`  pnpm setup --non-interactive    使用环境变量执行同一套初始化流程\n\n`);
+  process.stdout.write(`非交互模式必须注入：\n`);
+  process.stdout.write(`  ${SETUP_DATABASE_PASSWORD_ENV}    PostgreSQL postgres 用户密码\n`);
+  process.stdout.write(`  ${SETUP_DATABASE_NAME_ENV}        数据库名称，可省略并使用 ${DEFAULT_DATABASE_NAME}\n`);
 };
 
 /**
@@ -280,6 +287,59 @@ const ensureDatabaseExists = async (client, databaseName) => {
 };
 
 /**
+ * 校验 PostgreSQL 密码是否可以安全传给数据库驱动
+ *
+ * @param value 交互输入或自动化环境变量中的数据库密码
+ * @returns 校验失败原因；通过时返回 `undefined`
+ */
+const validateDatabasePassword = (value) => {
+  if (!value) {
+    return '数据库密码不能为空';
+  }
+
+  if (value.includes('\n') || value.includes('\r')) {
+    return '数据库密码不能包含换行符';
+  }
+
+  return undefined;
+};
+
+/**
+ * 归一化并校验目标数据库名称
+ *
+ * @param value 交互输入或自动化环境变量中的数据库名称
+ * @returns 可安全用于 PostgreSQL 标识符的数据库名称
+ */
+const normalizeDatabaseName = (value) => {
+  const databaseName = value?.trim() || DEFAULT_DATABASE_NAME;
+  if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(databaseName)) {
+    throw new Error('数据库名只能包含字母、数字和下划线，且不能以数字开头');
+  }
+
+  return databaseName;
+};
+
+/**
+ * 从进程环境读取自动化初始化参数
+ *
+ * 非交互模式只用于 CI 或明确的自动化环境，不从命令行参数读取密码，避免敏感值出现在进程列表和日志中。
+ *
+ * @returns 已通过校验的数据库配置
+ */
+const readNonInteractiveDatabaseConfig = () => {
+  const databasePassword = process.env[SETUP_DATABASE_PASSWORD_ENV];
+  const passwordError = validateDatabasePassword(databasePassword);
+  if (passwordError) {
+    throw new Error(`${SETUP_DATABASE_PASSWORD_ENV}：${passwordError}`);
+  }
+
+  return {
+    databaseName: normalizeDatabaseName(process.env[SETUP_DATABASE_NAME_ENV]),
+    databasePassword,
+  };
+};
+
+/**
  * 收集本地数据库配置
  *
  * 数据库名称提供 `ly_fullstack` 默认值并限制为 PostgreSQL 安全标识符；数据库密码使用隐藏输入。
@@ -291,17 +351,7 @@ const promptForDatabaseConfig = async () => {
   const databasePassword = await password({
     message: '输入本地 PostgreSQL 的 postgres 用户密码',
     clearOnError: true,
-    validate: (value) => {
-      if (!value) {
-        return '数据库密码不能为空';
-      }
-
-      if (value.includes('\n') || value.includes('\r')) {
-        return '数据库密码不能包含换行符';
-      }
-
-      return undefined;
-    },
+    validate: validateDatabasePassword,
   });
 
   if (isCancel(databasePassword)) {
@@ -313,12 +363,12 @@ const promptForDatabaseConfig = async () => {
     initialValue: DEFAULT_DATABASE_NAME,
     defaultValue: DEFAULT_DATABASE_NAME,
     validate: (value) => {
-      const normalizedValue = value?.trim() || DEFAULT_DATABASE_NAME;
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(normalizedValue)) {
-        return '数据库名只能包含字母、数字和下划线，且不能以数字开头';
+      try {
+        normalizeDatabaseName(value);
+        return undefined;
+      } catch (error) {
+        return error instanceof Error ? error.message : String(error);
       }
-
-      return undefined;
     },
   });
 
@@ -327,7 +377,7 @@ const promptForDatabaseConfig = async () => {
   }
 
   return {
-    databaseName: databaseName.trim() || DEFAULT_DATABASE_NAME,
+    databaseName: normalizeDatabaseName(databaseName),
     databasePassword,
   };
 };
@@ -339,6 +389,10 @@ const confirmLocalEnvOverwrite = async () => {
   const existingPaths = localEnvPaths.filter(existsSync);
   if (existingPaths.length === 0) {
     return true;
+  }
+
+  if (isNonInteractive) {
+    throw new Error('非交互初始化拒绝覆盖已有 admin-api/.env.development，请先显式删除该文件。');
   }
 
   log.warn('检测到已有 Admin API 本地开发配置，继续执行会覆盖 admin-api/.env.development。');
@@ -377,7 +431,7 @@ const main = async () => {
       : 'Admin development 的 API 端口与 workspace.config.json 一致。',
   );
 
-  const databaseConfig = await promptForDatabaseConfig();
+  const databaseConfig = isNonInteractive ? readNonInteractiveDatabaseConfig() : await promptForDatabaseConfig();
   if (!databaseConfig) {
     cancel('已取消初始化。');
     return;

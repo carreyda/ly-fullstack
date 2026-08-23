@@ -21,7 +21,7 @@ export default defineConfig(({ envMode }) => {
     server: {
       port,
       compress: false,
-      open: true,
+      open: process.env.PLAYWRIGHT_TEST !== '1',
     },
     dev: {
       hmr: true,

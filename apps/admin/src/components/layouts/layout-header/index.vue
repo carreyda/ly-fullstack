@@ -251,8 +251,8 @@ const handlePasswordOpen = (): void => {
 /**
  * 密码修改成功后清除当前会话并返回登录页
  *
- * 服务端已经保存新密码，前端立即退出可以避免继续使用修改前签发的 Token。记住密码 Cookie 已由弹框
- * Composable 删除，登录页不会回填失效的旧密码。
+ * 服务端已经保存新密码，前端立即退出可以避免继续使用修改前签发的 Token。登录页只保存管理员账号，
+ * 不会从应用 Cookie 回填修改前的旧密码。
  */
 const handlePasswordChanged = (): void => {
   showSuccessMessage('密码修改成功，请使用新密码重新登录');

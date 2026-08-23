@@ -23,7 +23,9 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "pnpm test:template && turbo run test --ui=stream",
+    "test:e2e": "playwright test",
     "test:template": "node scripts/test-server-template.mjs",
+    "verify:setup": "node scripts/verify-setup.mjs",
     "clean": "turbo run clean --ui=stream",
     "check": "pnpm check:architecture && pnpm typecheck && pnpm lint && pnpm format:check && pnpm test && pnpm build",
     "prepare": "husky"
@@ -37,6 +39,7 @@
     ]
   },
   "devDependencies": {
+    "@playwright/test": "catalog:",
     "@commitlint/cli": "catalog:",
     "@commitlint/config-conventional": "catalog:",
     "@clack/prompts": "catalog:",
@@ -56,5 +59,6 @@
     "typescript": "catalog:",
     "typescript-eslint": "catalog:",
     "vue-eslint-parser": "catalog:"
-  }
+  },
+  "license": "MIT"
 }

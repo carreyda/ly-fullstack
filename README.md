@@ -1,5 +1,9 @@
 # LY Fullstack
 
+[![CI](https://github.com/liangy0323/ly-fullstack/actions/workflows/ci.yml/badge.svg)](https://github.com/liangy0323/ly-fullstack/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Release](https://img.shields.io/badge/release-v0.1.0-087f5b.svg)](docs/releases/v0.1.0.md)
+
 面向开源展示与真实项目的通用全栈解决方案。
 
 当前已经完成管理后台基础闭环：登录认证、动态菜单、用户/角色/菜单管理、五表 RBAC、数据库迁移与种子数据均已真实贯通；后续阶段聚焦业务组件、示例模块和部署方案，不把尚未实现的终端业务能力算入现有范围。
@@ -8,10 +12,12 @@
 
 具体的 C 端业务无法被一套仓库提前定义：它可能是小程序、SSR 官网、单页应用、移动端，也可能是某个垂直场景的功能型产品。但无论 C 端产品采用什么形态，都需要与之配套的后台管理系统，并且登录认证、用户、角色、菜单、权限、工程规范等后台能力具有较高的通用性。
 
-因此，LY Fullstack 先沉淀所有业务都可能复用的管理核心：
+因此，LY Fullstack 先沉淀所有业务都可能复用的管理核心、标准的 Monorepo 工程模式，以及边界清晰的 Vue 3 管理后台目录组织方式：
 
-- `apps/admin`：通用管理后台。
-- `apps/admin-api`：通用后台管理服务。
+- `apps/admin`：通用 Vue 3 管理后台，明确区分页面入口、业务组件、基础组件、请求层、状态、路由、导航和主题等职责边界。
+- `apps/admin-api`：通用 NestJS 后台管理服务，以模块组织认证、RBAC 和系统管理能力。
+- `packages/*`：沉淀数据库、跨应用类型、纯工具和图表等可复用能力，避免应用之间复制代码或反向依赖。
+- 根工程：使用 pnpm workspace、Turborepo、统一配置表和架构检查组织应用与共享包，提供标准的 Monorepo 开发、测试和构建流程。
 
 项目不会在需求尚未明确时预置一个空的 C 端业务。开始真实项目后，根据业务边界执行 `pnpm new:server` 创建对应的业务服务，再自行选择 Nuxt、Next.js、Vue、React、小程序或其他技术栈创建客户端子包。管理核心保持稳定，业务服务与客户端按真实需求扩展。
 
@@ -138,6 +144,7 @@ pnpm new:server
 | `pnpm lint`               | ESLint 检查（`lint:fix` 自动修复）               |
 | `pnpm format`             | Prettier 格式化（`format:check` 仅检查）         |
 | `pnpm test`               | 服务模板冒烟测试与全仓 Rstest 单元测试           |
+| `pnpm test:e2e`           | 启动管理系统并执行 Playwright 关键流程冒烟测试   |
 | `pnpm build`              | 构建全部产物                                     |
 | `pnpm check`              | typecheck + lint + format:check + test + build   |
 
@@ -187,6 +194,11 @@ ly-fullstack/
 - Admin 多主题与 Element Plus 定制：[`docs/admin-theme.md`](docs/admin-theme.md)
 - Admin 设计系统与页面自查：[`docs/admin-design-system.md`](docs/admin-design-system.md)
 - Admin 离线缓存与版本更新：[`docs/admin-version-offline.md`](docs/admin-version-offline.md)
+- 官方生产部署：[`docs/deployment.md`](docs/deployment.md)
+- v0.1.0 Release Notes：[`docs/releases/v0.1.0.md`](docs/releases/v0.1.0.md)
+- Roadmap：[`ROADMAP.md`](ROADMAP.md)
+- Changelog：[`CHANGELOG.md`](CHANGELOG.md)
+- 贡献指南：[`CONTRIBUTING.md`](CONTRIBUTING.md)
 
 ## 开源许可
 
