@@ -2,6 +2,8 @@
 
 `apps/admin` 是基于 Rsbuild、Vue 3 和 Element Plus 的管理后台 SPA。通用 Vue、TypeScript、样式与工程规范仍以 `.rules/` 下对应文件为准；本文只记录 admin 模块的目录、自动导入、Element Plus 覆盖样式和 CRUD 范本约定。
 
+开发或调整 Admin 页面视觉前，必须同时阅读 `docs/admin-design-system.md`。该文档记录当前项目已经落地的视觉语言、页面模板和交付自查清单；外部设计只能提供局部启发，不得覆盖项目既有设计系统。
+
 ## 目录边界
 
 - `src/components/base/`：基础组件，可被自动扫描导入。
