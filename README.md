@@ -100,7 +100,7 @@ pnpm setup
 pnpm dev
 ```
 
-`pnpm setup` 会询问 PostgreSQL 密码与数据库名（默认 `ly_fullstack`）。本机 `127.0.0.1:5432` 已有服务时直接复用，否则通过 Docker Compose 启动 PostgreSQL。随后脚本校验 Admin development 的 API 端口、创建数据库和表结构、初始化默认管理员，并生成 Admin API 的私有 `.env.development`。Admin 的三套公开环境配置直接提交仓库；Admin API 的 test/production 配置由 CI/CD 或部署平台注入，数据库密码与 JWT 密钥不会进入 Git，也不会生成根 `.env`。完整说明见 [`docs/environment.md`](docs/environment.md)。
+`pnpm setup` 会询问 PostgreSQL 密码、数据库名（默认 `ly_fullstack`）和首次管理员密码。本机 `127.0.0.1:5432` 已有服务时直接复用，否则通过 Docker Compose 启动 PostgreSQL。随后脚本校验 Admin development 的 API 端口、创建数据库和表结构、初始化 `admin` 管理员，并生成 Admin API 的私有 `.env.development`。Admin 的三套公开环境配置直接提交仓库；Admin API 的 test/production 配置由 CI/CD 或部署平台注入，数据库密码、管理员密码与 JWT 密钥不会进入 Git，也不会生成根 `.env`。完整说明见 [`docs/environment.md`](docs/environment.md)。
 
 本地地址由根 [`workspace.config.json`](workspace.config.json) 统一维护：
 
@@ -175,7 +175,7 @@ ly-fullstack/
 
 - 管理后台外壳：可折叠侧栏（含窄屏抽屉）、Header、工作台、404 页与设计 token 体系。
 - 多主题：深浅主题、Element Plus Sass 变量覆盖、组件级主题适配与主题切换动画。
-- 登录认证：真实账号密码登录、JWT 会话恢复、滑块验证、401 失效处理与路由守卫。
+- 登录认证：真实账号密码登录、JWT 会话恢复、密码变更撤销旧 Token、登录接口限流、滑块验证、401 失效处理与路由守卫。
 - 五表 RBAC：用户、角色、菜单、用户角色、角色菜单关系，默认 Admin 超级管理员拥有最高权限。
 - 系统管理：用户、角色、菜单的真实分页、筛选、新增、编辑、状态控制、关联分配和保护规则。
 - 动态导航：侧边栏消费登录会话返回的数据库菜单树，菜单图标通过 Lucide 白名单管理。

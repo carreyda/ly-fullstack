@@ -232,7 +232,10 @@ export class UserService {
     await this.getUserProtectionRecordOrThrow(id);
     await this.prisma.user.update({
       where: { id },
-      data: { passwordHash: await hash(dto.password, PASSWORD_HASH_ROUNDS) },
+      data: {
+        passwordHash: await hash(dto.password, PASSWORD_HASH_ROUNDS),
+        tokenVersion: { increment: 1 },
+      },
     });
   }
 

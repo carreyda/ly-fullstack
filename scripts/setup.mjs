@@ -49,6 +49,7 @@ const POSTGRES_USER = 'postgres';
 const DEFAULT_DATABASE_NAME = 'ly_fullstack';
 const SETUP_DATABASE_PASSWORD_ENV = 'SETUP_DATABASE_PASSWORD';
 const SETUP_DATABASE_NAME_ENV = 'SETUP_DATABASE_NAME';
+const SETUP_ADMIN_PASSWORD_ENV = 'SETUP_ADMIN_PASSWORD';
 const isNonInteractive = process.argv.includes('--non-interactive');
 
 /**
@@ -58,12 +59,6 @@ const isNonInteractive = process.argv.includes('--non-interactive');
  */
 const DEFAULT_ADMIN_USERNAME = 'admin';
 
-/**
- * 本地默认管理员的首次初始化密码
- *
- * 密码只通过 Seed 子进程环境传递，不会写入任何环境文件；生产环境不得使用该默认凭证。
- */
-const DEFAULT_ADMIN_PASSWORD = 'admin123';
 const DATABASE_READY_TIMEOUT_MS = 30_000;
 
 /**
@@ -76,6 +71,7 @@ const printHelp = () => {
   process.stdout.write(`非交互模式必须注入：\n`);
   process.stdout.write(`  ${SETUP_DATABASE_PASSWORD_ENV}    PostgreSQL postgres 用户密码\n`);
   process.stdout.write(`  ${SETUP_DATABASE_NAME_ENV}        数据库名称，可省略并使用 ${DEFAULT_DATABASE_NAME}\n`);
+  process.stdout.write(`  ${SETUP_ADMIN_PASSWORD_ENV}       首次创建 admin 时使用的管理员密码\n`);
 };
 
 /**
@@ -305,6 +301,31 @@ const validateDatabasePassword = (value) => {
 };
 
 /**
+ * 校验首次管理员密码是否满足后台账号密码契约
+ *
+ * Setup 与管理 API DTO 使用相同的 8 到 64 位边界。密码只在当前进程和 Seed 子进程内存中存在，
+ * 不写入环境文件、日志或命令行参数。
+ *
+ * @param value 交互输入或自动化环境变量中的管理员初始密码
+ * @returns 校验失败原因；通过时返回 `undefined`
+ */
+const validateAdminPassword = (value) => {
+  if (!value) {
+    return '管理员初始密码不能为空';
+  }
+
+  if (value.length < 8 || value.length > 64) {
+    return '管理员初始密码长度必须为 8 到 64 位';
+  }
+
+  if (value.includes('\n') || value.includes('\r')) {
+    return '管理员初始密码不能包含换行符';
+  }
+
+  return undefined;
+};
+
+/**
  * 归一化并校验目标数据库名称
  *
  * @param value 交互输入或自动化环境变量中的数据库名称
@@ -324,30 +345,38 @@ const normalizeDatabaseName = (value) => {
  *
  * 非交互模式只用于 CI 或明确的自动化环境，不从命令行参数读取密码，避免敏感值出现在进程列表和日志中。
  *
- * @returns 已通过校验的数据库配置
+ * @returns 已通过校验的数据库和管理员初始化配置
  */
-const readNonInteractiveDatabaseConfig = () => {
+const readNonInteractiveSetupConfig = () => {
   const databasePassword = process.env[SETUP_DATABASE_PASSWORD_ENV];
   const passwordError = validateDatabasePassword(databasePassword);
   if (passwordError) {
     throw new Error(`${SETUP_DATABASE_PASSWORD_ENV}：${passwordError}`);
   }
 
+  const adminPassword = process.env[SETUP_ADMIN_PASSWORD_ENV];
+  const adminPasswordError = validateAdminPassword(adminPassword);
+  if (adminPasswordError) {
+    throw new Error(`${SETUP_ADMIN_PASSWORD_ENV}：${adminPasswordError}`);
+  }
+
   return {
     databaseName: normalizeDatabaseName(process.env[SETUP_DATABASE_NAME_ENV]),
     databasePassword,
+    adminPassword,
   };
 };
 
 /**
- * 收集本地数据库配置
+ * 收集本地数据库与管理员初始化配置
  *
- * 数据库名称提供 `ly_fullstack` 默认值并限制为 PostgreSQL 安全标识符；数据库密码使用隐藏输入。
+ * 数据库名称提供 `ly_fullstack` 默认值并限制为 PostgreSQL 安全标识符；数据库密码和管理员初始密码
+ * 均使用隐藏输入。管理员密码需要重复输入确认，避免首次初始化后因误输而无法登录。
  * 用户取消任一步骤时返回 `null`，调用方不会继续创建文件或修改数据库。
  *
  * @returns 初始化配置；用户取消时返回 `null`
  */
-const promptForDatabaseConfig = async () => {
+const promptForSetupConfig = async () => {
   const databasePassword = await password({
     message: '输入本地 PostgreSQL 的 postgres 用户密码',
     clearOnError: true,
@@ -376,9 +405,37 @@ const promptForDatabaseConfig = async () => {
     return null;
   }
 
+  const adminPassword = await password({
+    message: `设置首次创建 ${DEFAULT_ADMIN_USERNAME} 时使用的管理员密码`,
+    clearOnError: true,
+    validate: validateAdminPassword,
+  });
+
+  if (isCancel(adminPassword)) {
+    return null;
+  }
+
+  const confirmedAdminPassword = await password({
+    message: '再次输入管理员初始密码',
+    clearOnError: true,
+    validate: (value) => {
+      const passwordError = validateAdminPassword(value);
+      if (passwordError) {
+        return passwordError;
+      }
+
+      return value === adminPassword ? undefined : '两次输入的管理员密码不一致';
+    },
+  });
+
+  if (isCancel(confirmedAdminPassword)) {
+    return null;
+  }
+
   return {
     databaseName: normalizeDatabaseName(databaseName),
     databasePassword,
+    adminPassword,
   };
 };
 
@@ -431,13 +488,13 @@ const main = async () => {
       : 'Admin development 的 API 端口与 workspace.config.json 一致。',
   );
 
-  const databaseConfig = isNonInteractive ? readNonInteractiveDatabaseConfig() : await promptForDatabaseConfig();
-  if (!databaseConfig) {
+  const setupConfig = isNonInteractive ? readNonInteractiveSetupConfig() : await promptForSetupConfig();
+  if (!setupConfig) {
     cancel('已取消初始化。');
     return;
   }
 
-  const { databaseName, databasePassword } = databaseConfig;
+  const { adminPassword, databaseName, databasePassword } = setupConfig;
 
   if (await isPostgresPortOpen()) {
     log.info('检测到本机 127.0.0.1:5432 已有 PostgreSQL 服务，将直接复用。');
@@ -482,12 +539,10 @@ const main = async () => {
   await runPnpmCommand(['--filter', '@repo/database', 'db:seed'], {
     ...process.env,
     DATABASE_URL: databaseUrl,
-    ADMIN_INITIAL_PASSWORD: DEFAULT_ADMIN_PASSWORD,
+    ADMIN_INITIAL_PASSWORD: adminPassword,
   });
 
-  log.success(
-    `默认管理员种子已执行：首次创建使用 ${DEFAULT_ADMIN_USERNAME} / ${DEFAULT_ADMIN_PASSWORD}，已有账号不会重置密码。`,
-  );
+  log.success(`默认管理员种子已执行：首次创建账号为 ${DEFAULT_ADMIN_USERNAME}，已有账号不会重置密码。`);
   outro('数据库、表结构和 RBAC 初始数据均已就绪，现在可以运行 pnpm dev。');
 };
 

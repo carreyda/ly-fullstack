@@ -17,6 +17,7 @@ const createContext = (permissions: PermissionCode[], roleCode?: string): Execut
       id: 1,
       username: 'admin',
       displayName: '管理员',
+      tokenVersion: 0,
       roles: roleCode ? [{ id: 1, name: '测试角色', code: roleCode }] : [],
       menus: [],
       permissions,

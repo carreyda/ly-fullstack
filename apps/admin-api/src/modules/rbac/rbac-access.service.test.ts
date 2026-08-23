@@ -64,6 +64,7 @@ describe('RbacAccessService', () => {
         username: 'admin',
         displayName: '管理员',
         isActive: true,
+        tokenVersion: 3,
         roles: [
           {
             role: {
@@ -90,6 +91,7 @@ describe('RbacAccessService', () => {
     const result = await service.getActiveAdmin(7);
 
     expect(result?.permissions).toEqual(['system:user:list']);
+    expect(result?.tokenVersion).toBe(3);
     expect(result?.roles).toHaveLength(2);
     expect(result?.menus).toHaveLength(1);
     expect(result?.menus[0]?.name).toBe('系统管理');
@@ -104,6 +106,7 @@ describe('RbacAccessService', () => {
         username: 'admin',
         displayName: '管理员',
         isActive: false,
+        tokenVersion: 0,
         roles: [],
       }),
     );

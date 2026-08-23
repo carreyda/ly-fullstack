@@ -224,7 +224,7 @@ const upsertMenus = async (
 /**
  * 初始化 RBAC 超级管理员、菜单和关联关系
  *
- * 首次创建 `admin` 时使用 Setup 通过进程环境提供的本地默认密码；重复执行不会覆盖已有管理员密码。
+ * 首次创建 `admin` 时使用 Setup 通过进程环境提供的用户自定义密码；重复执行不会覆盖已有管理员密码。
  * 所有写入均采用 upsert 或跳过重复关联，保证 `pnpm setup` 可以安全重复执行。
  */
 const main = async (): Promise<void> => {

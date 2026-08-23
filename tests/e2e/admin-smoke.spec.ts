@@ -4,6 +4,7 @@ import type { Page } from '@playwright/test';
 
 const ADMIN_USERNAME = process.env.E2E_ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD || 'admin123';
+const ADMIN_API_URL = process.env.E2E_ADMIN_API_URL || 'http://127.0.0.1:3000/api';
 
 /**
  * 使用默认管理员完成真实登录
@@ -70,4 +71,23 @@ test('退出登录后清理会话并重新保护后台路由', async ({ page }) 
 
   await page.goto('/system/menu');
   await expect(page).toHaveURL(/\/login\?redirect=\/system\/menu$/);
+});
+
+test('Admin API 返回安全响应头并限制高频登录请求', async ({ request }) => {
+  const healthResponse = await request.get(`${ADMIN_API_URL}/health`);
+  expect(healthResponse.ok()).toBe(true);
+  expect(healthResponse.headers()['x-content-type-options']).toBe('nosniff');
+
+  const username = `rate_limit_probe_${Date.now()}`;
+  for (let requestIndex = 0; requestIndex < 5; requestIndex += 1) {
+    const loginResponse = await request.post(`${ADMIN_API_URL}/auth/login`, {
+      data: { username, password: 'invalidPassword123' },
+    });
+    expect(loginResponse.status()).toBe(401);
+  }
+
+  const throttledResponse = await request.post(`${ADMIN_API_URL}/auth/login`, {
+    data: { username, password: 'invalidPassword123' },
+  });
+  expect(throttledResponse.status()).toBe(429);
 });

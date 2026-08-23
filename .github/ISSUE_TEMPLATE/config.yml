@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 私密安全报告
+    url: https://github.com/liangy0323/ly-fullstack/security/advisories/new
+    about: 登录绕过、权限提升、秘密泄露或数据破坏问题请通过 Security Advisory 私密报告。
+  - name: 使用文档
+    url: https://github.com/liangy0323/ly-fullstack#readme
+    about: 提问前请先确认 README、环境配置和部署文档是否已有答案。

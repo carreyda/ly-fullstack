@@ -19,6 +19,7 @@ model User {
   id           Int        @id @default(autoincrement())
   username     String     @unique @db.VarChar(50)
   passwordHash String     @map("password_hash") @db.VarChar(100)
+  tokenVersion Int        @default(0) @map("token_version")
   displayName  String?    @map("display_name") @db.VarChar(50)
   isActive     Boolean    @default(true) @map("is_active")
   createdAt    DateTime   @default(now()) @map("created_at")

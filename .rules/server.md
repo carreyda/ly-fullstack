@@ -70,12 +70,23 @@ Prisma Client 在安装、database typecheck 和 database build 前生成。修�
 ## 全局能力
 
 - 全局路由前缀在 `main.ts` 统一设置为 `api`。
+- Fastify 服务在监听端口前统一注册 `@fastify/helmet`，不能由单个 Controller 自行维护安全响应头。
+- 反向代理部署只信任明确的代理来源；当前 Admin API 使用 `trustProxy: 'loopback'` 对应本机 Nginx，禁止为了方便直接信任任意转发头。
 - 浏览器跨域来源通过对应 `.env.<环境>` 的 `CORS_ORIGINS` 白名单维护，前端开发服务器不代理 API。
+- 管理登录使用 `@nestjs/throttler` 做路由级限流，默认内存存储只承诺单实例有效；多实例部署必须在网关、WAF 或共享存储统一计数。
 - DTO 校验在 `main.ts` 统一注册 `ValidationPipe`，业务模块通过 class-validator 声明输入约束。
 - 开发环境使用 `tsx`，不能依赖它生成 Controller 方法参数的装饰器类型元数据；新增 Controller 的 `@Body` 和 `@Query` 必须通过 `createDtoValidationPipe(DtoClass)` 显式传入 `expectedType`，确保开发与生产环境都执行相同的字段白名单、类型转换和 class-validator 校验。
 - DTO 只负责请求结构校验；产品类型不可修改、已发布内容不可编辑等领域约束必须同时在 Service 显式校验，不能只依赖前端禁用或 DTO 字段白名单。
 - 后续接入响应封装时，成功响应统一由全局拦截器包裹为 `ApiResponse`，业务 Controller 不手动拼 envelope。
 - 后续接入异常处理时，错误响应统一由全局过滤器转换，避免在业务代码里重复 try/catch。
+
+## 管理端会话安全
+
+- 管理 JWT 只保存账号定位字段和 `tokenVersion`，禁止把角色、菜单与权限快照写入 Token。
+- `AdminJwtGuard` 每次请求都读取数据库最新账号与 RBAC 状态，并比对 Token 和数据库中的 `tokenVersion`。
+- 当前管理员修改密码或后台重置用户密码时，必须在同一次数据库更新中执行 `tokenVersion + 1`，立即撤销此前签发的 Token。
+- `pnpm setup` 必须让使用者自行设置管理员初始密码；不得在脚本、文档或 Seed 中提供所有项目通用的生产默认密码。
+- 浏览器滑块不属于服务端安全边界。公开互联网部署应叠加云平台成熟的人机验证、WAF 和异常登录监控。
 
 ## 数据访问
 

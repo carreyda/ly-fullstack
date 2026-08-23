@@ -16,11 +16,13 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
+    "@fastify/helmet": "catalog:",
     "@nestjs/common": "catalog:",
     "@nestjs/config": "catalog:",
     "@nestjs/core": "catalog:",
     "@nestjs/jwt": "catalog:",
     "@nestjs/platform-fastify": "catalog:",
+    "@nestjs/throttler": "catalog:",
     "@prisma/adapter-pg": "catalog:",
     "@repo/database": "workspace:*",
     "@repo/shared": "workspace:*",

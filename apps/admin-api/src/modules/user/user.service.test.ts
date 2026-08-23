@@ -2,6 +2,7 @@ import 'reflect-metadata';
 
 import { BadRequestException } from '@nestjs/common';
 import { describe, expect, it } from '@rstest/core';
+import { compare } from 'bcryptjs';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { UserService } from './user.service';
@@ -96,5 +97,24 @@ describe('UserService', () => {
     const service = new UserService(prisma);
 
     await expect(service.assignUserRoles(2, { roleIds: [3] }, 1)).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('重置密码时同时撤销目标用户此前签发的 Token', async () => {
+    let updateData: { passwordHash: string; tokenVersion: { increment: number } } | undefined;
+    const prisma = {
+      user: {
+        findUnique: async () => ({ id: 2, roles: [] }),
+        update: async (params: { data: { passwordHash: string; tokenVersion: { increment: number } } }) => {
+          updateData = params.data;
+          return {};
+        },
+      },
+    } as unknown as PrismaService;
+    const service = new UserService(prisma);
+
+    await service.resetUserPassword(2, { password: 'newPassword123' });
+
+    expect(updateData?.tokenVersion.increment).toBe(1);
+    await expect(compare('newPassword123', updateData?.passwordHash ?? '')).resolves.toBe(true);
   });
 });

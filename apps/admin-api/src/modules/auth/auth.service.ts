@@ -19,7 +19,7 @@ const PASSWORD_HASH_ROUNDS = 12;
  * 管理端账号密码认证服务
  *
  * 负责查询 RBAC 用户、比较 bcrypt 密码、确认账号拥有有效角色并签发 Access Token。
- * Token 只包含用户主键和登录名，角色、菜单和权限由 `RbacAccessService` 从数据库实时组装。
+ * Token 只包含用户主键、登录名和会话版本，角色、菜单和权限由 `RbacAccessService` 从数据库实时组装。
  */
 @Injectable()
 export class AuthService {
@@ -62,6 +62,7 @@ export class AuthService {
     const payload: AdminJwtPayload = {
       sub: user.id,
       username: user.username,
+      tokenVersion: admin.tokenVersion,
     };
     const token = await this.jwtService.signAsync(payload);
 
@@ -108,7 +109,10 @@ export class AuthService {
 
     await this.prisma.user.update({
       where: { id: userId },
-      data: { passwordHash: await hash(dto.newPassword, PASSWORD_HASH_ROUNDS) },
+      data: {
+        passwordHash: await hash(dto.newPassword, PASSWORD_HASH_ROUNDS),
+        tokenVersion: { increment: 1 },
+      },
     });
   }
 }

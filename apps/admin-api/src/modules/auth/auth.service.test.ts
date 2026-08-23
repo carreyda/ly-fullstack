@@ -15,15 +15,18 @@ import { AuthService } from './auth.service';
  * 登录签名和 RBAC 查询不参与当前测试，使用空实现满足构造依赖；Prisma 只实现密码查询和更新协议。
  *
  * @param passwordHash 数据库当前保存的密码哈希
- * @param onUpdate 捕获服务写入的新密码哈希
+ * @param onUpdate 捕获服务写入的新密码哈希和会话版本更新指令
  * @returns 可执行修改密码逻辑的认证服务
  */
-const createAuthService = (passwordHash: string, onUpdate: (nextPasswordHash: string) => void): AuthService => {
+const createAuthService = (
+  passwordHash: string,
+  onUpdate: (data: { passwordHash: string; tokenVersion: { increment: number } }) => void,
+): AuthService => {
   const prisma = {
     user: {
       findUnique: async () => ({ passwordHash }),
-      update: async (params: { data: { passwordHash: string } }) => {
-        onUpdate(params.data.passwordHash);
+      update: async (params: { data: { passwordHash: string; tokenVersion: { increment: number } } }) => {
+        onUpdate(params.data);
         return {};
       },
     },
@@ -33,11 +36,51 @@ const createAuthService = (passwordHash: string, onUpdate: (nextPasswordHash: st
 };
 
 describe('AuthService', () => {
+  it('登录签发的 JWT 携带数据库最新会话版本', async () => {
+    const passwordHash = await hash('admin123', 4);
+    let signedPayload: { sub: number; username: string; tokenVersion: number } | undefined;
+    const prisma = {
+      user: {
+        findUnique: async () => ({
+          id: 1,
+          username: 'admin',
+          passwordHash,
+          isActive: true,
+        }),
+      },
+    } as unknown as PrismaService;
+    const jwtService = {
+      signAsync: async (payload: { sub: number; username: string; tokenVersion: number }) => {
+        signedPayload = payload;
+        return 'signed-token';
+      },
+    } as unknown as JwtService;
+    const rbacAccessService = {
+      getActiveAdmin: async () => ({
+        id: 1,
+        username: 'admin',
+        displayName: '管理员',
+        roles: [{ id: 1, name: '超级管理员', code: 'super_admin' }],
+        menus: [],
+        permissions: [],
+        tokenVersion: 4,
+      }),
+    } as unknown as RbacAccessService;
+    const service = new AuthService(prisma, jwtService, rbacAccessService);
+
+    const result = await service.login({ username: 'admin', password: 'admin123' });
+
+    expect(result.token).toBe('signed-token');
+    expect(signedPayload).toEqual({ sub: 1, username: 'admin', tokenVersion: 4 });
+  });
+
   it('校验当前密码后保存新密码哈希', async () => {
     const currentPasswordHash = await hash('admin123', 4);
     let updatedPasswordHash = '';
-    const service = createAuthService(currentPasswordHash, (nextPasswordHash) => {
-      updatedPasswordHash = nextPasswordHash;
+    let tokenVersionIncrement = 0;
+    const service = createAuthService(currentPasswordHash, (data) => {
+      updatedPasswordHash = data.passwordHash;
+      tokenVersionIncrement = data.tokenVersion.increment;
     });
 
     await service.changePassword(1, {
@@ -47,6 +90,7 @@ describe('AuthService', () => {
 
     expect(updatedPasswordHash).not.toBe('newAdmin123');
     await expect(compare('newAdmin123', updatedPasswordHash)).resolves.toBe(true);
+    expect(tokenVersionIncrement).toBe(1);
   });
 
   it('当前密码错误时拒绝覆盖密码哈希', async () => {

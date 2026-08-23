@@ -147,7 +147,7 @@ Prisma migration 必须在切换版本前成功完成。失败时停止发布，
 
 ### 4. 首次初始化管理员
 
-只有全新数据库需要执行一次 Seed。必须使用强密码，禁止把本地默认密码 `admin123` 带入生产环境：
+只有全新数据库需要执行一次 Seed。必须为管理员设置独立强密码，不能复用开发、测试或其他环境的凭证：
 
 ```bash
 read -s -p 'Initial admin password: ' ADMIN_INITIAL_PASSWORD
@@ -287,6 +287,14 @@ curl --fail https://admin.example.com/api/health
 3. 用户、角色、菜单页面可以正常读取。
 4. 深浅主题和静态资源正常加载。
 5. 浏览器控制台没有旧 Chunk、CORS 或 Service Worker 错误。
+
+### 安全验收
+
+- Admin API 已通过 Fastify Helmet 返回常见浏览器安全头；可以检查响应中的 `X-Content-Type-Options` 等字段。
+- 登录接口默认按“客户端 IP + 账号”限制为每分钟 5 次，触发后阻断 1 分钟。该计数使用进程内存，只适用于默认单实例部署。
+- Nginx 必须传递 `X-Real-IP` 和 `X-Forwarded-For`。Admin API 只信任本机 loopback 代理，不能把服务端口直接暴露到公网后仍假设转发头可信。
+- 多实例部署必须把限流上移到 API 网关、WAF 或云平台，或者为 `@nestjs/throttler` 接入共享存储。公开互联网场景建议叠加云厂商成熟的人机验证，前端滑块不能替代服务端防护。
+- 修改当前密码或由管理员重置密码后，账号会话版本递增，旧 JWT 在下一次请求时失效。泄露 JWT 签名密钥时仍必须立即轮换 `JWT_SECRET`。
 
 ## 版本升级
 

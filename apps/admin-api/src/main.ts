@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 
+import helmet from '@fastify/helmet';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
@@ -18,8 +19,17 @@ const bootstrap = async (): Promise<void> => {
     AppModule,
     new FastifyAdapter({
       logger: true,
+      trustProxy: 'loopback',
     }),
   );
+
+  /**
+   * 为全部 API 响应写入浏览器安全头
+   *
+   * Helmet 负责禁用 MIME 嗅探、限制页面嵌入并声明常见浏览器安全策略。应用只提供 JSON API，
+   * 因此使用插件默认策略即可；注册必须发生在路由开始监听之前。
+   */
+  await app.register(helmet);
 
   const configService = app.get(ConfigService);
   const corsOrigins = configService

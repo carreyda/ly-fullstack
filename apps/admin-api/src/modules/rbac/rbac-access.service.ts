@@ -60,6 +60,7 @@ export class RbacAccessService {
         username: true,
         displayName: true,
         isActive: true,
+        tokenVersion: true,
         roles: {
           where: { role: { isActive: true } },
           select: {
@@ -115,6 +116,7 @@ export class RbacAccessService {
       id: user.id,
       username: user.username,
       displayName: user.displayName,
+      tokenVersion: user.tokenVersion,
       roles,
       menus: this.buildMenuTree(menuRecords),
       permissions: [...new Set(permissions)].sort(),

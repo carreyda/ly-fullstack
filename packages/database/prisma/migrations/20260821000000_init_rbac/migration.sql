@@ -6,6 +6,7 @@ CREATE TABLE "users" (
     "id" SERIAL NOT NULL,
     "username" VARCHAR(50) NOT NULL,
     "password_hash" VARCHAR(100) NOT NULL,
+    "token_version" INTEGER NOT NULL DEFAULT 0,
     "display_name" VARCHAR(50),
     "is_active" BOOLEAN NOT NULL DEFAULT true,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

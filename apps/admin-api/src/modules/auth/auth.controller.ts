@@ -1,4 +1,5 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Inject, Post, Put, UseGuards } from '@nestjs/common';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 import type { AdminLoginResponse, AdminSession } from '@repo/shared/types';
 
@@ -26,6 +27,7 @@ export class AuthController {
    */
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(ThrottlerGuard)
   login(@Body(createDtoValidationPipe(AdminLoginDto)) dto: AdminLoginDto): Promise<AdminLoginResponse> {
     return this.authService.login(dto);
   }

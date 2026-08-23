@@ -16,6 +16,14 @@ export interface AdminJwtPayload {
    * 签发令牌时的管理员登录名，只用于审计和问题排查，不作为授权依据
    */
   username: string;
+
+  /**
+   * 签发令牌时的账号会话版本
+   *
+   * Guard 会将该值与数据库最新版本比较。修改或重置密码会递增数据库版本，令此前签发的
+   * Token 在下一次请求时立即失效，无需维护服务端 Token 黑名单。
+   */
+  tokenVersion: number;
 }
 
 /**
@@ -24,6 +32,11 @@ export interface AdminJwtPayload {
  * Guard 将该对象挂载到当前 Fastify 请求，后续 Controller 和权限 Guard 可以复用同一次查询结果。
  */
 export interface AuthenticatedAdmin extends AdminProfile {
+  /**
+   * 数据库当前会话版本，只用于服务端撤销旧 Token，不会进入浏览器会话响应
+   */
+  tokenVersion: number;
+
   /**
    * 当前有效角色合并后的可见菜单树
    */

@@ -42,7 +42,7 @@ pnpm setup
 5. 检查 `apps/admin/.env.development` 的 API 端口；一致时不改文件，不一致时按应用注册表更新。
 6. 生成包含本地私密配置的 `apps/admin-api/.env.development`。
 7. 执行全部 Prisma migration 创建或更新表结构。
-8. 初始化 RBAC 数据与默认管理员；首次创建时账号为 `admin`，密码为 `admin123`，重复执行不会重置已有账号密码。
+8. 要求输入并再次确认 8 到 64 位管理员初始密码，随后初始化 RBAC 数据与 `admin` 账号；重复执行不会重置已有账号密码。
 
 再次执行时，只要 Admin API development 文件已经存在，脚本就会先请求确认，不会静默覆盖本地数据库连接和 JWT 密钥。Admin development 只有端口不一致时才会发生变化。
 
@@ -53,10 +53,11 @@ Linux CI 使用和本地开发完全相同的 Setup 主流程，不维护一套�
 ```bash
 export SETUP_DATABASE_PASSWORD='<postgres 用户密码>'
 export SETUP_DATABASE_NAME='ly_fullstack_ci'
+export SETUP_ADMIN_PASSWORD='<管理员初始密码>'
 pnpm run setup -- --non-interactive
 ```
 
-`SETUP_DATABASE_NAME` 可以省略并使用 `ly_fullstack`，`SETUP_DATABASE_PASSWORD` 必须提供。密码不能放在命令行参数中，CI 应通过 Secret 或 Job 环境变量注入，避免出现在进程列表和命令日志。
+`SETUP_DATABASE_NAME` 可以省略并使用 `ly_fullstack`；`SETUP_DATABASE_PASSWORD` 与 `SETUP_ADMIN_PASSWORD` 必须提供。密码不能放在命令行参数中，CI 应通过 Secret 或 Job 环境变量注入，避免出现在进程列表和命令日志。
 
 非交互模式发现已有 `apps/admin-api/.env.development` 时会直接失败，不会静默覆盖环境。CI 应始终使用干净检出；其他自动化环境需要重新初始化时，必须先明确删除旧文件。GitHub Actions 随后执行 `pnpm verify:setup`，真实查询默认管理员、超级管理员关系与菜单数据，确认 migration 和 seed 均已完成。
 

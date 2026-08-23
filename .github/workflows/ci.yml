@@ -61,6 +61,7 @@ jobs:
     env:
       SETUP_DATABASE_PASSWORD: ci-postgres-password
       SETUP_DATABASE_NAME: ly_fullstack_ci
+      SETUP_ADMIN_PASSWORD: admin123
       DATABASE_URL: postgresql://postgres:ci-postgres-password@127.0.0.1:5432/ly_fullstack_ci?schema=public
       E2E_ADMIN_USERNAME: admin
       E2E_ADMIN_PASSWORD: admin123

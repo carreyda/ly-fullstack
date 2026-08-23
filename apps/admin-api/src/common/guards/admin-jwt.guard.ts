@@ -25,7 +25,8 @@ const resolveBearerToken = (authorization: string | undefined): string => {
  * 管理端 JWT 身份认证守卫
  *
  * 先验证 Bearer Token 的签名和有效期，再按 Token 中的用户主键重新读取数据库状态。角色和权限
- * 不从 Token 读取，确保账号禁用、角色解绑和权限收回可以在下一次请求立即生效。
+ * 不从 Token 读取，确保账号禁用、角色解绑和权限收回可以在下一次请求立即生效。Guard 还会比对
+ * Token 与数据库中的会话版本，让修改密码和后台重置密码可以撤销此前签发的全部 Token。
  */
 @Injectable()
 export class AdminJwtGuard implements CanActivate {
@@ -62,6 +63,10 @@ export class AdminJwtGuard implements CanActivate {
     const admin = await this.rbacAccessService.getActiveAdmin(payload.sub);
     if (!admin) {
       throw new UnauthorizedException('账号不存在或已被禁用');
+    }
+
+    if (payload.tokenVersion !== admin.tokenVersion) {
+      throw new UnauthorizedException('登录状态已失效，请重新登录');
     }
 
     request.admin = admin;
