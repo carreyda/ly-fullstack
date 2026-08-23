@@ -1,3 +1,4 @@
+import { onTestFinished } from '@rstest/core';
 import { createApp, h } from 'vue';
 
 /**
@@ -5,7 +6,8 @@ import { createApp, h } from 'vue';
  *
  * 管理页 Composable 内部注册了 `onMounted`、`onBeforeUnmount` 等生命周期钩子，脱离组件实例调用时
  * 钩子不会执行。本函数创建并挂载一个最小组件，让 Composable 在真实的 setup 与挂载流程中运行，
- * 并返回卸载句柄用于验证清理逻辑。
+ * 并返回卸载句柄用于验证清理逻辑。每个测试结束时还会自动卸载，避免调用方遗漏清理后让组件实例、
+ * 生命周期订阅或响应式状态泄漏到后续用例。
  *
  * 测试需要注入 `useTemplateRef` 依赖（例如表单实例替身）时，可在 setup 回调内通过
  * `getCurrentInstance()?.refs` 写入对应名称的模板引用。
@@ -26,5 +28,17 @@ export const withSetup = <TResult>(setup: () => TResult): [TResult, () => void] 
   const root = document.createElement('div');
   app.mount(root);
 
-  return [result as TResult, () => app.unmount()];
+  let mounted = true;
+  const unmount = (): void => {
+    if (!mounted) {
+      return;
+    }
+
+    app.unmount();
+    mounted = false;
+  };
+
+  onTestFinished(unmount);
+
+  return [result as TResult, unmount];
 };

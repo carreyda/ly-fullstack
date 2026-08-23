@@ -19,7 +19,7 @@
 
 - Node.js >= 22.19.0。
 - pnpm >= 11 且 < 12。
-- PostgreSQL 18，或可以运行 Docker Compose。
+- PostgreSQL 17，或可以运行 Docker Compose。
 
 ```bash
 pnpm install

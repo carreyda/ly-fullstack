@@ -26,7 +26,7 @@
 - Vue 3 + Rsbuild + Element Plus 管理后台，提供深浅主题、响应式布局、Dashboard 和统一设计系统。
 - NestJS + Fastify 管理 API，提供 JWT 登录、会话恢复、修改密码和全局输入校验。
 - 用户、角色、菜单以及用户角色、角色菜单五表 RBAC，并提供数据库动态导航。
-- PostgreSQL 18 + Prisma 7 migration、幂等 Seed 和 `pnpm setup` 本地初始化流程。
+- PostgreSQL 17 + Prisma 7 migration、幂等 Seed 和 `pnpm setup` 本地初始化流程。
 - pnpm workspace + Turborepo Monorepo、服务生成器、架构边界检查和统一质量门禁。
 - Rstest 单元测试、Playwright 登录与权限关键流程冒烟测试。
 - Linux + PostgreSQL 环境下的 Setup CI 验证。

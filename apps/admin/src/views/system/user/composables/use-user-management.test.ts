@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, rstest } from '@rstest/core';
 
 import { deleteAdminUser, fetchAdminUsers } from '@/api';
-import { withSetup } from '@/testing/with-setup';
+import { withSetup } from '@tests/with-setup';
 import { useUserManagement } from './use-user-management';
 
 import type { MessageBoxData } from 'element-plus';

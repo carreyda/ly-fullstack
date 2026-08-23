@@ -6,6 +6,7 @@
     "types": ["@rsbuild/core/types", "node"],
     "paths": {
       "@/*": ["./src/*"],
+      "@tests/*": ["./tests/*"],
       "@repo/shared": ["../../packages/shared/src/index.ts"],
       "@repo/shared/types": ["../../packages/shared/src/types/index.ts"],
       "@repo/shared/utils": ["../../packages/shared/src/utils/index.ts"]
@@ -14,6 +15,7 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.vue",
+    "tests/**/*.ts",
     "build/**/*.ts",
     "rstest.config.ts",
     "env.d.ts",

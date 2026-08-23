@@ -11,14 +11,6 @@ const ADMIN_USERNAME = process.env.E2E_ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD || 'admin123';
 
 /**
- * 登录限流封锁窗口等待时长
- *
- * 管理端登录接口按“IP + 账号”维度限流（5 次 / 60 秒，超限后再封锁 60 秒）。完整 e2e 套件恰好
- * 用满 admin 的限流额度，CI 失败重试可能触发 429；等待封锁窗口结束后重试一次即可恢复。
- */
-const LOGIN_RATE_LIMIT_RETRY_WAIT_MS = 61_000;
-
-/**
  * 登录接口返回并被测试捕获的会话信息
  */
 interface AdminSession {
@@ -75,14 +67,7 @@ const loginViaUi = async (
     return loginResponsePromise;
   };
 
-  let loginResponse = await submitLogin();
-  if (loginResponse.status() === 429) {
-    await page.waitForTimeout(LOGIN_RATE_LIMIT_RETRY_WAIT_MS);
-    // 重新按 End 确保滑块仍处于验证通过状态，再重试一次登录
-    await slider.press('End');
-    await expect(slider).toHaveAttribute('aria-valuetext', '验证通过');
-    loginResponse = await submitLogin();
-  }
+  const loginResponse = await submitLogin();
 
   expect(loginResponse.ok(), `账号 ${username} 登录接口必须成功`).toBe(true);
 
@@ -113,10 +98,10 @@ const logoutViaUi = async (page: Page): Promise<void> => {
 /**
  * 通过管理 API 尽最大努力清理测试用户与测试角色
  *
- * 供 `finally` 调用：UI 删除流程已成功时，这里按唯一编码检索不到数据，自然空跑；中途断言
- * 失败时，则按唯一用户名和角色编码检索并删除。必须先删用户再删角色，仍绑定用户的角色会被
- * 服务端删除保护拒绝。请求复用超级管理员在步骤 1 捕获的 Token，不再追加登录，避免触发登录
- * 接口的限流（5 次 / 60 秒）。所有异常只记录不抛出，避免掩盖测试自身失败。
+ * 供 `finally` 调用：无论权限断言成功还是中途失败，都按唯一用户名和角色编码检索并删除。
+ * 必须先删用户再删角色，仍绑定用户的角色会被服务端删除保护拒绝。请求复用超级管理员在步骤 1
+ * 捕获的 Token，不再追加登录，避免测试清理消耗登录接口的限流额度。所有异常只记录不抛出，
+ * 避免掩盖测试自身失败。
  *
  * @param request 与页面共享的 API 请求上下文
  * @param apiBaseUrl 管理 API 基础地址
@@ -162,9 +147,6 @@ const cleanupRbacDataViaApi = async (
 };
 
 test('五表 RBAC 全链路：仅授权工作台的角色用户无法访问系统管理', async ({ page }) => {
-  // 链路包含三次登录、完整的角色与用户 CRUD 和两次删除确认，默认 30 秒不足以覆盖 CI 冷启动编译。
-  test.setTimeout(120_000);
-
   /**
    * 本次运行的唯一数据后缀
    *
@@ -266,29 +248,6 @@ test('五表 RBAC 全链路：仅授权工作台的角色用户无法访问系�
       headers: { Authorization: `Bearer ${userSession.token}` },
     });
     expect(listResponse.status()).toBe(403);
-
-    // 步骤 11：重新登录超级管理员，按唯一标识筛选并删除测试用户与测试角色
-    await logoutViaUi(page);
-    await loginViaUi(page, ADMIN_USERNAME, ADMIN_PASSWORD, '/system/user');
-
-    await page.getByLabel('关键词').fill(username);
-    await page.getByRole('button', { name: '查询' }).click();
-    const cleanupUserRow = page.getByRole('row').filter({ hasText: username });
-    await expect(cleanupUserRow).toBeVisible();
-    await cleanupUserRow.getByRole('button', { name: '删除', exact: true }).click();
-    // 删除确认框文案展示显示名称而不是登录名，按确认框标题定位避免依赖文案内容
-    await page.getByRole('dialog', { name: '删除用户' }).getByRole('button', { name: '删除', exact: true }).click();
-    await expect(cleanupUserRow).toHaveCount(0);
-
-    await page.goto('/system/role');
-    await expect(page.getByRole('heading', { name: '角色管理' })).toBeVisible();
-    await page.getByLabel('关键词').fill(roleCode);
-    await page.getByRole('button', { name: '查询' }).click();
-    const cleanupRoleRow = page.getByRole('row').filter({ hasText: roleCode });
-    await expect(cleanupRoleRow).toBeVisible();
-    await cleanupRoleRow.getByRole('button', { name: '删除', exact: true }).click();
-    await page.getByRole('dialog', { name: '删除角色' }).getByRole('button', { name: '删除', exact: true }).click();
-    await expect(cleanupRoleRow).toHaveCount(0);
   } finally {
     if (apiBaseUrl && adminToken) {
       await cleanupRbacDataViaApi(page.request, apiBaseUrl, adminToken, username, roleCode);

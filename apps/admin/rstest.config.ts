@@ -20,6 +20,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(process.cwd(), './src'),
+      '@tests': resolve(process.cwd(), './tests'),
     },
   },
   tools: {

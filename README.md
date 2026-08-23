@@ -79,7 +79,7 @@ LY Fullstack 当前采用以 NestJS 模块化单体为核心的工程架构，�
 | -------- | ------------------------------------------------------------------- |
 | 管理后台 | Rsbuild 2 + Vue 3 + TypeScript + Element Plus + SCSS                |
 | 管理 API | NestJS 11 + Fastify + ValidationPipe                                |
-| 数据层   | `@repo/database` + PostgreSQL 18 + Prisma 7（driver adapter 模式）  |
+| 数据层   | `@repo/database` + PostgreSQL 17 + Prisma 7（driver adapter 模式）  |
 | 共享包   | `@repo/shared`（跨应用类型与无 UI 框架通用工具）                    |
 | 图表包   | `@repo/charts`（ECharts 按需注册、初始化与公共类型）                |
 | 工程基线 | pnpm workspace + Turborepo + ESLint + Prettier + Husky + commitlint |
@@ -87,27 +87,73 @@ LY Fullstack 当前采用以 NestJS 模块化单体为核心的工程架构，�
 
 ## 快速开始
 
-环境要求：Node.js >= 22.19、pnpm >= 11 < 12（根目录 `packageManager` 已固定），以及用于本地 PostgreSQL 的 Docker 或现有 PostgreSQL 服务。
+### 1. 环境准备
+
+| 依赖           | 版本要求   | 获取方式                                                                                                 |
+| -------------- | ---------- | -------------------------------------------------------------------------------------------------------- |
+| Node.js        | >= 22.19   | [官方下载](https://nodejs.org/en/download)                                                               |
+| pnpm           | >= 11 < 12 | Node 22 自带 Corepack，执行 `corepack enable` 即可；或参考 [pnpm 安装指南](https://pnpm.io/installation) |
+| PostgreSQL     | 17.x       | [官方下载](https://www.postgresql.org/download/)，安装时记住 `postgres` 超级用户的密码                   |
+| Docker（可选） | 任意稳定版 | 本机未安装 PostgreSQL 时，由仓库 `compose.yaml` 自动启动容器                                             |
+
+几点说明：
+
+- Node 与 pnpm 的精确版本由根目录 `packageManager` 与 `engines` 固定，开启 Corepack 后无需手动对齐版本。
+- PostgreSQL 与 Docker 二选一即可：使用本机 PostgreSQL 时确保服务可以启动；未安装 PostgreSQL 时，`pnpm setup` 会通过 Docker Compose 启动项目容器。
+- 建库、建表和初始数据全部由 `pnpm setup` 完成，不需要手工创建数据库或执行 SQL。
+- 推荐安装 [pgAdmin](https://www.pgadmin.org/) 作为可视化客户端，方便随时查看表结构与种子数据；安装与使用教程请自行查阅官方文档，本文不展开。
+- 图形化安装 PostgreSQL 时设置的 `postgres` 用户密码是下一步初始化的第一个输入项，忘记后重置成本较高，建议安装当下就记录妥当。
+
+### 2. 安装依赖
 
 ```bash
-# 1. 安装依赖（会自动执行 prisma generate）
 pnpm install
-
-# 2. 输入本地数据库密码并初始化 PostgreSQL 与环境文件
-pnpm setup
-
-# 3. 选择要启动的应用
-pnpm dev
 ```
 
-`pnpm setup` 会询问 PostgreSQL 密码、数据库名（默认 `ly_fullstack`）和首次管理员密码。本机 `127.0.0.1:5432` 已有服务时直接复用，否则通过 Docker Compose 启动 PostgreSQL。随后脚本校验 Admin development 的 API 端口、创建数据库和表结构、初始化 `admin` 管理员，并生成 Admin API 的私有 `.env.development`。Admin 的三套公开环境配置直接提交仓库；Admin API 的 test/production 配置由 CI/CD 或部署平台注入，数据库密码、管理员密码与 JWT 密钥不会进入 Git，也不会生成根 `.env`。完整说明见 [`docs/environment.md`](docs/environment.md)。
+安装过程会自动执行 `prisma generate` 生成数据库 Client 代码，但不会连接 PostgreSQL，也不会创建数据库、表结构或初始数据。
+
+### 3. 初始化数据库与本地配置
+
+在仓库根目录直接执行：
+
+```bash
+pnpm setup
+```
+
+脚本会依次询问四项内容，全部输入完成后才开始写入：
+
+1. **PostgreSQL 密码**：本机 `postgres` 用户的密码，隐藏输入。
+2. **数据库名称**：默认 `ly_fullstack`，直接回车即可；仅允许字母、数字和下划线。
+3. **管理员初始密码**：首次创建 `admin` 账号使用的密码，8 至 64 位，隐藏输入。
+4. **确认管理员密码**：再输入一遍，两次不一致会要求重输。
+
+输入完成后，脚本会自动完成以下全部动作：
+
+- 检测本机 `127.0.0.1:5432`：已有 PostgreSQL 服务则直接复用；未检测到服务且本机可用 Docker Compose 时，自动启动项目内的 PostgreSQL 17 容器。
+- 幂等创建目标数据库，已存在则跳过，不会删除任何数据。
+- 生成 `apps/admin-api/.env.development`，包含数据库连接串、CORS 白名单与随机生成的 JWT 密钥；该文件不进入 Git。
+- 执行 Prisma migration，创建全部表结构。
+- 写入 RBAC 种子数据：超级管理员角色、完整菜单权限树和 `admin` 账号；重复执行 Setup 不会覆盖已有账号密码。
+
+CI 与自动化环境可跳过交互：`pnpm setup --non-interactive` 配合 `SETUP_DATABASE_PASSWORD`、`SETUP_DATABASE_NAME`、`SETUP_ADMIN_PASSWORD` 三个环境变量。环境文件的安全边界详见 [`docs/environment.md`](docs/environment.md)。
+
+### 4. 启动应用
+
+```bash
+# 交互式选择：先多选服务端应用，再选前端应用
+pnpm dev
+
+# 或非交互启动
+pnpm dev all              # 启动全部应用
+pnpm dev admin-api admin  # 启动指定组合
+```
 
 本地地址由根 [`workspace.config.json`](workspace.config.json) 统一维护：
 
-- 管理后台：http://localhost:8081
-- 管理 API：http://localhost:3000/api/health
+- 管理后台：<http://localhost:8081>
+- 管理 API 健康检查：<http://localhost:3000/api/health>
 
-`pnpm dev` 会根据配置表先多选服务端应用，再选择前端应用。也可以使用 `pnpm dev all` 启动全部应用，或用 `pnpm dev admin-api admin` 非交互启动指定组合。
+打开管理后台，使用账号 `admin` 加上 Setup 中设置的管理员密码登录。结束开发后执行 `pnpm dev:stop` 停止本仓库的全部开发进程。
 
 ## 新建服务
 
@@ -187,18 +233,37 @@ ly-fullstack/
 
 尚未实现：自动化部署、具体业务模块、终端业务 API 及其客户端。部署环境变量契约已经明确，但需要在确定 Docker、云平台或 SSH + PM2 等真实目标后实现对应 CD；当前 CI 只承担质量门禁，不能把未落地的发布流程算作现有能力。
 
-## 文档
+## 文档体系与 AI 协作
 
-- 开发规范：`.rules/`（索引见 `AGENTS.md`）
-- 环境配置：`docs/environment.md`
-- Admin 多主题与 Element Plus 定制：[`docs/admin-theme.md`](docs/admin-theme.md)
-- Admin 设计系统与页面自查：[`docs/admin-design-system.md`](docs/admin-design-system.md)
-- Admin 离线缓存与版本更新：[`docs/admin-version-offline.md`](docs/admin-version-offline.md)
-- 官方生产部署：[`docs/deployment.md`](docs/deployment.md)
-- v0.1.0 Release Notes：[`docs/releases/v0.1.0.md`](docs/releases/v0.1.0.md)
-- Roadmap：[`ROADMAP.md`](ROADMAP.md)
-- Changelog：[`CHANGELOG.md`](CHANGELOG.md)
-- 贡献指南：[`CONTRIBUTING.md`](CONTRIBUTING.md)
+### `.rules/`：开发规范——"代码应该怎么写"
+
+按技术栈拆分的强制编码规范，共 13 份：后台 CRUD 范本与页面规范（`admin.md`）、Vue 组件结构与顺序（`vue3.md`）、TypeScript 类型原则（`typescript.md`）、注释风格（`comment-style.md`）、错误处理分层（`error-handling.md`）、请求层封装（`axios.md`）、状态管理（`pinia.md`）、样式（`style.md`）、命名与目录（`naming.md`、`directory.md`）、工程配置（`engineering.md`）和提交前自查（`code-review.md`）。
+
+开始某类任务前先读对应文件，完整路由表维护在 [`AGENTS.md`](AGENTS.md) 第四节。这些规范不是建议：不符合规范的代码过不了 lint、架构检查和 CI 门禁。
+
+### `docs/`：专题文档——"系统是怎么设计与运转的"
+
+面向具体专题的实现说明，按需查阅：
+
+| 文档                                                             | 内容                           |
+| ---------------------------------------------------------------- | ------------------------------ |
+| [`docs/environment.md`](docs/environment.md)                     | 环境变量职责边界与 Setup 行为  |
+| [`docs/admin-theme.md`](docs/admin-theme.md)                     | 多主题与 Element Plus 定制方案 |
+| [`docs/admin-design-system.md`](docs/admin-design-system.md)     | 设计系统与页面交付自查清单     |
+| [`docs/admin-version-offline.md`](docs/admin-version-offline.md) | 版本检测与离线缓存             |
+| [`docs/deployment.md`](docs/deployment.md)                       | 生产部署方案                   |
+| [`docs/releases/`](docs/releases)                                | 各版本 Release Notes           |
+
+仓库根目录另有 [`ROADMAP.md`](ROADMAP.md)（路线图）、[`CHANGELOG.md`](CHANGELOG.md)（变更记录）与 [`CONTRIBUTING.md`](CONTRIBUTING.md)（贡献流程）。
+
+### 用 AI 编码工具保持同一套规范
+
+这套文档体系天然面向 AI 协作设计，也是本项目希望“人写、AI 写、多人写”产出一致的原因：
+
+1. **`AGENTS.md` 是 AI 的统一入口**。它是 AI 编码代理（Codex、Claude Code 等遵循 AGENTS.md 约定的工具）进入仓库时自动读取的工作区说明，内含编程思想、技术栈、硬性架构边界和 `.rules/` 的任务路由表。
+2. **用 AI 时把仓库根目录作为工作区打开**。工具会自动加载 `AGENTS.md`，再按任务类型（页面 CRUD、服务端模块、样式、测试等）路由到 `.rules/` 对应文件，不需要在提示词里粘贴规范全文。
+3. **规范由工具链兜底，不靠自觉**。无论人或 AI 产出的代码，都必须通过 `pnpm check`（架构检查 + typecheck + lint + format + 测试 + 构建与远端 CI）；跨包依赖方向、目录纯度等边界由 `scripts/check-architecture.mjs` 机器化校验。
+4. **换工具不换规范**。`AGENTS.md` 与 `.rules/` 是纯 Markdown，不绑定任何 AI 产品；任何支持读取工作区说明的工具消费的都是同一套规范。
 
 ## 开源许可
 

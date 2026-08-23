@@ -10,7 +10,7 @@
 - Node.js 22.19+ 与 pnpm 11.x。
 - Nginx 托管 Admin 静态产物，并将同域 `/api` 反向代理到 Admin API。
 - Systemd 托管 NestJS Admin API。
-- PostgreSQL 18；生产环境优先使用云数据库或独立数据库主机，单机低负载场景也可以同机部署。
+- PostgreSQL 17；生产环境优先使用云数据库或独立数据库主机，单机低负载场景也可以同机部署。
 
 该方案适合个人、小团队和中小型项目。单台服务器重启 Admin API 时会有短暂中断；需要多实例、自动扩缩容、跨地域容灾或零停机发布时，应在此基础上增加负载均衡、外部会话与完整部署编排，不能直接宣称当前方案已经具备这些能力。
 
@@ -28,7 +28,7 @@ Nginx
                     Admin API
                          │
                          ▼
-                    PostgreSQL 18
+                    PostgreSQL 17
 ```
 
 前端生产配置默认使用同源 `API_BASE_URL=/api`。浏览器只访问 Nginx，不应直接暴露 3000 端口。

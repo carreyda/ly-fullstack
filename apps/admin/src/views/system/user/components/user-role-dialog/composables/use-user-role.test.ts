@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, rstest } from '@rstest/core';
 
 import { assignAdminUserRoles, fetchAdminUserRoleOptions } from '@/api';
-import { withSetup } from '@/testing/with-setup';
+import { withSetup } from '@tests/with-setup';
 import { useUserRole } from './use-user-role';
 
 import type { AdminUserListItem, AdminUserRoleOption } from '@repo/shared/types';

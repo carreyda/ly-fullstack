@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, rstest } from '@rstest/core';
 import { getCurrentInstance } from 'vue';
 
 import { resetAdminUserPassword } from '@/api';
-import { withSetup } from '@/testing/with-setup';
+import { withSetup } from '@tests/with-setup';
 import { useUserPassword } from './use-user-password';
 
 import type { FormInstance } from 'element-plus';

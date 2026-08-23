@@ -8,7 +8,7 @@ import {
   reorderAdminMenus,
   updateAdminMenu,
 } from '@/api';
-import { withSetup } from '@/testing/with-setup';
+import { withSetup } from '@tests/with-setup';
 import { useMenuManagement } from './use-menu-management';
 
 import type { MessageBoxData } from 'element-plus';

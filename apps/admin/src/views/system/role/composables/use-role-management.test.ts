@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, rstest } from '@rstest/core';
 
 import { deleteAdminRole, fetchAdminRoles } from '@/api';
-import { withSetup } from '@/testing/with-setup';
+import { withSetup } from '@tests/with-setup';
 import { useRoleManagement } from './use-role-management';
 
 import type { MessageBoxData } from 'element-plus';

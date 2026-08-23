@@ -2,7 +2,7 @@
 # Setup 会把本地密码仅注入 Compose 子进程，不会在仓库根目录生成 `.env`。
 services:
   postgres:
-    image: postgres:18.6-alpine
+    image: postgres:17-alpine
     container_name: ly-fullstack-postgres
     restart: unless-stopped
     ports:
@@ -12,8 +12,8 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?请通过 pnpm setup 或进程环境变量提供 PostgreSQL 密码}
     volumes:
-      # PostgreSQL 18 起官方镜像把版本化 PGDATA 放在 /var/lib/postgresql 下，不能沿用 17 的挂载点。
-      - ly-fullstack-postgres-18-data:/var/lib/postgresql
+      # PostgreSQL 数据目录使用 17 官方镜像的标准挂载点，并通过版本化卷名避免误用 18 的数据文件。
+      - ly-fullstack-postgres-17-data:/var/lib/postgresql/data
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-ly_fullstack}']
       interval: 10s
@@ -22,6 +22,6 @@ services:
       start_period: 10s
 
 volumes:
-  # 使用新卷保留可能存在的 PostgreSQL 17 数据，升级过程不静默覆盖旧数据库。
-  ly-fullstack-postgres-18-data:
-    name: ly-fullstack-postgres-18-data
+  # 版本化卷不会读取已有 PostgreSQL 18 数据；历史数据需要通过导出、导入显式迁移。
+  ly-fullstack-postgres-17-data:
+    name: ly-fullstack-postgres-17-data

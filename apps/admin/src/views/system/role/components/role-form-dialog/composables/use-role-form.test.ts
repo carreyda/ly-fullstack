@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, rstest } from '@rstest/core';
 import { getCurrentInstance } from 'vue';
 
 import { createAdminRole, updateAdminRole } from '@/api';
-import { withSetup } from '@/testing/with-setup';
+import { withSetup } from '@tests/with-setup';
 import { useRoleForm } from './use-role-form';
 
 import type { FormInstance } from 'element-plus';

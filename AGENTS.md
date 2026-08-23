@@ -138,7 +138,7 @@ This file provides guidance to AI coding agents (Codex / Claude Code 等) when w
 | 后台样式 | SCSS                             | `apps/admin/src/assets/styles` 维护变量、mixin、入口样式 |
 | 管理 API | NestJS 11 + Fastify              | `apps/admin-api`，本地端口 3000；管理端独立认证边界      |
 | 服务模板 | NestJS 11 + Fastify              | `scripts/templates/server`，按需生成独立服务             |
-| 数据库   | PostgreSQL 18 + Prisma 7         | `packages/database` 是 Schema、迁移和 Client 唯一真相源  |
+| 数据库   | PostgreSQL 17 + Prisma 7         | `packages/database` 是 Schema、迁移和 Client 唯一真相源  |
 | 跨端共享 | TypeScript 手动维护              | `packages/shared`，统一存放共享类型与无 UI 框架通用工具  |
 | 图表能力 | ECharts 6                        | `packages/charts`，按需注册无框架图表能力与公共类型      |
 | 语言     | TypeScript 6.0.2                 | 当前 `6.0.2`，避免 `vue-tsc` 与 TypeScript 7 不兼容      |
