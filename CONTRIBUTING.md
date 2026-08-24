@@ -27,12 +27,13 @@ pnpm setup
 pnpm dev
 ```
 
-首次初始化会创建本地数据库、执行 migration 与 Seed，并生成被 Git 忽略的 Admin API development 环境文件。不要提交数据库密码、JWT 密钥或任何本地 `.env`。
+首次初始化会创建本地数据库、执行 migration 与 Seed，并生成被 Git 忽略的 `apps/admin-api/.env.development` 与 `apps/api/.env.development`。这两个服务端文件包含本地数据库密码或 JWT 密钥，禁止提交；`apps/admin` 的三套 `.env` 只保存浏览器公开配置并由仓库维护，不能与服务端秘密文件混为一谈。
 
 ## 选择改动位置
 
 - Admin 页面和交互：`apps/admin`。
 - Admin API 业务模块：`apps/admin-api`。
+- 默认 C 端公共能力与真实业务 API：`apps/api`。
 - Prisma Schema、migration 和 Seed：`packages/database`。
 - 跨应用安全类型和纯工具：`packages/shared`。
 - 无框架图表能力：`packages/charts`。

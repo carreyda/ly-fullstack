@@ -817,8 +817,9 @@ Vue 组件只补充以下约定：
 
 - 只用 Composition API，不使用 Options API。
 - 使用 `<script setup lang="ts">`，不使用普通 `<script>`。
-- Vue / VueRouter / Pinia API、Element Plus 组件、项目组件一律显式 import。
-- Element Plus 组件 JS 显式按需 import，组件样式由 `unplugin-element-plus` 自动按需注入。
+- Vue / VueRouter / Pinia API、Element Plus 组件是否显式导入，以具体应用的构建配置和应用级规范为准；没有配置自动导入的应用才显式 import。
+- `apps/admin` 已配置 Vue、Vue Router、Pinia 与 Element Plus 自动导入，必须遵守 `admin.md`，禁止用手动运行时导入绕过声明或主题问题。
+- 没有应用级覆盖规则时，Element Plus 组件 JS 显式按需 import，组件样式由构建插件自动按需注入。
 - 模板中组件引用统一使用 kebab-case。
 - 组件内函数统一使用箭头函数。
 - 事件处理函数统一使用 `handle` 前缀。

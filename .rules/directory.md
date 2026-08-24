@@ -8,7 +8,8 @@
 ly-fullstack/
 ├── apps/
 │   ├── admin/      # 管理后台，Rsbuild + Vue 3 + Element Plus
-│   └── admin-api/  # 管理 API 服务，NestJS + Fastify
+│   ├── admin-api/  # 管理 API 服务，NestJS + Fastify
+│   └── api/        # 默认 C 端 API，提供健康检查、公共字典和公共配置读取
 ├── packages/
 │   ├── charts/     # 无框架 ECharts 能力与公共类型
 │   ├── database/   # Prisma Schema、迁移、生成 Client 与数据库类型
@@ -69,7 +70,7 @@ LY Fullstack 的跨端共享内容统一维护在 `packages/shared`，不为 HTT
 - `packages/database/generated/prisma`：Prisma 自动生成源码，不提交仓库、不手动修改。
 - `packages/database/src/index.ts`：服务端统一入口，只导出 Prisma Client 与数据库类型。
 - database 不依赖 NestJS，不保存任何应用的连接串、JWT、Guard 或业务 Service。
-- `apps/admin-api` 与未来确实需要数据库的服务可以依赖 database；浏览器应用禁止依赖。
+- `apps/admin-api`、`apps/api` 与后续确实需要数据库的服务可以依赖 database；浏览器应用禁止依赖。
 - 服务之间不得相互导入源码；需要跨服务共享的安全 HTTP 类型放 shared，需要共享的数据库定义放 database。
 
 ---

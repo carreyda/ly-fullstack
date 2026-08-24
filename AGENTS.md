@@ -137,13 +137,14 @@ This file provides guidance to AI coding agents (Codex / Claude Code 等) when w
 | 管理后台 | Rsbuild 2 + Vue 3 + Element Plus | `apps/admin`，构建模块维护在 `apps/admin/build`          |
 | 后台样式 | SCSS                             | `apps/admin/src/assets/styles` 维护变量、mixin、入口样式 |
 | 管理 API | NestJS 11 + Fastify              | `apps/admin-api`，本地端口 3000；管理端独立认证边界      |
+| 默认 API | NestJS 11 + Fastify              | `apps/api`，本地端口 3001；提供健康检查与公共读取能力    |
 | 服务模板 | NestJS 11 + Fastify              | `scripts/templates/server`，按需生成独立服务             |
 | 数据库   | PostgreSQL 17 + Prisma 7         | `packages/database` 是 Schema、迁移和 Client 唯一真相源  |
 | 跨端共享 | TypeScript 手动维护              | `packages/shared`，统一存放共享类型与无 UI 框架通用工具  |
 | 图表能力 | ECharts 6                        | `packages/charts`，按需注册无框架图表能力与公共类型      |
 | 语言     | TypeScript 6.0.2                 | 当前 `6.0.2`，避免 `vue-tsc` 与 TypeScript 7 不兼容      |
 | 质量     | ESLint 10 + Prettier + Husky     | lint-staged + commitlint                                 |
-| 状态管理 | Pinia                            | `apps/admin` 已完成基础注册；会话 Store 待认证阶段接入   |
+| 状态管理 | Pinia                            | `apps/admin` 已完成主题与认证会话状态及持久化边界        |
 | 测试     | Rstest                           | `@rstest/core`，测试文件与源码同目录 `*.test.ts`         |
 
 ### 硬性架构边界
@@ -153,8 +154,8 @@ This file provides guidance to AI coding agents (Codex / Claude Code 等) when w
 - **charts 不承载业务组件**：`packages/charts` 只维护 ECharts 注册、初始化和公共类型；具体图表配置、数据转换、Vue 组件与页面交互留在应用内。
 - **database 是服务端专用包**：`packages/database` 统一维护 Prisma Schema、migration、生成 Client 和数据库类型；不得依赖 NestJS，也不得被 admin/web 等浏览器应用导入。
 - **Prisma 类型不得直通前端**：`packages/database/generated/prisma` 只在服务端消费；跨端传输的类型必须显式映射为 `packages/shared/src/types` 中的安全类型，再被前端引用。
-- **art-design-pro 只能作为 UI 参考**：`D:\ly-github\art-design-pro`（MIT）只用于借鉴视觉语言；禁止引入它的 Vite 构建、Tailwind、Router/Store 架构与业务组件。工程真相源是 Champion 提炼出的本仓库模式。
-- **服务认证边界不得混用**：admin-api 后续采用管理端 JWT 与五表 RBAC；未来生成的 C 端服务独立实现用户认证，不得跨应用共享 Guard、会话或业务模块。
+- **外部 UI 项目只能作为参考**：曾参考的 `art-design-pro`（MIT）只用于借鉴视觉语言，不是本仓库运行依赖；禁止引入它的 Vite 构建、Tailwind、Router/Store 架构与业务组件。设计真相源是本仓库现有实现与 `docs/admin-design-system.md`。
+- **服务认证边界不得混用**：`admin-api` 当前采用管理端 JWT 与五表 RBAC；默认 `api` 不包含终端用户认证，后续必须按真实 C 端业务独立设计，不得跨应用共享 Guard、会话或业务模块。
 - **应用注册表是本地运行真相源**：应用分类、路径、包名、本地端口与健康检查统一维护在 `workspace.config.json`；应用源码不得另设本地默认端口。
 - **只生成服务端应用**：新的 NestJS 服务使用 `pnpm new:server` 创建；主站技术栈可能是 Nuxt、Next.js 或其他方案，不提供统一 Web 生成器。
 
