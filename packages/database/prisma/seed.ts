@@ -31,6 +31,22 @@ const SYSTEM_PERMISSION_CODES = {
     ['修改菜单', 'system:menu:update'],
     ['删除菜单', 'system:menu:delete'],
   ],
+  dictionary: [
+    ['查询字典', 'system:dictionary:list'],
+    ['新建字典', 'system:dictionary:create'],
+    ['修改字典', 'system:dictionary:update'],
+    ['删除字典', 'system:dictionary:delete'],
+    ['查询字典项', 'system:dictionary-item:list'],
+    ['新建字典项', 'system:dictionary-item:create'],
+    ['修改字典项', 'system:dictionary-item:update'],
+    ['删除字典项', 'system:dictionary-item:delete'],
+  ],
+  config: [
+    ['查询公共配置', 'system:config:list'],
+    ['新建公共配置', 'system:config:create'],
+    ['修改公共配置', 'system:config:update'],
+    ['删除公共配置', 'system:config:delete'],
+  ],
 } as const;
 
 /**
@@ -97,6 +113,24 @@ const SEED_MENUS: SeedMenu[] = [
         component: 'system/menu/index',
         sortOrder: 3,
         children: createPermissionMenus(SYSTEM_PERMISSION_CODES.menu),
+      },
+      {
+        name: '字典管理',
+        type: MenuType.MENU,
+        routeName: 'system-dictionary',
+        routePath: '/system/dictionary',
+        component: 'system/dictionary/index',
+        sortOrder: 4,
+        children: createPermissionMenus(SYSTEM_PERMISSION_CODES.dictionary),
+      },
+      {
+        name: '公共配置',
+        type: MenuType.MENU,
+        routeName: 'system-config',
+        routePath: '/system/config',
+        component: 'system/config/index',
+        sortOrder: 5,
+        children: createPermissionMenus(SYSTEM_PERMISSION_CODES.config),
       },
     ],
   },

@@ -6,7 +6,7 @@
 
 面向开源展示与真实项目的通用全栈解决方案。
 
-当前已经完成管理后台基础闭环：登录认证、动态菜单、用户/角色/菜单管理、五表 RBAC、数据库迁移与种子数据均已真实贯通；后续阶段聚焦业务组件、示例模块和部署方案，不把尚未实现的终端业务能力算入现有范围。
+当前已经完成管理后台基础闭环：登录认证、动态菜单、用户/角色/菜单/字典/公共配置管理、五表 RBAC、数据库迁移与种子数据均已真实贯通；同时提供一个只包含健康检查、公共字典和公共配置读取能力的默认 C 端 API。后续阶段仍不会把尚未实现的具体终端业务算入现有范围。
 
 ## 核心思想
 
@@ -16,10 +16,11 @@
 
 - `apps/admin`：通用 Vue 3 管理后台，明确区分页面入口、业务组件、基础组件、请求层、状态、路由、导航和主题等职责边界。
 - `apps/admin-api`：通用 NestJS 后台管理服务，以模块组织认证、RBAC 和系统管理能力。
+- `apps/api`：默认 C 端 NestJS API，只提供健康检查、公共字典和公共配置读取，作为新增真实业务模块时的编码基线。
 - `packages/*`：沉淀数据库、跨应用类型、纯工具和图表等可复用能力，避免应用之间复制代码或反向依赖。
 - 根工程：使用 pnpm workspace、Turborepo、统一配置表和架构检查组织应用与共享包，提供标准的 Monorepo 开发、测试和构建流程。
 
-项目不会在需求尚未明确时预置一个空的 C 端业务。开始真实项目后，根据业务边界执行 `pnpm new:server` 创建对应的业务服务，再自行选择 Nuxt、Next.js、Vue、React、小程序或其他技术栈创建客户端子包。管理核心保持稳定，业务服务与客户端按真实需求扩展。
+项目不会在需求尚未明确时虚构 C 端页面或具体业务。默认 `apps/api` 只保留绝大多数 C 端都可能复用的健康检查、字典和公共配置读取能力，不包含终端用户认证，也不代表任何具体产品形态。开始真实项目后，可以直接在该服务中增加业务模块；需要独立服务时再执行 `pnpm new:server`。客户端仍应按真实需求选择 Nuxt、Next.js、Vue、React、小程序或其他技术栈。
 
 针对已经明确的 C 端场景，项目可以进一步提供配套的业务 API 与客户端解决方案；这些方案建立在通用核心之上，但不会把某一种业务形态固化为核心仓库的默认答案。
 
@@ -78,7 +79,7 @@ LY Fullstack 当前采用以 NestJS 模块化单体为核心的工程架构，�
 | 领域     | 选型                                                                |
 | -------- | ------------------------------------------------------------------- |
 | 管理后台 | Rsbuild 2 + Vue 3 + TypeScript + Element Plus + SCSS                |
-| 管理 API | NestJS 11 + Fastify + ValidationPipe                                |
+| 服务端   | NestJS 11 + Fastify；管理 API 与默认 C 端 API 独立运行              |
 | 数据层   | `@repo/database` + PostgreSQL 17 + Prisma 7（driver adapter 模式）  |
 | 共享包   | `@repo/shared`（跨应用类型与无 UI 框架通用工具）                    |
 | 图表包   | `@repo/charts`（ECharts 按需注册、初始化与公共类型）                |
@@ -131,7 +132,7 @@ pnpm setup
 
 - 检测本机 `127.0.0.1:5432`：已有 PostgreSQL 服务则直接复用；未检测到服务且本机可用 Docker Compose 时，自动启动项目内的 PostgreSQL 17 容器。
 - 幂等创建目标数据库，已存在则跳过，不会删除任何数据。
-- 生成 `apps/admin-api/.env.development`，包含数据库连接串、CORS 白名单与随机生成的 JWT 密钥；该文件不进入 Git。
+- 生成 `apps/admin-api/.env.development` 与 `apps/api/.env.development`；两个服务共享本地数据库连接，管理 API 额外包含随机 JWT 密钥，这两个文件均不进入 Git。
 - 执行 Prisma migration，创建全部表结构。
 - 写入 RBAC 种子数据：超级管理员角色、完整菜单权限树和 `admin` 账号；重复执行 Setup 不会覆盖已有账号密码。
 
@@ -145,19 +146,22 @@ pnpm dev
 
 # 或非交互启动
 pnpm dev all              # 启动全部应用
-pnpm dev admin-api admin  # 启动指定组合
+pnpm dev api admin-api admin  # 启动指定组合
 ```
 
 本地地址由根 [`workspace.config.json`](workspace.config.json) 统一维护：
 
 - 管理后台：<http://localhost:8081>
 - 管理 API 健康检查：<http://localhost:3000/api/health>
+- 默认 C 端 API 健康检查：<http://localhost:3001/api/health>
+- 公共字典示例：`GET http://localhost:3001/api/public/dictionaries/:code`
+- 公共配置示例：`GET http://localhost:3001/api/public/configs/:key`
 
 打开管理后台，使用账号 `admin` 加上 Setup 中设置的管理员密码登录。结束开发后执行 `pnpm dev:stop` 停止本仓库的全部开发进程。
 
 ## 新建服务
 
-需要面向终端用户的业务 API 或其他独立服务时，在根目录执行：
+需要在默认 `apps/api` 之外增加独立业务服务时，在根目录执行：
 
 ```bash
 pnpm new:server
@@ -170,7 +174,7 @@ pnpm new:server
 3. 将服务登记到 `workspace.config.json` 的 `apps.server`。
 4. 安装依赖，并验证新服务的类型、测试与构建。
 
-例如输入 `api` 与 `3001` 会创建 `apps/api`，之后它会自动出现在 `pnpm dev` 的服务列表中。模板不预置数据库、JWT 或业务模块；终端用户认证与管理端认证属于不同应用边界，应在真实需求出现后分别实现。
+例如输入 `content-api` 与 `3002` 会创建 `apps/content-api`，之后它会自动出现在 `pnpm dev` 的服务列表中。模板不预置数据库、JWT 或业务模块；终端用户认证与管理端认证属于不同应用边界，应在真实需求出现后分别实现。
 
 业务 API 面向的客户端不做技术栈限制：可以是小程序、Nuxt 或 Next.js 构建的 SSR 官网、Vue 或 React 单页应用、移动端，也可以是其他功能型网站。确定真实产品形态后再创建对应客户端；需要纳入本 Monorepo 时，将其登记到 `workspace.config.json` 的 `apps.web`。
 
@@ -184,6 +188,7 @@ pnpm new:server
 | `pnpm dev all`            | 非交互启动配置表中的全部应用                     |
 | `pnpm dev:admin`          | 单独启动 admin                                   |
 | `pnpm dev:admin-api`      | 单独启动 admin-api                               |
+| `pnpm dev:api`            | 单独启动默认 C 端 API                            |
 | `pnpm dev:stop`           | 停止本仓库遗留的开发进程                         |
 | `pnpm typecheck`          | 全仓类型检查                                     |
 | `pnpm check:architecture` | 检查跨包依赖、目录纯度和服务层依赖方向           |
@@ -200,7 +205,8 @@ pnpm new:server
 ly-fullstack/
 ├── apps/
 │   ├── admin/                 # 管理后台（Rsbuild + Vue 3 + Element Plus）
-│   └── admin-api/             # 管理 API（NestJS + Fastify）
+│   ├── admin-api/             # 管理 API（NestJS + Fastify）
+│   └── api/                   # 默认 C 端 API（健康检查、公共字典和公共配置）
 ├── packages/
 │   ├── charts/                # 无框架 ECharts 能力与公共类型
 │   ├── database/              # Prisma Schema、迁移、生成 Client 与数据库类型
@@ -223,15 +229,16 @@ ly-fullstack/
 - 多主题：深浅主题、Element Plus Sass 变量覆盖、组件级主题适配与主题切换动画。
 - 登录认证：真实账号密码登录、JWT 会话恢复、密码变更撤销旧 Token、登录接口限流、服务端一次性图片滑块验证、401 失效处理与路由守卫。
 - 五表 RBAC：用户、角色、菜单、用户角色、角色菜单关系，默认 Admin 超级管理员拥有最高权限。
-- 系统管理：用户、角色、菜单的真实分页、筛选、新增、编辑、状态控制、关联分配和保护规则。
+- 系统管理：用户、角色、菜单、字典和公共配置的真实分页、筛选、新增、编辑、状态控制、关联分配和保护规则。
 - 动态导航：侧边栏消费登录会话返回的数据库菜单树，菜单图标通过 Lucide 白名单管理。
 - 请求层：`AxiosFactory` + 独立服务实例 + 拦截器；Token、认证失效和 UI 反馈通过应用启动层注入。
 - 管理 API：CORS 白名单、ValidationPipe、JWT Guard、权限 Guard、健康检查和系统管理 CRUD。
+- 默认 C 端 API：独立 NestJS 应用，提供健康检查，以及免登录、按键精确读取的启用字典和非敏感公共配置接口。
 - 数据库：Prisma Schema、migration、种子数据和默认管理员初始化流程。
 - 服务扩展：配置驱动的开发启动器与经过真实生成验证的 NestJS 服务模板。
 - 工程基线：workspace catalog、Turborepo、架构边界检查、ESLint、Prettier、Husky、commitlint、Rstest 与 GitHub Actions CI。
 
-尚未实现：自动化部署、具体业务模块、终端业务 API 及其客户端。部署环境变量契约已经明确，但需要在确定 Docker、云平台或 SSH + PM2 等真实目标后实现对应 CD；当前 CI 只承担质量门禁，不能把未落地的发布流程算作现有能力。
+尚未实现：具体 C 端业务、终端用户认证和任何 C 端客户端。默认 `apps/api` 只是业务服务编码起点，不应被宣传成已经完成的终端产品。部署环境变量契约已经明确；当前 CI 只承担质量门禁，不能把尚未接入真实服务器的 CD 算作现有能力。
 
 ## 文档体系与 AI 协作
 
@@ -248,6 +255,7 @@ ly-fullstack/
 | 文档                                                             | 内容                           |
 | ---------------------------------------------------------------- | ------------------------------ |
 | [`docs/environment.md`](docs/environment.md)                     | 环境变量职责边界与 Setup 行为  |
+| [`docs/public-api.md`](docs/public-api.md)                       | 默认 C 端 API 的能力与安全边界 |
 | [`docs/admin-theme.md`](docs/admin-theme.md)                     | 多主题与 Element Plus 定制方案 |
 | [`docs/admin-design-system.md`](docs/admin-design-system.md)     | 设计系统与页面交付自查清单     |
 | [`docs/admin-version-offline.md`](docs/admin-version-offline.md) | 版本检测与离线缓存             |

@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import type { HealthStatus } from '@repo/shared/types';
 
-import { SERVER_SERVICE_NAME } from '../../constants';
+import { HEALTH_SERVICE_NAME } from '../../constants';
 
 /**
  * 健康检查控制器
@@ -19,7 +19,7 @@ export class HealthController {
   getHealth(): HealthStatus {
     return {
       status: 'ok',
-      service: SERVER_SERVICE_NAME,
+      service: HEALTH_SERVICE_NAME,
       timestamp: new Date().toISOString(),
     };
   }

@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["node", "@rstest/core/globals"]
+  },
+  "include": ["src/**/*.test.ts", "src/**/*.ts", "env.d.ts"]
+}

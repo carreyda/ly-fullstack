@@ -2,8 +2,10 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
 import { AuthModule } from '../auth/auth.module';
+import { DictionaryModule } from '../dictionary/dictionary.module';
 import { HealthModule } from '../health/health.module';
 import { MenuModule } from '../menu/menu.module';
+import { PublicConfigModule } from '../public-config/public-config.module';
 import { RoleModule } from '../role/role.module';
 import { UserModule } from '../user/user.module';
 import { PrismaModule } from '../../prisma/prisma.module';
@@ -24,8 +26,10 @@ const appEnv = process.env.APP_ENV || 'development';
       envFilePath: `.env.${appEnv}`,
     }),
     AuthModule,
+    DictionaryModule,
     HealthModule,
     MenuModule,
+    PublicConfigModule,
     RoleModule,
     UserModule,
     PrismaModule,

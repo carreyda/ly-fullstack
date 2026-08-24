@@ -49,5 +49,29 @@ export const system: RouteRecordRaw = {
         },
       },
     },
+    {
+      path: 'dictionary',
+      name: 'system-dictionary',
+      component: () => import('@/views/system/dictionary/index.vue'),
+      meta: {
+        title: '字典管理',
+        pageBinding: {
+          component: 'system/dictionary/index',
+          permissionPrefix: 'system:dictionary',
+        },
+      },
+    },
+    {
+      path: 'config',
+      name: 'system-config',
+      component: () => import('@/views/system/config/index.vue'),
+      meta: {
+        title: '公共配置',
+        pageBinding: {
+          component: 'system/config/index',
+          permissionPrefix: 'system:config',
+        },
+      },
+    },
   ],
 };

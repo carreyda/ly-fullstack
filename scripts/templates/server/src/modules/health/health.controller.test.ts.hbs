@@ -2,7 +2,7 @@ import 'reflect-metadata';
 
 import { describe, expect, it } from '@rstest/core';
 
-import { SERVER_SERVICE_NAME } from '../../constants';
+import { HEALTH_SERVICE_NAME } from '../../constants';
 import { HealthController } from './health.controller';
 
 describe('HealthController', () => {
@@ -12,7 +12,7 @@ describe('HealthController', () => {
     const result = controller.getHealth();
 
     expect(result.status).toBe('ok');
-    expect(result.service).toBe(SERVER_SERVICE_NAME);
+    expect(result.service).toBe(HEALTH_SERVICE_NAME);
   });
 
   it('返回可被 Date.parse 解析的 ISO 时间', () => {

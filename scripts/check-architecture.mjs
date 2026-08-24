@@ -71,6 +71,32 @@ const getSourceFiles = (directory) => {
 };
 
 /**
+ * 递归读取目录中的全部文件
+ *
+ * @param directory 需要扫描的绝对目录
+ * @returns 排除依赖、构建目录和生成目录后的全部文件绝对路径
+ */
+const getFiles = (directory) => {
+  const files = [];
+
+  readdirSync(directory, { withFileTypes: true }).forEach((entry) => {
+    const entryPath = join(directory, entry.name);
+    if (entry.isDirectory()) {
+      if (IGNORED_DIRECTORIES.has(entry.name)) {
+        return;
+      }
+
+      files.push(...getFiles(entryPath));
+      return;
+    }
+
+    files.push(entryPath);
+  });
+
+  return files;
+};
+
+/**
  * 将绝对路径转换为跨平台、便于 CI 展示的仓库相对路径
  *
  * @param filePath 源码文件绝对路径
@@ -173,20 +199,29 @@ getSourceFiles(adminSourceRoot).forEach((filePath) => {
   });
 });
 
-const adminApiSourceRoot = join(WORKSPACE_ROOT, 'apps', 'admin-api', 'src');
-getSourceFiles(adminApiSourceRoot).forEach((filePath) => {
-  getImportSpecifiers(readFileSync(filePath, 'utf8')).forEach((specifier) => {
-    if (
-      specifier === '@repo/shared' ||
-      specifier === '@repo/shared/utils' ||
-      specifier.startsWith('@repo/shared/utils/')
-    ) {
-      reportViolation(filePath, specifier, 'NestJS 服务只能从 @repo/shared/types 导入跨端类型');
-    }
+const serverApplicationRoots = ['admin-api', 'api'].map((name) => join(WORKSPACE_ROOT, 'apps', name, 'src'));
+serverApplicationRoots.forEach((serverSourceRoot) => {
+  getSourceFiles(serverSourceRoot).forEach((filePath) => {
+    getImportSpecifiers(readFileSync(filePath, 'utf8')).forEach((specifier) => {
+      if (
+        specifier === '@repo/shared' ||
+        specifier === '@repo/shared/utils' ||
+        specifier.startsWith('@repo/shared/utils/')
+      ) {
+        reportViolation(filePath, specifier, 'NestJS 服务只能从 @repo/shared/types 导入跨端类型');
+      }
+    });
   });
 });
 
 const packagesRoot = join(WORKSPACE_ROOT, 'packages');
+getFiles(packagesRoot).forEach((filePath) => {
+  const workspacePath = getWorkspacePath(filePath);
+  if (/(?:\.d\.ts|\.d\.ts\.map|\.js|\.js\.map)$/.test(workspacePath)) {
+    violations.push(`${workspacePath}: packages 手写目录禁止出现 TypeScript 编译产物，构建结果只能写入 dist`);
+  }
+});
+
 getSourceFiles(packagesRoot).forEach((filePath) => {
   getImportSpecifiers(readFileSync(filePath, 'utf8')).forEach((specifier) => {
     if (specifier.startsWith('@/') || specifier.startsWith('apps/')) {

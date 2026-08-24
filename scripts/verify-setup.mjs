@@ -45,7 +45,17 @@ try {
     throw new Error('菜单种子数据为空。');
   }
 
-  process.stdout.write('Setup CI 验证通过：migration、默认管理员、超级管理员角色和菜单数据均已就绪。\n');
+  const featureTableResult = await client.query(`
+    SELECT to_regclass('public.dictionaries') AS dictionaries,
+           to_regclass('public.dictionary_items') AS dictionary_items,
+           to_regclass('public.public_configs') AS public_configs
+  `);
+  const featureTables = featureTableResult.rows[0];
+  if (!featureTables?.dictionaries || !featureTables.dictionary_items || !featureTables.public_configs) {
+    throw new Error('字典与公共配置表结构未完整创建。');
+  }
+
+  process.stdout.write('Setup CI 验证通过：migration、默认管理员、RBAC、字典与公共配置表均已就绪。\n');
 } finally {
   await client.end().catch(() => undefined);
 }

@@ -15,6 +15,7 @@
     "dev:stop": "node scripts/dev.mjs stop",
     "dev:admin": "node scripts/dev.mjs admin",
     "dev:admin-api": "node scripts/dev.mjs admin-api",
+    "dev:api": "node scripts/dev.mjs api",
     "build": "turbo run build --ui=stream",
     "check:architecture": "node scripts/check-architecture.mjs",
     "typecheck": "turbo run typecheck --ui=stream && pnpm typecheck:e2e",

@@ -1,5 +1,16 @@
 import type { DataFilterFieldConfig, SelectOption } from '@/types';
-import type { AdminRoleFilterModel, AdminRoleFormModel, AdminUserFilterModel, AdminUserFormModel } from '@/types';
+import type {
+  AdminDictionaryFilterModel,
+  AdminDictionaryFormModel,
+  AdminDictionaryItemFilterModel,
+  AdminDictionaryItemFormModel,
+  AdminPublicConfigFilterModel,
+  AdminPublicConfigFormModel,
+  AdminRoleFilterModel,
+  AdminRoleFormModel,
+  AdminUserFilterModel,
+  AdminUserFormModel,
+} from '@/types';
 
 /**
  * 管理后台分页组件允许选择的每页记录数
@@ -51,6 +62,62 @@ export const ADMIN_ROLE_FORM_MODEL: AdminRoleFormModel = {
   code: '',
   description: '',
   isActive: true,
+};
+
+export const ADMIN_DICTIONARY_FILTER_MODEL: AdminDictionaryFilterModel = {
+  pageNum: 1,
+  pageSize: 20,
+  keyword: '',
+  status: undefined,
+};
+
+export const ADMIN_DICTIONARY_FILTER_CONFIG: DataFilterFieldConfig[] = [
+  { type: 'input', field: 'keyword', label: '关键词', placeholder: '字典名称或编码' },
+  {
+    type: 'select',
+    field: 'status',
+    label: '字典状态',
+    placeholder: '全部状态',
+    options: ADMIN_ROLE_STATUS_OPTIONS,
+  },
+];
+
+export const ADMIN_DICTIONARY_FORM_MODEL: AdminDictionaryFormModel = {
+  code: '',
+  name: '',
+  description: '',
+  isActive: true,
+};
+
+export const ADMIN_DICTIONARY_ITEM_FILTER_MODEL: AdminDictionaryItemFilterModel = {
+  pageNum: 1,
+  pageSize: 10,
+  keyword: '',
+  status: undefined,
+};
+
+export const ADMIN_DICTIONARY_ITEM_FORM_MODEL: AdminDictionaryItemFormModel = {
+  label: '',
+  value: '',
+  description: '',
+  sortOrder: 0,
+  isActive: true,
+};
+
+export const ADMIN_PUBLIC_CONFIG_FILTER_MODEL: AdminPublicConfigFilterModel = {
+  pageNum: 1,
+  pageSize: 20,
+  keyword: '',
+};
+
+export const ADMIN_PUBLIC_CONFIG_FILTER_CONFIG: DataFilterFieldConfig[] = [
+  { type: 'input', field: 'keyword', label: '关键词', placeholder: '配置键或说明' },
+];
+
+export const ADMIN_PUBLIC_CONFIG_FORM_MODEL: AdminPublicConfigFormModel = {
+  key: '',
+  value: '',
+  description: '',
 };
 
 /**

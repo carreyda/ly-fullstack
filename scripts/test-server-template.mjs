@@ -67,7 +67,7 @@ try {
       'plop',
       'server',
       'smoke-api',
-      '3001',
+      '3901',
       '--plopfile',
       resolve(repoRoot, 'plopfile.mjs'),
       '--dest',
@@ -103,7 +103,7 @@ try {
 
   const config = readWorkspaceConfig(smokeRoot);
   const generatedApp = config.apps.server['smoke-api'];
-  if (generatedApp?.packageName !== '@repo/smoke-api' || generatedApp.localPort !== 3001) {
+  if (generatedApp?.packageName !== '@repo/smoke-api' || generatedApp.localPort !== 3901) {
     throw new Error('服务生成器没有正确更新 workspace.config.json');
   }
 

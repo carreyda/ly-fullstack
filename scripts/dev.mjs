@@ -6,7 +6,7 @@
  */
 
 import { spawn, spawnSync } from 'node:child_process';
-import { createWriteStream, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { createWriteStream, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { get as getHttp } from 'node:http';
 import { createRequire } from 'node:module';
 import { createServer } from 'node:net';
@@ -76,6 +76,30 @@ const packageRequire = createRequire(packageJsonPath);
 const turboPackagePath = packageRequire.resolve('turbo/package.json');
 const turboPackage = JSON.parse(readFileSync(turboPackagePath, 'utf-8'));
 const turboBinPath = resolve(dirname(turboPackagePath), turboPackage.bin.turbo);
+
+/**
+ * 定位当前 pnpm CLI
+ *
+ * Windows 无法在关闭 shell 时直接执行 pnpm.cmd，因此优先通过当前 Node.js 进程加载 pnpm 注入的 CLI。
+ *
+ * @returns Node.js 或 pnpm 可执行程序及其前置参数
+ */
+const resolvePnpmCommand = () => {
+  if (process.env.npm_execpath) {
+    return { args: [process.env.npm_execpath], command: process.execPath };
+  }
+
+  if (process.platform === 'win32') {
+    const adjacentPnpmCliPath = resolve(dirname(process.execPath), 'node_modules/pnpm/bin/pnpm.mjs');
+    if (!existsSync(adjacentPnpmCliPath)) {
+      throw new Error('无法定位 pnpm CLI，请使用 pnpm dev 运行开发启动器。');
+    }
+
+    return { args: [adjacentPnpmCliPath], command: process.execPath };
+  }
+
+  return { args: [], command: 'pnpm' };
+};
 
 const activeChildren = new Map();
 let outLogStream = null;
@@ -240,6 +264,45 @@ const formatChildExit = (record, result = record.exitResult) => {
 };
 
 const delay = (milliseconds) => new Promise((resolvePromise) => setTimeout(resolvePromise, milliseconds));
+
+/**
+ * 执行一次性的 pnpm 工作区命令
+ *
+ * 数据库包必须在多个服务启动前统一构建一次，禁止让每个服务并行执行 Prisma Generate。
+ *
+ * @param args pnpm 子命令和参数
+ */
+const runPnpmCommand = (args) => {
+  return new Promise((resolvePromise, rejectPromise) => {
+    const pnpmCommand = resolvePnpmCommand();
+    const child = spawn(pnpmCommand.command, [...pnpmCommand.args, ...args], {
+      cwd: repoRoot,
+      env: process.env,
+      shell: false,
+      stdio: 'inherit',
+      windowsHide: true,
+    });
+
+    child.once('error', rejectPromise);
+    child.once('exit', (code) => {
+      if (code === 0) {
+        resolvePromise();
+        return;
+      }
+
+      rejectPromise(new Error(`pnpm ${args.join(' ')} 执行失败，退出码 ${code ?? 1}。`));
+    });
+  });
+};
+
+/**
+ * 在所有后端服务启动前生成 Prisma Client 并构建共享数据库包
+ */
+const prepareServerDependencies = async () => {
+  log.info('正在准备共享数据库客户端...');
+  await runPnpmCommand(['--filter', '@repo/database', 'build']);
+  log.success('共享数据库客户端已就绪。');
+};
 
 /**
  * 直接请求本地 HTTP 服务，避免本机代理干扰健康检查。
@@ -642,6 +705,9 @@ const main = async () => {
   }
 
   await assertPortsAvailable([...services, ...frontends]);
+  if (services.length > 0) {
+    await prepareServerDependencies();
+  }
   await startApplications(services);
   await startApplications(frontends);
   outro(color.dim('全部所选应用已就绪，按 Ctrl+C 停止。'));

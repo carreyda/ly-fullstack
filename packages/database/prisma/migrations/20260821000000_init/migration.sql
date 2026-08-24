@@ -107,3 +107,61 @@ ALTER TABLE "role_menus" ADD CONSTRAINT "role_menus_role_id_fkey" FOREIGN KEY ("
 
 -- AddForeignKey
 ALTER TABLE "role_menus" ADD CONSTRAINT "role_menus_menu_id_fkey" FOREIGN KEY ("menu_id") REFERENCES "menus"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- CreateTable
+CREATE TABLE "dictionaries" (
+    "id" SERIAL NOT NULL,
+    "code" VARCHAR(50) NOT NULL,
+    "name" VARCHAR(50) NOT NULL,
+    "description" VARCHAR(200),
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "dictionaries_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "dictionary_items" (
+    "id" SERIAL NOT NULL,
+    "dictionary_id" INTEGER NOT NULL,
+    "label" VARCHAR(50) NOT NULL,
+    "value" VARCHAR(100) NOT NULL,
+    "description" VARCHAR(200),
+    "sort_order" INTEGER NOT NULL DEFAULT 0,
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "dictionary_items_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public_configs" (
+    "id" SERIAL NOT NULL,
+    "key" VARCHAR(100) NOT NULL,
+    "value" TEXT NOT NULL,
+    "description" VARCHAR(200),
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "public_configs_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "dictionaries_code_key" ON "dictionaries"("code");
+
+-- CreateIndex
+CREATE INDEX "dictionaries_is_active_idx" ON "dictionaries"("is_active");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "dictionary_items_dictionary_id_value_key" ON "dictionary_items"("dictionary_id", "value");
+
+-- CreateIndex
+CREATE INDEX "dictionary_items_dictionary_id_is_active_sort_order_idx" ON "dictionary_items"("dictionary_id", "is_active", "sort_order");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "public_configs_key_key" ON "public_configs"("key");
+
+-- AddForeignKey
+ALTER TABLE "dictionary_items" ADD CONSTRAINT "dictionary_items_dictionary_id_fkey" FOREIGN KEY ("dictionary_id") REFERENCES "dictionaries"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -1,9 +1,9 @@
 /**
- * API 服务名称
+ * 健康检查响应中的服务标识
  *
- * 用于健康检查、日志和后续观测系统识别服务来源。
+ * 该值只用于帮助监控系统区分服务实例，不参与路由注册，也不会成为 URL 前缀。
  */
-export const SERVER_SERVICE_NAME: string = '{{name}}';
+export const HEALTH_SERVICE_NAME: string = '{{name}}';
 
 /**
  * 浏览器跨域请求允许使用的 HTTP 方法

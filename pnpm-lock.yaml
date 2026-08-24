@@ -416,6 +416,64 @@ importers:
         specifier: 6.0.2
         version: 6.0.2
 
+  apps/api:
+    dependencies:
+      '@fastify/helmet':
+        specifier: 'catalog:'
+        version: 13.1.1
+      '@nestjs/common':
+        specifier: 'catalog:'
+        version: 11.2.1(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1)
+      '@nestjs/config':
+        specifier: 'catalog:'
+        version: 4.0.4(@nestjs/common@11.2.1(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))(rxjs@7.8.2)
+      '@nestjs/core':
+        specifier: 'catalog:'
+        version: 11.2.1(@nestjs/common@11.2.1(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/platform-fastify':
+        specifier: 'catalog:'
+        version: 11.2.1(@nestjs/common@11.2.1(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))(@nestjs/core@11.2.1(@nestjs/common@11.2.1(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))(reflect-metadata@0.2.2)(rxjs@7.8.2))
+      '@prisma/adapter-pg':
+        specifier: 'catalog:'
+        version: 7.9.1
+      '@repo/database':
+        specifier: workspace:*
+        version: link:../../packages/database
+      '@repo/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      fastify:
+        specifier: 5.12.1
+        version: 5.12.1
+      pg:
+        specifier: 'catalog:'
+        version: 8.23.0
+      reflect-metadata:
+        specifier: 'catalog:'
+        version: 0.2.2
+      rxjs:
+        specifier: 'catalog:'
+        version: 7.8.2
+    devDependencies:
+      '@rstest/core':
+        specifier: 'catalog:'
+        version: 0.11.9(core-js@3.50.0)(happy-dom@20.11.6)
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.2.0
+      cross-env:
+        specifier: 'catalog:'
+        version: 10.1.0
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.1.3
+      tsx:
+        specifier: 'catalog:'
+        version: 4.23.12
+      typescript:
+        specifier: 6.0.2
+        version: 6.0.2
+
   packages/charts:
     dependencies:
       echarts:

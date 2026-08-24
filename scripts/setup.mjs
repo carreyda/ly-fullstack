@@ -2,8 +2,9 @@
  * LY Fullstack 开发环境初始化脚本
  *
  * 负责校验 Admin 开发 API 端口、收集 PostgreSQL 本地凭据、启动 Compose 数据库、幂等创建目标数据库，
- * 再为 Admin API 生成不会提交到 Git 的 development 环境文件、执行 Prisma migration，并初始化默认管理员和 RBAC 数据。
- * 数据库密码不会写入命令行参数或终端输出，JWT 密钥由脚本随机生成；Admin API 仓库只保留 `.env.example`。
+ * 再为 Admin API 与默认 C 端 API 生成不会提交到 Git 的 development 环境文件、执行 Prisma migration，
+ * 并初始化默认管理员和 RBAC 数据。数据库密码不会写入命令行参数或终端输出，JWT 密钥由脚本随机生成；
+ * 两个服务端应用在仓库中只保留 `.env.example`。
  */
 
 import { spawn, spawnSync } from 'node:child_process';
@@ -25,23 +26,26 @@ const repoRoot = resolve(scriptDirectory, '..');
 const workspaceApplications = getWorkspaceApplications(readWorkspaceConfig(repoRoot));
 const adminApplication = workspaceApplications.find((app) => app.kind === 'web' && app.name === 'admin');
 const adminApiApplication = workspaceApplications.find((app) => app.kind === 'server' && app.name === 'admin-api');
+const apiApplication = workspaceApplications.find((app) => app.kind === 'server' && app.name === 'api');
 
-if (!adminApplication || !adminApiApplication) {
-  throw new Error('workspace.config.json 必须注册 admin 与 admin-api，才能初始化管理系统本地环境。');
+if (!adminApplication || !adminApiApplication || !apiApplication) {
+  throw new Error('workspace.config.json 必须注册 admin、admin-api 与 api，才能初始化完整本地环境。');
 }
 
 const adminDirectory = resolve(repoRoot, adminApplication.path);
 const adminApiDirectory = resolve(repoRoot, adminApiApplication.path);
+const apiDirectory = resolve(repoRoot, apiApplication.path);
 const adminDevelopmentPath = resolve(adminDirectory, '.env.development');
 const adminApiDevelopmentPath = resolve(adminApiDirectory, '.env.development');
+const apiDevelopmentPath = resolve(apiDirectory, '.env.development');
 
 /**
- * Setup 会覆盖的本地私有环境文件
+ * Setup 会覆盖的本地服务端环境文件
  *
- * Admin 的三套环境配置均为仓库内公开的浏览器构建配置。Setup 只生成包含本地密钥的
- * Admin API development 文件；Admin API 的其他环境由 CI/CD 或部署平台注入。
+ * Admin 的三套环境配置均为仓库内公开的浏览器构建配置。Setup 生成两个服务端 development 文件；
+ * test 与 production 环境继续由 CI/CD 或部署平台注入。
  */
-const localEnvPaths = [adminApiDevelopmentPath];
+const localEnvPaths = [adminApiDevelopmentPath, apiDevelopmentPath];
 
 const POSTGRES_HOST = '127.0.0.1';
 const POSTGRES_PORT = 5432;
@@ -221,6 +225,25 @@ const writeAdminApiDevelopmentEnv = (databaseUrl, jwtSecret) => {
   ].join('\n');
 
   writeFileSync(adminApiDevelopmentPath, adminApiDevelopmentEnv, { encoding: 'utf-8', mode: 0o600 });
+};
+
+/**
+ * 生成默认 C 端 API 的本地开发环境文件
+ *
+ * 默认 API 与管理 API 共享 PostgreSQL，但拥有独立进程、端口和环境文件。跨域来源使用一个未被
+ * 仓库占用的本地前端端口作为示例，用户创建真实 C 端后应改成对应开发地址。
+ *
+ * @param databaseUrl 已对用户名和密码进行 URL 编码的 PostgreSQL 连接串
+ */
+const writeApiDevelopmentEnv = (databaseUrl) => {
+  const apiDevelopmentEnv = [
+    '# 默认 C 端 API 本地开发环境配置，由 pnpm setup 生成。',
+    `DATABASE_URL="${databaseUrl}"`,
+    'CORS_ORIGINS="http://localhost:3002,http://127.0.0.1:3002"',
+    '',
+  ].join('\n');
+
+  writeFileSync(apiDevelopmentPath, apiDevelopmentEnv, { encoding: 'utf-8', mode: 0o600 });
 };
 
 const delay = (milliseconds) => new Promise((resolvePromise) => setTimeout(resolvePromise, milliseconds));
@@ -449,10 +472,10 @@ const confirmLocalEnvOverwrite = async () => {
   }
 
   if (isNonInteractive) {
-    throw new Error('非交互初始化拒绝覆盖已有 admin-api/.env.development，请先显式删除该文件。');
+    throw new Error('非交互初始化拒绝覆盖已有服务端 .env.development，请先显式删除对应文件。');
   }
 
-  log.warn('检测到已有 Admin API 本地开发配置，继续执行会覆盖 admin-api/.env.development。');
+  log.warn('检测到已有服务端本地开发配置，继续执行会覆盖 api 与 admin-api 的 .env.development。');
   const shouldOverwrite = await confirm({
     message: '确认使用本次输入重新生成本地配置？',
     initialValue: false,
@@ -527,7 +550,8 @@ const main = async () => {
   const databaseUrl = `postgresql://${POSTGRES_USER}:${encodedPassword}@localhost:${POSTGRES_PORT}/${encodedDatabaseName}?schema=public`;
   const jwtSecret = randomBytes(32).toString('hex');
   writeAdminApiDevelopmentEnv(databaseUrl, jwtSecret);
-  log.success('Admin API 的 .env.development 已生成。');
+  writeApiDevelopmentEnv(databaseUrl);
+  log.success('API 与 Admin API 的 .env.development 已生成。');
 
   log.info('正在执行 Prisma migration，创建或更新全部表结构...');
   await runPnpmCommand(['--filter', '@repo/database', 'db:migrate'], {
@@ -543,7 +567,7 @@ const main = async () => {
   });
 
   log.success(`默认管理员种子已执行：首次创建账号为 ${DEFAULT_ADMIN_USERNAME}，已有账号不会重置密码。`);
-  outro('数据库、表结构和 RBAC 初始数据均已就绪，现在可以运行 pnpm dev。');
+  outro('服务端环境、数据库、表结构和初始数据均已就绪，现在可以运行 pnpm dev。');
 };
 
 void main().catch((error) => {

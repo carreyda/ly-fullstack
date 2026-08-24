@@ -7,6 +7,7 @@
 - `apps/admin/.env.test`
 - `apps/admin/.env.production`
 - `apps/admin-api/.env.example`
+- `apps/api/.env.example`
 
 Admin 的环境变量会在构建后暴露给浏览器，本身不能承载密钥，因此 development、test 与 production 的开箱即用配置全部提交。`pnpm setup` 只校验 Admin development 中的 API 端口，不一致时根据应用注册表更新；Admin API 的 `.env.development` 包含数据库密码和本地 JWT 密钥，仍由 Setup 生成并忽略。
 
@@ -14,20 +15,23 @@ Admin API 的 `.env.test`、`.env.production` 与根 `.env` 始终忽略，由 C
 
 ## 环境责任边界
 
-| 应用      | 环境        | 配置载体                                      | 是否由 `pnpm setup` 生成 |
-| --------- | ----------- | --------------------------------------------- | ------------------------ |
-| admin     | development | 仓库提交的 `.env.development`，Setup 校验端口 | 否                       |
-| admin     | test        | 仓库提交的 `.env.test`                        | 否                       |
-| admin     | production  | 仓库提交的 `.env.production`，部署可覆盖      | 否                       |
-| admin-api | development | `.env.development`，包含本地数据库与密钥      | 是                       |
-| admin-api | test        | CI 变量或本地私有 `.env.test`                 | 否                       |
-| admin-api | production  | Secret、容器变量或服务器私有文件              | 否                       |
+| 应用      | 环境        | 配置载体                                       | 是否由 `pnpm setup` 生成 |
+| --------- | ----------- | ---------------------------------------------- | ------------------------ |
+| admin     | development | 仓库提交的 `.env.development`，Setup 校验端口  | 否                       |
+| admin     | test        | 仓库提交的 `.env.test`                         | 否                       |
+| admin     | production  | 仓库提交的 `.env.production`，部署可覆盖       | 否                       |
+| admin-api | development | `.env.development`，包含本地数据库与密钥       | 是                       |
+| admin-api | test        | CI 变量或本地私有 `.env.test`                  | 否                       |
+| admin-api | production  | Secret、容器变量或服务器私有文件               | 否                       |
+| api       | development | `.env.development`，包含本地数据库与 CORS 配置 | 是                       |
+| api       | test        | CI 变量或本地私有 `.env.test`                  | 否                       |
+| api       | production  | Secret、容器变量或服务器私有文件               | 否                       |
 
 `.env.example` 声明环境变量契约。Admin 的三套文件都是可以直接运行的公开配置；Admin API 的运行环境文件不能提交。
 
 ## 本地开发
 
-当前磁盘上没有 `apps/admin-api/.env.development` 时，说明尚未执行本地初始化。首次启动前在仓库根目录运行：
+当前磁盘上没有 `apps/admin-api/.env.development` 或 `apps/api/.env.development` 时，说明尚未完成本地初始化。首次启动前在仓库根目录运行：
 
 ```bash
 pnpm setup
@@ -40,7 +44,7 @@ pnpm setup
 3. 本机 `127.0.0.1:5432` 已有 PostgreSQL 时直接复用，否则把本次输入仅注入 Docker Compose 子进程并启动 PostgreSQL。
 4. 幂等创建目标数据库。
 5. 检查 `apps/admin/.env.development` 的 API 端口；一致时不改文件，不一致时按应用注册表更新。
-6. 生成包含本地私密配置的 `apps/admin-api/.env.development`。
+6. 生成 `apps/admin-api/.env.development` 与 `apps/api/.env.development`；两者共享数据库连接，只有管理 API 包含 JWT 密钥。
 7. 执行全部 Prisma migration 创建或更新表结构。
 8. 要求输入并再次确认 8 到 64 位管理员初始密码，随后初始化 RBAC 数据与 `admin` 账号；重复执行不会重置已有账号密码。
 
@@ -59,7 +63,7 @@ pnpm run setup -- --non-interactive
 
 `SETUP_DATABASE_NAME` 可以省略并使用 `ly_fullstack`；`SETUP_DATABASE_PASSWORD` 与 `SETUP_ADMIN_PASSWORD` 必须提供。密码不能放在命令行参数中，CI 应通过 Secret 或 Job 环境变量注入，避免出现在进程列表和命令日志。
 
-非交互模式发现已有 `apps/admin-api/.env.development` 时会直接失败，不会静默覆盖环境。CI 应始终使用干净检出；其他自动化环境需要重新初始化时，必须先明确删除旧文件。GitHub Actions 随后执行 `pnpm verify:setup`，真实查询默认管理员、超级管理员关系与菜单数据，确认 migration 和 seed 均已完成。
+非交互模式发现任一服务端 `.env.development` 时会直接失败，不会静默覆盖环境。CI 应始终使用干净检出；其他自动化环境需要重新初始化时，必须先明确删除旧文件。GitHub Actions 随后执行 `pnpm verify:setup`，真实查询默认管理员、超级管理员关系与菜单数据，确认 migration 和 seed 均已完成。
 
 仓库提交的 Admin development 文件包含：
 
@@ -146,6 +150,9 @@ docker compose up -d postgres
 | admin-api | `JWT_SECRET`     | 管理端 JWT 签名密钥                                        |
 | admin-api | `JWT_EXPIRES_IN` | Access Token 有效期                                        |
 | admin-api | `PORT`           | 本地由开发启动器注入，部署时由容器或平台注入               |
+| api       | `DATABASE_URL`   | 与管理 API 共享的 PostgreSQL 连接串                        |
+| api       | `CORS_ORIGINS`   | 允许访问公共 API 的真实 C 端浏览器来源                     |
+| api       | `PORT`           | 本地由开发启动器注入，部署时由容器或平台注入               |
 
 新增 Admin 变量时，必须确认它可以公开给浏览器，并同步更新 `.env.example`、`.env.development`、`.env.test`、`.env.production` 和本文档。新增 Admin API 变量时，只更新 `.env.example`、本地需要的 `scripts/setup.mjs`、CI/CD Secret 契约和本文档，绝不能提交真实运行值。
 

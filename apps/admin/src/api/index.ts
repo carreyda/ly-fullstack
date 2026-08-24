@@ -3,6 +3,8 @@
  */
 export * from './modules/app/interface';
 export * from './modules/auth/interface';
+export * from './modules/dictionary/interface';
 export * from './modules/menu/interface';
 export * from './modules/role/interface';
+export * from './modules/public-config/interface';
 export * from './modules/user/interface';

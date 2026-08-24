@@ -1,0 +1,11 @@
+/**
+ * 健康检查响应中的服务标识
+ *
+ * 该值只用于帮助监控系统区分服务实例，不参与路由注册，也不会成为 URL 前缀。
+ */
+export const HEALTH_SERVICE_NAME = 'api';
+
+/**
+ * API 允许的跨域请求方法
+ */
+export const SERVER_CORS_METHODS: string[] = ['GET', 'HEAD', 'OPTIONS'];

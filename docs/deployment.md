@@ -270,6 +270,56 @@ sudo systemctl reload nginx
 
 使用 Certbot、云负载均衡器或公司证书平台为域名启用 HTTPS。生产登录密码和 JWT 只允许通过 HTTPS 传输；证书未生效前不得开放登录入口。
 
+## 部署默认 C 端 API
+
+`apps/api` 与管理 API 是两个独立 NestJS 进程。它们可以共享 PostgreSQL，但必须使用独立端口、环境文件和 Systemd 单元，不能把两个应用合并为同一个启动命令。
+
+创建 `/etc/ly-fullstack/api.env`：
+
+```dotenv
+APP_ENV=production
+PORT=3001
+DATABASE_URL=postgresql://<user>:<password>@<host>:5432/<database>?schema=public
+CORS_ORIGINS=https://www.example.com
+```
+
+权限与管理 API 环境文件保持一致：
+
+```bash
+sudo chown root:ly-fullstack /etc/ly-fullstack/api.env
+sudo chmod 640 /etc/ly-fullstack/api.env
+```
+
+创建 `/etc/systemd/system/ly-fullstack-api.service`：
+
+```ini
+[Unit]
+Description=LY Fullstack public API
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=ly-fullstack
+Group=ly-fullstack
+WorkingDirectory=/srv/ly-fullstack/current/apps/api
+EnvironmentFile=/etc/ly-fullstack/api.env
+ExecStart=/usr/bin/node /srv/ly-fullstack/current/apps/api/dist/main.js
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now ly-fullstack-api
+curl --fail http://127.0.0.1:3001/api/health
+```
+
+公共 API 推荐使用独立域名，例如 `api.example.com`，由 Nginx 将该域名的全部 `/api/` 请求代理到 `127.0.0.1:3001`。不要在管理后台同一个 `/api/` 位置同时代理两个上游，否则路由会发生冲突。公共配置接口免登录，生产录入前必须确认其中没有密码、Token、Secret 或内部连接信息。
+
 ## 发布验收
 
 每次发布至少检查：
@@ -278,6 +328,7 @@ sudo systemctl reload nginx
 curl --fail https://admin.example.com/
 curl --fail https://admin.example.com/version.json
 curl --fail https://admin.example.com/api/health
+curl --fail https://api.example.com/api/health
 ```
 
 浏览器继续验证：
@@ -305,7 +356,7 @@ curl --fail https://admin.example.com/api/health
 2. 执行 `pnpm install --frozen-lockfile` 和 `pnpm check`。
 3. 加载生产环境变量并执行 `db:migrate`。
 4. 将 `current` 软链接切换到新版本。
-5. 执行 `sudo systemctl restart ly-fullstack-admin-api`。
+5. 执行 `sudo systemctl restart ly-fullstack-admin-api ly-fullstack-api`。
 6. 检查 API 健康状态后执行 `sudo nginx -t && sudo systemctl reload nginx`。
 7. 完成浏览器验收，再删除过旧 Release；至少保留上一个可运行版本。
 
@@ -318,6 +369,7 @@ Admin 已包含版本检测与离线缓存机制。部署时必须保持 `index.
 ```bash
 sudo -u ly-fullstack ln -sfn /srv/ly-fullstack/releases/<previous-version> /srv/ly-fullstack/current
 sudo systemctl restart ly-fullstack-admin-api
+sudo systemctl restart ly-fullstack-api
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
@@ -329,7 +381,7 @@ sudo nginx -t && sudo systemctl reload nginx
 
 - PostgreSQL 每日自动备份，并定期验证恢复。
 - 发布 migration 前创建可恢复快照。
-- `/etc/ly-fullstack/admin-api.env` 进入受控的秘密管理或加密备份，但不能进入源码备份。
+- `/etc/ly-fullstack/admin-api.env` 与 `/etc/ly-fullstack/api.env` 进入受控的秘密管理或加密备份，但不能进入源码备份。
 - 保留最近两个经过验证的应用 Release。
 - 记录恢复时间目标和可接受的数据丢失窗口。
 

@@ -10,6 +10,12 @@
       }
     },
     "server": {
+      "api": {
+        "path": "apps/api",
+        "packageName": "@repo/api",
+        "localPort": 3001,
+        "healthPath": "/api/health"
+      },
       "admin-api": {
         "path": "apps/admin-api",
         "packageName": "@repo/admin-api",

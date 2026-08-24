@@ -1,11 +1,11 @@
 # NestJS 服务端规范
 
-本规范适用于 `apps/admin-api` 以及通过 `pnpm new:server` 创建的 NestJS 服务。每个服务都可独立构建和部署，不得跨应用导入认证、Guard、会话或业务模块。
+本规范适用于 `apps/admin-api`、`apps/api` 以及通过 `pnpm new:server` 创建的 NestJS 服务。每个服务都可独立构建和部署，不得跨应用导入认证、Guard、会话或业务模块。
 
 ## 技术选型
 
 - NestJS 11 + Fastify 5，不使用 Express。
-- PostgreSQL 18 数据访问统一使用 Prisma 7 和 PostgreSQL driver adapter，数据库结构通过 migration 管理。
+- PostgreSQL 17 数据访问统一使用 Prisma 7 和 PostgreSQL driver adapter，数据库结构通过 migration 管理。
 - 开发环境由 `tsx` 运行，NestJS 构造函数依赖必须显式使用 `@Inject(...)`，不能依赖 esbuild 不生成的装饰器类型元数据。
 - TypeScript 业务源码的相对导入和 barrel 导出不写 `.js` 后缀；Prisma 生成 Client 的导入按生成器要求使用 `.js` 后缀。
 - 编译配置参考 NestJS 常规模式：`module: "Node16"`、`moduleResolution: "Node16"`，server 子包不配置 `"type": "module"`。
@@ -65,7 +65,7 @@ Prisma Client 在安装、database typecheck 和 database build 前生成。修�
 - 超过两端都通用的常量统一放在 `packages/shared/src/constants`，不要在 server 内重复维护。
 - 应用分类、路径、包名、本地端口与健康检查统一维护在根 `workspace.config.json`；服务源码必须读取必填的 `PORT`，不得再维护本地默认端口常量。
 - `scripts/dev.mjs` 根据配置表选择应用、预检端口、注入 `PORT` 并管理进程；部署环境由容器或平台显式注入 `PORT`。
-- 首次本地开发通过 `pnpm setup` 校验 Admin API 端口、初始化 PostgreSQL、创建数据库和种子数据，并生成 admin-api 的私有 `.env.development`。Admin 的三套公开环境配置直接提交；Admin API 的 test 配置由测试任务或 CI 注入，production 配置由 CD、容器或部署平台注入，任何包含数据库密码或 JWT 密钥的运行文件与根 `.env` 均不得提交。具体边界以 `docs/environment.md` 为准。
+- 首次本地开发通过 `pnpm setup` 校验应用端口、初始化 PostgreSQL、创建数据库和种子数据，并生成 api 与 admin-api 的私有 `.env.development`。Admin 的三套公开环境配置直接提交；服务端 test 配置由测试任务或 CI 注入，production 配置由 CD、容器或部署平台注入，任何包含数据库密码或 JWT 密钥的运行文件与根 `.env` 均不得提交。具体边界以 `docs/environment.md` 为准。
 
 ## 全局能力
 
@@ -88,6 +88,14 @@ Prisma Client 在安装、database typecheck 和 database build 前生成。修�
 - `pnpm setup` 必须让使用者自行设置管理员初始密码；不得在脚本、文档或 Seed 中提供所有项目通用的生产默认密码。
 - 登录图片滑块必须由 Admin API 生成缺口图和拼图块，正确位置不得下发给浏览器；挑战校验和登录凭证都必须一次性消费。
 - 自建图片滑块只是基础反自动化防线，不宣称能替代专业风控。高风险的公开互联网部署应继续叠加云平台成熟的人机验证、WAF 和异常登录监控。
+
+## 默认 C 端 API 边界
+
+- `apps/api` 是独立应用，只通过 `@repo/database` 与 `@repo/shared/types` 复用能力，禁止导入 `apps/admin-api` 源码。
+- 默认公共接口只提供健康检查、按编码读取启用字典、按键读取单条公共配置，不提供批量导出全部配置。
+- 公共配置中的值默认对未登录用户可见，只能保存站点名称、公开邮箱、协议版本和公开开关等非敏感信息。
+- 数据库密码、JWT、第三方密钥、对象存储 Secret、内网地址和连接串必须留在环境变量或部署平台 Secret 中，禁止进入公共配置表。
+- 默认 API 不包含终端用户认证；真实 C 端需要登录时，应根据业务模型单独设计账号、会话和权限，不能复用管理端 JWT 与 Guard。
 
 ## 数据访问
 
