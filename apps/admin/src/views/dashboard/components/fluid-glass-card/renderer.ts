@@ -183,7 +183,7 @@ const LIGHT_FRAGMENT_SHADER = `
     float density = smoothstep(.24, .72, fluid + .22 * r.x);
     vec3 baseColor = vec3(.973, .988, .980);
     float mask = colorZone * density;
-    mask = clamp(mask + colorZone * .28, 0.0, 1.0);
+    mask = clamp(mask + colorZone * .20, 0.0, .88);
     vec3 outputColor = mix(baseColor, fluidColor, mask);
     outputColor = mix(outputColor, baseColor, whiteTop * (1.0 - mask * .55));
 
