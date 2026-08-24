@@ -2,6 +2,8 @@ import { expect, test } from '@playwright/test';
 
 import type { Page } from '@playwright/test';
 
+import { completeLoginCaptcha } from './helpers/login-captcha';
+
 const ADMIN_USERNAME = process.env.E2E_ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD || 'admin123';
 const ADMIN_API_URL = process.env.E2E_ADMIN_API_URL || 'http://127.0.0.1:3000/api';
@@ -9,8 +11,8 @@ const ADMIN_API_URL = process.env.E2E_ADMIN_API_URL || 'http://127.0.0.1:3000/ap
 /**
  * 使用默认管理员完成真实登录
  *
- * 登录页滑块提供键盘 End 操作，测试沿用同一条无障碍交互路径，避免依赖像素距离。调用方传入受保护
- * 页面时可以同时验证登录守卫保留并恢复原目标地址。
+ * 登录页会先打开图片滑块弹框，测试通过真实指针交互完成服务端挑战。调用方
+ * 传入受保护页面时可以同时验证登录守卫保留并恢复原目标地址。
  *
  * @param page 当前浏览器页面
  * @param targetPath 登录前访问的站内目标地址
@@ -22,8 +24,6 @@ const loginAsAdmin = async (page: Page, targetPath = '/dashboard', rememberUsern
 
   await page.getByRole('textbox', { name: '管理员账号' }).fill(ADMIN_USERNAME);
   await page.getByLabel('登录密码').fill(ADMIN_PASSWORD);
-  await page.getByRole('slider', { name: '登录安全滑块' }).press('End');
-  await expect(page.getByRole('slider', { name: '登录安全滑块' })).toHaveAttribute('aria-valuetext', '验证通过');
 
   if (rememberUsername) {
     await page.locator('.el-checkbox').filter({ hasText: '记住账号' }).click();
@@ -32,7 +32,7 @@ const loginAsAdmin = async (page: Page, targetPath = '/dashboard', rememberUsern
   const loginResponsePromise = page.waitForResponse(
     (response) => response.url().endsWith('/api/auth/login') && response.request().method() === 'POST',
   );
-  await page.getByRole('button', { name: '登录', exact: true }).click();
+  await completeLoginCaptcha(page);
   expect((await loginResponsePromise).ok()).toBe(true);
   await expect(page).toHaveURL(new RegExp(`${targetPath.replaceAll('/', '\\/')}$`));
 };
@@ -83,7 +83,7 @@ test('Admin API 返回安全响应头并限制高频登录请求', async ({ requ
     const loginResponse = await request.post(`${ADMIN_API_URL}/auth/login`, {
       data: { username, password: 'invalidPassword123' },
     });
-    expect(loginResponse.status()).toBe(401);
+    expect(loginResponse.status()).toBe(400);
   }
 
   const throttledResponse = await request.post(`${ADMIN_API_URL}/auth/login`, {

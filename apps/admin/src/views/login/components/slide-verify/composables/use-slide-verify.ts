@@ -1,139 +1,128 @@
-import { computed, ref, useTemplateRef, watch } from 'vue';
-
 import type { UseSlideVerifyOptions } from '@/types';
 
 /**
- * 滑块按钮宽度，与组件样式中的固定尺寸保持一致
+ * 拖动轨道中的滑块按钮宽度
  */
-const SLIDER_HANDLE_WIDTH = 44;
+const SLIDER_HANDLE_WIDTH = 40;
 
 /**
- * 松开指针时判定验证通过的最低进度
- */
-const VERIFY_THRESHOLD = 0.94;
-
-/**
- * 管理基础滑块验证的指针、键盘和重置交互
+ * 管理图片拼图滑块的指针交互和坐标换算
  *
- * @param options 双向验证状态与禁用状态读取方法
- * @returns 滑块视图渲染状态和交互方法
+ * 组件不接触正确答案，只把滑块轨道的实际拖动距离换算成验证图片像素，
+ * 然后交给 Admin API 校验。
+ *
+ * @param options 当前挑战、禁用状态和位置提交回调
+ * @returns 滑块和拼图块渲染状态及指针事件方法
  */
 export const useSlideVerify = (options: UseSlideVerifyOptions) => {
-  const trackRef = useTemplateRef<HTMLDivElement>('trackRef');
-  const progress = ref(0);
+  const sliderTrackRef = useTemplateRef<HTMLDivElement>('sliderTrackRef');
+  const sliderLeft = ref(0);
+  const blockOffset = ref(0);
+  const originX = ref(0);
   const activePointerId = ref<number | null>(null);
-  const startClientX = ref(0);
-  const startProgress = ref(0);
 
   /**
-   * 根据拖动、验证和禁用状态生成组件状态类名
+   * 当前滑块已完成的轨道比例
    */
-  const stateClass = computed(() => ({
-    'slide-verify--active': activePointerId.value !== null,
-    'slide-verify--success': options.verified.value,
-    'slide-verify--disabled': options.getDisabled(),
-  }));
-
-  /**
-   * 根据轨道进度计算滑块按钮的横向位置
-   */
-  const handleStyle = computed(() => ({
-    left: `calc(${progress.value * 100}% - ${progress.value * SLIDER_HANDLE_WIDTH}px)`,
-  }));
-
-  /**
-   * 根据轨道进度计算已经滑过区域的宽度
-   */
-  const progressStyle = computed(() => ({
-    width: `calc(${progress.value * 100}% + ${(1 - progress.value) * SLIDER_HANDLE_WIDTH}px)`,
-  }));
-
-  /**
-   * 为默认、拖动和成功状态提供实时反馈
-   */
-  const statusText = computed(() => {
-    if (options.verified.value) {
-      return '验证通过';
+  const progress = computed(() => {
+    const track = sliderTrackRef.value;
+    if (!track) {
+      return 0;
     }
 
-    if (activePointerId.value !== null) {
-      return progress.value >= VERIFY_THRESHOLD ? '松开完成验证' : '继续向右滑动';
-    }
-
-    return '按住滑块，拖动到最右侧';
+    const maximum = Math.max(track.getBoundingClientRect().width - SLIDER_HANDLE_WIDTH, 1);
+    return sliderLeft.value / maximum;
   });
 
   /**
-   * 将滑动进度限制在零到一之间
-   *
-   * @param value 待限制的滑动进度
-   * @returns 可用于渲染的合法滑动进度
+   * 拼图块相对验证图片的位置和尺寸
    */
-  const clampProgress = (value: number): number => Math.min(Math.max(value, 0), 1);
+  const puzzleStyle = computed(() => {
+    const challenge = options.getChallenge();
+    return {
+      left: `${(blockOffset.value / challenge.imageWidth) * 100}%`,
+      top: `${(challenge.puzzleTop / challenge.imageHeight) * 100}%`,
+      width: `${(challenge.puzzleSize / challenge.imageWidth) * 100}%`,
+    };
+  });
 
   /**
-   * 重置滑块位置和指针状态
+   * 滑块按钮的横向位置
    */
-  const reset = (): void => {
-    activePointerId.value = null;
-    progress.value = 0;
-  };
+  const sliderStyle = computed(() => ({ left: `${sliderLeft.value}px` }));
 
   /**
-   * 完成当前滑块验证
+   * 轨道中已经拖动部分的填充宽度
    */
-  const complete = (): void => {
-    activePointerId.value = null;
-    progress.value = 1;
-    options.verified.value = true;
-  };
+  const sliderMaskStyle = computed(() => ({ width: `${sliderLeft.value + SLIDER_HANDLE_WIDTH}px` }));
 
   /**
-   * 根据指针位置更新滑动进度
+   * 合并指针拖动和服务端校验状态的轨道类名
+   */
+  const trackStateClass = computed(() => ({
+    'slide-verify__track--active': activePointerId.value !== null,
+    [`slide-verify__track--${options.getResultState()}`]: options.getResultState() !== 'default',
+  }));
+
+  /**
+   * 当前交互阶段的实时文字反馈
+   */
+  const statusText = computed(() => {
+    const resultState = options.getResultState();
+    if (resultState === 'verifying') return '正在验证位置';
+    if (resultState === 'success') return '验证通过';
+    if (resultState === 'fail') return '位置不正确，请重试';
+    if (activePointerId.value !== null) return '将拼图块拖到缺口位置';
+    return '向右滑动完成验证';
+  });
+
+  /**
+   * 根据指针横坐标同步轨道按钮和拼图块位置
    *
    * @param clientX 指针相对浏览器视口的横坐标
    */
-  const updateProgress = (clientX: number): void => {
-    if (!trackRef.value) {
+  const updatePosition = (clientX: number): void => {
+    const track = sliderTrackRef.value;
+    if (!track) {
       return;
     }
 
-    const travelWidth = Math.max(trackRef.value.getBoundingClientRect().width - SLIDER_HANDLE_WIDTH, 1);
-    const delta = (clientX - startClientX.value) / travelWidth;
-    progress.value = clampProgress(startProgress.value + delta);
+    const maximumSliderLeft = Math.max(track.getBoundingClientRect().width - SLIDER_HANDLE_WIDTH, 1);
+    sliderLeft.value = Math.min(Math.max(clientX - originX.value, 0), maximumSliderLeft);
+
+    const challenge = options.getChallenge();
+    const maximumPuzzleOffset = challenge.imageWidth - challenge.puzzleSize;
+    blockOffset.value = (sliderLeft.value / maximumSliderLeft) * maximumPuzzleOffset;
   };
 
   /**
-   * 开始拖动滑块
+   * 开始拖动当前滑块
    *
    * @param event 指针按下事件
    */
   const handlePointerDown = (event: PointerEvent): void => {
-    if (options.getDisabled() || options.verified.value || activePointerId.value !== null) {
+    if (options.isLoading() || activePointerId.value !== null) {
       return;
     }
 
-    startClientX.value = event.clientX;
-    startProgress.value = progress.value;
+    originX.value = event.clientX - sliderLeft.value;
     activePointerId.value = event.pointerId;
     (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
   };
 
   /**
-   * 拖动过程中同步滑块位置
+   * 指针移动时同步拼图位置
    *
    * @param event 指针移动事件
    */
   const handlePointerMove = (event: PointerEvent): void => {
-    if (activePointerId.value !== event.pointerId) {
-      return;
+    if (activePointerId.value === event.pointerId) {
+      updatePosition(event.clientX);
     }
-
-    updateProgress(event.clientX);
   };
 
   /**
-   * 松开滑块后判定是否到达验证区域
+   * 松开指针后把实际像素偏移交给服务端校验
    *
    * @param event 指针抬起事件
    */
@@ -142,85 +131,46 @@ export const useSlideVerify = (options: UseSlideVerifyOptions) => {
       return;
     }
 
-    updateProgress(event.clientX);
+    updatePosition(event.clientX);
     const target = event.currentTarget as HTMLElement;
     if (target.hasPointerCapture(event.pointerId)) {
       target.releasePointerCapture(event.pointerId);
     }
 
-    if (progress.value >= VERIFY_THRESHOLD) {
-      complete();
-      return;
-    }
-
-    reset();
+    activePointerId.value = null;
+    options.onVerify(Math.round(blockOffset.value));
   };
 
   /**
-   * 指针操作被浏览器中断时恢复默认状态
+   * 指针交互被浏览器中断时放弃当前拖动
    */
   const handlePointerCancel = (): void => {
-    if (!options.verified.value) {
-      reset();
-    }
+    activePointerId.value = null;
   };
 
   /**
-   * 支持使用方向键、Home 和 End 操作滑块
-   *
-   * @param event 键盘事件
+   * 新挑战到达时把滑块和拼图块恢复到起点
    */
-  const handleKeydown = (event: KeyboardEvent): void => {
-    if (options.getDisabled() || options.verified.value) {
-      return;
-    }
-
-    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
-      return;
-    }
-
-    event.preventDefault();
-    if (event.key === 'Home') {
-      reset();
-      return;
-    }
-
-    if (event.key === 'End') {
-      complete();
-      return;
-    }
-
-    const direction = event.key === 'ArrowRight' ? 0.1 : -0.1;
-    progress.value = clampProgress(progress.value + direction);
-    if (progress.value >= VERIFY_THRESHOLD) {
-      complete();
-    }
-  };
-
   watch(
-    options.verified,
-    (value) => {
-      if (value) {
-        progress.value = 1;
-        return;
-      }
-
-      reset();
+    () => options.getChallenge().captchaId,
+    () => {
+      activePointerId.value = null;
+      sliderLeft.value = 0;
+      blockOffset.value = 0;
     },
-    { immediate: true },
   );
 
   return {
-    trackRef,
+    sliderTrackRef,
     progress,
-    stateClass,
-    handleStyle,
-    progressStyle,
+    trackStateClass,
+    puzzleStyle,
+    sliderStyle,
+    sliderMaskStyle,
     statusText,
     handlePointerDown,
     handlePointerMove,
     handlePointerUp,
     handlePointerCancel,
-    handleKeydown,
   };
 };

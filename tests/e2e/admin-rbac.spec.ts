@@ -2,6 +2,8 @@ import { expect, test } from '@playwright/test';
 
 import type { APIRequestContext, Page, Response } from '@playwright/test';
 
+import { completeLoginCaptcha } from './helpers/login-captcha';
+
 /**
  * 超级管理员登录凭据
  *
@@ -30,7 +32,7 @@ interface AdminSession {
 /**
  * 使用指定账号在登录页完成真实登录
  *
- * 滑块验证沿用冒烟测试的键盘 End 无障碍路径。登录成功后解析响应体捕获 Token 与管理 API
+ * 图片滑块沿用冒烟测试的真实指针拖动路径。登录成功后解析响应体捕获 Token 与管理 API
  * 基础地址，供测试直接调用接口断言服务端行为；登录前访问的目标地址会被路由守卫还原。
  *
  * @param page 当前浏览器页面
@@ -50,9 +52,6 @@ const loginViaUi = async (
 
   await page.getByRole('textbox', { name: '管理员账号' }).fill(username);
   await page.getByLabel('登录密码').fill(password);
-  const slider = page.getByRole('slider', { name: '登录安全滑块' });
-  await slider.press('End');
-  await expect(slider).toHaveAttribute('aria-valuetext', '验证通过');
 
   /**
    * 提交登录表单并等待登录接口响应
@@ -63,7 +62,7 @@ const loginViaUi = async (
     const loginResponsePromise = page.waitForResponse(
       (response) => response.url().endsWith('/api/auth/login') && response.request().method() === 'POST',
     );
-    await page.getByRole('button', { name: '登录', exact: true }).click();
+    await completeLoginCaptcha(page);
     return loginResponsePromise;
   };
 

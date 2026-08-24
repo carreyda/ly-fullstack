@@ -12,6 +12,7 @@ allowBuilds:
   es5-ext: false
   esbuild: true
   prisma: true
+  sharp: true
   vue-demi: true
 
 catalog:
@@ -67,6 +68,7 @@ catalog:
   rimraf: 6.1.3
   rxjs: 7.8.2
   sass: 1.103.0
+  sharp: 0.35.3
   tsx: 4.23.12
   turbo: 2.10.10
   typescript: 6.0.2

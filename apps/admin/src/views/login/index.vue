@@ -17,6 +17,23 @@
           </div>
         </div>
       </div>
+
+      <div class="login-page__decorations" aria-hidden="true">
+        <i class="login-page__decoration login-page__decoration--circle-outline"></i>
+        <i class="login-page__decoration login-page__decoration--square-left"></i>
+        <i class="login-page__decoration login-page__decoration--circle-small"></i>
+        <i class="login-page__decoration login-page__decoration--square-bottom"></i>
+        <i class="login-page__decoration login-page__decoration--bubble"></i>
+        <i class="login-page__decoration login-page__decoration--dot-top-left"></i>
+        <i class="login-page__decoration login-page__decoration--dot-top-right"></i>
+        <i class="login-page__decoration login-page__decoration--dot-center-right"></i>
+
+        <div class="login-page__decoration-group">
+          <i class="login-page__decoration login-page__decoration--group-small"></i>
+          <i class="login-page__decoration login-page__decoration--group-large"></i>
+          <i class="login-page__decoration login-page__decoration--group-accent"></i>
+        </div>
+      </div>
     </section>
 
     <section class="login-page__content">
@@ -64,8 +81,6 @@
               />
             </el-form-item>
 
-            <SlideVerify v-model="captchaVerified" class="login-page__verification" :disabled="submitting" />
-
             <div class="login-page__remember">
               <el-checkbox v-model="rememberUsername">记住账号</el-checkbox>
             </div>
@@ -85,6 +100,8 @@
 
       <p class="login-page__copyright">LY Fullstack · Admin Foundation</p>
     </section>
+
+    <login-captcha-dialog ref="loginCaptchaDialogRef" @success="handleCaptchaSuccess" />
   </main>
 </template>
 
@@ -92,14 +109,17 @@
 import { Moon, Sun } from '@lucide/vue';
 import loginVisualMachine from '@/assets/images/login-visual-machine.png';
 import { useTheme } from '@/composables/use-theme';
-import SlideVerify from './components/slide-verify/index.vue';
+import LoginCaptchaDialog from './components/login-captcha-dialog/index.vue';
 import { useLoginForm } from './composables/use-login-form';
 
 /**
  * 页面层只装配主题交互和登录表单能力，不直接持有认证请求与路由跳转细节。
  */
 const { isDarkTheme, toggleTheme: toggleAppTheme } = useTheme();
-const { formRef, formModel, formRules, captchaVerified, rememberUsername, submitting, handleLogin } = useLoginForm();
+const loginCaptchaDialogRef = useTemplateRef<InstanceType<typeof LoginCaptchaDialog>>('loginCaptchaDialogRef');
+const { formRef, formModel, formRules, rememberUsername, submitting, handleLogin, handleCaptchaSuccess } = useLoginForm(
+  () => loginCaptchaDialogRef.value?.open(),
+);
 
 /**
  * 主题按钮面向下一次切换目标的无障碍说明

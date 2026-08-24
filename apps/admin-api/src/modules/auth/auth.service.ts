@@ -7,6 +7,7 @@ import type { AdminLoginResponse } from '@repo/shared/types';
 import { PrismaService } from '../../prisma/prisma.service';
 import type { AdminJwtPayload } from '../../types';
 import { RbacAccessService } from '../rbac/rbac-access.service';
+import { AuthCaptchaService } from './auth-captcha.service';
 import type { AdminLoginDto } from './dto/admin-login.dto';
 import type { ChangeAdminPasswordDto } from './dto/change-admin-password.dto';
 
@@ -27,6 +28,7 @@ export class AuthService {
     @Inject(PrismaService) private readonly prisma: PrismaService,
     @Inject(JwtService) private readonly jwtService: JwtService,
     @Inject(RbacAccessService) private readonly rbacAccessService: RbacAccessService,
+    @Inject(AuthCaptchaService) private readonly authCaptchaService: AuthCaptchaService,
   ) {}
 
   /**
@@ -40,6 +42,8 @@ export class AuthService {
    * @throws 账号密码不匹配、账号禁用或没有有效角色时抛出 401
    */
   async login(dto: AdminLoginDto): Promise<AdminLoginResponse> {
+    this.authCaptchaService.consumeVerifiedCaptcha(dto.captchaId);
+
     const user = await this.prisma.user.findUnique({
       where: { username: dto.username },
       select: {

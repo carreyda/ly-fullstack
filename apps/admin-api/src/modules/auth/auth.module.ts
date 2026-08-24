@@ -13,6 +13,7 @@ import {
 import { PrismaModule } from '../../prisma/prisma.module';
 import { RbacModule } from '../rbac/rbac.module';
 import { AuthController } from './auth.controller';
+import { AuthCaptchaService } from './auth-captcha.service';
 import { AuthService } from './auth.service';
 
 /**
@@ -68,7 +69,7 @@ const resolveAdminLoginTracker = async (request: unknown): Promise<string> => {
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AdminJwtGuard, PermissionGuard],
+  providers: [AuthService, AuthCaptchaService, AdminJwtGuard, PermissionGuard],
   exports: [JwtModule, AdminJwtGuard, PermissionGuard],
 })
 export class AuthModule {}

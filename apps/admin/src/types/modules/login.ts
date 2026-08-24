@@ -1,16 +1,31 @@
-import type { Ref } from 'vue';
+import type { AdminCaptchaResponse } from '@repo/shared/types';
 
 /**
- * 登录滑块验证 Composable 的受控状态参数
+ * 图片滑块的服务端校验状态
+ */
+export type SlideVerifyResultState = 'default' | 'verifying' | 'success' | 'fail';
+
+/**
+ * 图片滑块组合式函数参数
  */
 export interface UseSlideVerifyOptions {
   /**
-   * 登录页持有的双向验证状态
+   * 读取当前服务端挑战
    */
-  verified: Ref<boolean>;
+  getChallenge: () => AdminCaptchaResponse;
 
   /**
-   * 获取登录提交期间的禁用状态
+   * 读取当前服务端校验状态
    */
-  getDisabled: () => boolean;
+  getResultState: () => SlideVerifyResultState;
+
+  /**
+   * 读取图片或挑战是否仍在加载
+   */
+  isLoading: () => boolean;
+
+  /**
+   * 拖动完成后向上层提交实际偏移量
+   */
+  onVerify: (offset: number) => void;
 }

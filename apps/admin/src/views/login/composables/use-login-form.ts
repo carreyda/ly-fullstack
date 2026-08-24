@@ -1,9 +1,9 @@
 import Cookies from 'js-cookie';
 import { COOKIE_ADMIN_LEGACY_CREDENTIALS_KEY, COOKIE_ADMIN_USERNAME_KEY } from '@/constants';
 import { useAuthStore } from '@/stores';
-import { showSuccessMessage, showWarningMessage } from '@/feedback';
+import { showSuccessMessage } from '@/feedback';
 import type { FormInstance, FormRules } from 'element-plus';
-import type { AdminLoginParams } from '@repo/shared/types';
+import type { AdminLoginCredentials } from '@repo/shared/types';
 
 const REMEMBER_USERNAME_COOKIE_OPTIONS = {
   expires: 30,
@@ -31,7 +31,7 @@ const parseRememberedUsername = (raw: string): string | undefined => {
  * 页面组件只负责渲染表单和主题按钮。本 Composable 使用 Cookie 保存用户主动勾选的账号，避免
  * 版本更新清理本地缓存时丢失；密码不进入 Cookie，登录成功后恢复用户原本想访问的站内地址。
  */
-export const useLoginForm = () => {
+export const useLoginForm = (openCaptchaDialog: () => void) => {
   const route = useRoute();
   const router = useRouter();
   const authStore = useAuthStore();
@@ -52,14 +52,9 @@ export const useLoginForm = () => {
   const rememberUsername = ref(false);
 
   /**
-   * 当前账号密码是否已经完成本次滑块验证
-   */
-  const captchaVerified = ref(false);
-
-  /**
    * 登录表单输入；只在当前页面内存中保存，密码不会进入 Pinia 持久化状态
    */
-  const formModel = reactive<AdminLoginParams>({
+  const formModel = reactive<AdminLoginCredentials>({
     username: '',
     password: '',
   });
@@ -67,7 +62,7 @@ export const useLoginForm = () => {
   /**
    * 与 Admin API 登录 DTO 长度约束一致的前端校验规则
    */
-  const formRules: FormRules<AdminLoginParams> = {
+  const formRules: FormRules<AdminLoginCredentials> = {
     username: [
       { required: true, message: '请输入管理员账号', trigger: 'blur' },
       { min: 3, max: 50, message: '账号长度应为 3 到 50 个字符', trigger: 'blur' },
@@ -132,10 +127,10 @@ export const useLoginForm = () => {
   };
 
   /**
-   * 校验并提交管理员登录表单
+   * 校验管理员账号密码并打开图片滑块弹框
    *
-   * 成功后由 Auth Store 持久化 Token 和权限会话，再使用 replace 返回原目标页面，避免浏览器后退
-   * 回到已无意义的登录页。校验或请求失败时不改变路由，提交状态始终在 finally 中恢复。
+   * 表单阶段不发送密码。只有字段校验通过才创建一次性图片挑战，避免页面打开后
+   * 立即占用 Admin API 挑战记录。
    */
   const handleLogin = async (): Promise<void> => {
     if (!formRef.value || submitting.value) {
@@ -147,34 +142,38 @@ export const useLoginForm = () => {
       return;
     }
 
-    if (!captchaVerified.value) {
-      showWarningMessage('请先完成滑块验证');
+    openCaptchaDialog();
+  };
+
+  /**
+   * 图片拼图经 Admin API 校验通过后提交登录
+   *
+   * 成功后由 Auth Store 持久化 Token 和权限会话，再使用 replace 返回原目标页面。挑战编号
+   * 在登录接口中一次性消费，账号密码错误后重试也必须重新完成图片验证。
+   *
+   * @param captchaId 已通过服务端位置校验的一次性挑战编号
+   */
+  const handleCaptchaSuccess = async (captchaId: string): Promise<void> => {
+    if (submitting.value) {
       return;
     }
 
     submitting.value = true;
     try {
-      await authStore.login(formModel);
+      await authStore.login({
+        username: formModel.username,
+        password: formModel.password,
+        captchaId,
+      });
       persistRememberedUsername();
       showSuccessMessage('登录成功');
       await router.replace(getRedirectTarget());
     } catch {
       // Axios 响应拦截器已经展示后端错误，页面只保留当前输入并恢复提交状态。
-      captchaVerified.value = false;
     } finally {
       submitting.value = false;
     }
   };
-
-  /**
-   * 账号或密码变化后撤销已经完成的本地验证，避免一份验证状态跨登录凭据复用。
-   */
-  watch(
-    () => [formModel.username, formModel.password],
-    () => {
-      captchaVerified.value = false;
-    },
-  );
 
   onMounted(restoreRememberedUsername);
 
@@ -182,9 +181,9 @@ export const useLoginForm = () => {
     formRef,
     formModel,
     formRules,
-    captchaVerified,
     rememberUsername,
     submitting,
     handleLogin,
+    handleCaptchaSuccess,
   };
 };

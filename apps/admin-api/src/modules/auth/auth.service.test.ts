@@ -7,6 +7,7 @@ import { compare, hash } from 'bcryptjs';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { RbacAccessService } from '../rbac/rbac-access.service';
+import { AuthCaptchaService } from './auth-captcha.service';
 import { AuthService } from './auth.service';
 
 /**
@@ -32,7 +33,7 @@ const createAuthService = (
     },
   } as unknown as PrismaService;
 
-  return new AuthService(prisma, {} as JwtService, {} as RbacAccessService);
+  return new AuthService(prisma, {} as JwtService, {} as RbacAccessService, {} as AuthCaptchaService);
 };
 
 describe('AuthService', () => {
@@ -66,11 +67,18 @@ describe('AuthService', () => {
         tokenVersion: 4,
       }),
     } as unknown as RbacAccessService;
-    const service = new AuthService(prisma, jwtService, rbacAccessService);
+    let consumedCaptchaId = '';
+    const authCaptchaService = {
+      consumeVerifiedCaptcha: (captchaId: string) => {
+        consumedCaptchaId = captchaId;
+      },
+    } as AuthCaptchaService;
+    const service = new AuthService(prisma, jwtService, rbacAccessService, authCaptchaService);
 
-    const result = await service.login({ username: 'admin', password: 'admin123' });
+    const result = await service.login({ username: 'admin', password: 'admin123', captchaId: 'captcha-id' });
 
     expect(result.token).toBe('signed-token');
+    expect(consumedCaptchaId).toBe('captcha-id');
     expect(signedPayload).toEqual({ sub: 1, username: 'admin', tokenVersion: 4 });
   });
 

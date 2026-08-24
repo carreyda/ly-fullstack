@@ -1,9 +1,9 @@
 import type { PermissionCode, RbacMenuNode, RbacRoleSummary } from './rbac';
 
 /**
- * 管理端账号密码登录参数。
+ * 管理端账号密码凭据。
  */
-export interface AdminLoginParams {
+export interface AdminLoginCredentials {
   /**
    * 管理员登录名，对应 RBAC 用户表中的唯一账号
    */
@@ -13,6 +13,77 @@ export interface AdminLoginParams {
    * 管理员明文密码，只允许通过 HTTPS 请求体发送，不得写入日志或浏览器持久化状态
    */
   password: string;
+}
+
+/**
+ * 管理端账号密码登录参数。
+ *
+ * 登录接口同时消费一份已经由服务端校验通过的图片滑块凭证。挑战编号只能使用
+ * 一次，登录成功或失败后都不能重放。
+ */
+export interface AdminLoginParams extends AdminLoginCredentials {
+  /**
+   * Admin API 签发的一次性图片滑块挑战编号
+   */
+  captchaId: string;
+}
+
+/**
+ * 管理端图片滑块校验参数。
+ */
+export interface AdminCaptchaVerifyParams {
+  /**
+   * Admin API 签发的一次性图片滑块挑战编号
+   */
+  captchaId: string;
+
+  /**
+   * 用户完成拼图时的横向偏移量，单位为像素
+   */
+  offset: number;
+}
+
+/**
+ * 管理端登录图片滑块挑战。
+ *
+ * 背景图已在服务端绘制缺口，拼图块也由服务端从原图裁出。响应不包含正确横坐标，
+ * 浏览器只负责展示和上报用户实际拖动位置。
+ */
+export interface AdminCaptchaResponse {
+  /**
+   * 一次性挑战编号
+   */
+  captchaId: string;
+
+  /**
+   * 已绘制缺口的 SVG Data URL
+   */
+  backgroundImage: string;
+
+  /**
+   * 带透明轮廓的拼图块 SVG Data URL
+   */
+  puzzleImage: string;
+
+  /**
+   * 验证图片宽度，单位为像素
+   */
+  imageWidth: number;
+
+  /**
+   * 验证图片高度，单位为像素
+   */
+  imageHeight: number;
+
+  /**
+   * 拼图块宽高，单位为像素
+   */
+  puzzleSize: number;
+
+  /**
+   * 拼图块在背景图中的纵向位置，单位为像素
+   */
+  puzzleTop: number;
 }
 
 /**

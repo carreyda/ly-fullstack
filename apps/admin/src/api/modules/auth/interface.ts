@@ -1,13 +1,50 @@
 import { serviceBase } from '@/services/service-base';
 
-import { API_CHANGE_ADMIN_PASSWORD, API_CREATE_AUTH_SESSION, API_GET_AUTH_SESSION } from './api';
+import {
+  API_CHANGE_ADMIN_PASSWORD,
+  API_CREATE_AUTH_CAPTCHA,
+  API_CREATE_AUTH_SESSION,
+  API_GET_AUTH_SESSION,
+  API_VERIFY_AUTH_CAPTCHA,
+} from './api';
 
-import type { AdminLoginParams, AdminLoginResponse, AdminSession, ChangeAdminPasswordParams } from '@repo/shared/types';
+import type {
+  AdminCaptchaResponse,
+  AdminCaptchaVerifyParams,
+  AdminLoginParams,
+  AdminLoginResponse,
+  AdminSession,
+  ChangeAdminPasswordParams,
+} from '@repo/shared/types';
 
 /**
  * 向页面 Composable 和 Store 透出认证接口使用的 Shared HTTP 契约
  */
 export type { AdminLoginParams, AdminLoginResponse, AdminSession };
+
+/**
+ * 创建一次性登录图片滑块挑战
+ *
+ * 服务端返回已绘制缺口的背景图和拼图块，不会把正确横坐标下发给浏览器。
+ *
+ * @returns 一次性挑战图片和尺寸信息
+ */
+export const createAdminCaptcha = (): Promise<AdminCaptchaResponse> => {
+  return serviceBase.get<AdminCaptchaResponse>(API_CREATE_AUTH_CAPTCHA);
+};
+
+/**
+ * 请求 Admin API 校验用户实际拖动的拼图位置
+ *
+ * @param params 挑战编号和横向像素偏移
+ */
+export const verifyAdminCaptcha = (params: AdminCaptchaVerifyParams): Promise<void> => {
+  return serviceBase.post<void, AdminCaptchaVerifyParams>(API_VERIFY_AUTH_CAPTCHA, params, {
+    requestOptions: {
+      globalErrorMessage: false,
+    },
+  });
+};
 
 /**
  * 使用管理员账号和密码登录

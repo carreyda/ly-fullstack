@@ -1,103 +1,163 @@
 .slide-verify {
-  position: relative;
-  height: 44px;
-  overflow: hidden;
-  border: 1px solid var(--border-color);
-  border-radius: var(--custom-radius);
-  color: var(--color-text-tertiary);
-  background: color-mix(in srgb, var(--color-primary) 3%, var(--login-card-background));
-  font-size: 13px;
-  line-height: 42px;
-  text-align: center;
+  width: 100%;
   user-select: none;
 
-  &__progress {
-    position: absolute;
-    inset: 0 auto 0 0;
-    border-right: 1px solid color-mix(in srgb, var(--color-primary) 42%, var(--border-color));
-    background: color-mix(in srgb, var(--color-primary) 11%, transparent);
-    transition: width var(--duration-normal) var(--ease-standard);
+  &__picture {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    border-radius: var(--custom-radius);
+    background: var(--fill-color);
   }
 
-  &__label {
-    position: relative;
+  &__background {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__puzzle {
+    position: absolute;
     z-index: 1;
+    height: auto;
+    filter: drop-shadow(0 2px 3px color-mix(in srgb, var(--palette-black) 36%, transparent));
     pointer-events: none;
+  }
+
+  &__loading {
+    position: absolute;
+    z-index: 3;
+    display: grid;
+    background: var(--mask-fill-color);
+    inset: 0;
+    place-items: center;
+  }
+
+  &__refresh {
+    position: absolute;
+    z-index: 2;
+    top: 8px;
+    right: 8px;
+    display: grid;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid color-mix(in srgb, var(--palette-white) 24%, transparent);
+    border-radius: 50%;
+    color: var(--palette-white);
+    background: color-mix(in srgb, var(--palette-black) 48%, transparent);
+    cursor: pointer;
+    place-items: center;
+    transition:
+      color var(--duration-normal) var(--ease-standard),
+      background var(--duration-normal) var(--ease-standard),
+      transform var(--duration-normal) var(--ease-standard);
+
+    &:hover,
+    &:focus-visible {
+      color: var(--color-primary);
+      background: color-mix(in srgb, var(--palette-black) 68%, transparent);
+      outline: none;
+      transform: rotate(45deg);
+    }
+  }
+
+  &__track {
+    position: relative;
+    height: 42px;
+    margin-top: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    border-radius: var(--custom-radius);
+    color: var(--color-text-tertiary);
+    background: color-mix(in srgb, var(--color-primary) 3%, var(--fill-color));
+    font-size: 13px;
+    line-height: 40px;
+    text-align: center;
+  }
+
+  &__mask {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 40px;
+    border-right: 1px solid color-mix(in srgb, var(--color-primary) 45%, var(--border-color));
+    background: color-mix(in srgb, var(--color-primary) 12%, transparent);
   }
 
   &__handle {
     position: absolute;
-    z-index: 2;
+    z-index: 1;
     top: -1px;
+    left: 0;
     display: grid;
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 42px;
     padding: 0;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--color-primary);
     border-radius: var(--custom-radius);
-    color: var(--color-primary);
-    background: var(--login-card-background);
+    color: var(--palette-white);
+    background: var(--color-primary);
     cursor: grab;
+    line-height: 1;
     place-items: center;
     touch-action: none;
-    transition:
-      left var(--duration-normal) var(--ease-standard),
-      color var(--duration-normal) var(--ease-standard),
-      border-color var(--duration-normal) var(--ease-standard),
-      background var(--duration-normal) var(--ease-standard);
 
-    &:hover {
-      border-color: color-mix(in srgb, var(--color-primary) 52%, var(--border-color));
-    }
-
-    &:focus-visible {
-      outline: 2px solid color-mix(in srgb, var(--color-primary) 36%, transparent);
-      outline-offset: -3px;
-    }
-  }
-
-  &--active {
-    color: var(--color-text-secondary);
-
-    .slide-verify__progress,
-    .slide-verify__handle {
-      transition: none;
-    }
-
-    .slide-verify__handle {
-      cursor: grabbing;
-    }
-  }
-
-  &--success {
-    border-color: color-mix(in srgb, var(--color-primary) 48%, var(--border-color));
-    color: var(--color-primary);
-
-    .slide-verify__progress {
-      border-right-color: var(--color-primary);
-      background: color-mix(in srgb, var(--color-primary) 15%, transparent);
-    }
-
-    .slide-verify__handle {
-      border-color: var(--color-primary);
-      color: var(--login-form-background);
-      background: var(--color-primary);
+    &:disabled {
       cursor: default;
     }
   }
 
-  &--disabled {
-    opacity: 0.62;
+  &__track--active .slide-verify__handle {
+    cursor: grabbing;
+  }
+
+  &__track--success {
+    border-color: color-mix(in srgb, var(--el-color-success) 56%, var(--border-color));
+    color: var(--el-color-success);
+
+    .slide-verify__mask {
+      border-right-color: var(--el-color-success);
+      background: color-mix(in srgb, var(--el-color-success) 14%, transparent);
+    }
 
     .slide-verify__handle {
-      cursor: not-allowed;
+      border-color: var(--el-color-success);
+      background: var(--el-color-success);
     }
+  }
+
+  &__track--fail {
+    border-color: color-mix(in srgb, var(--el-color-danger) 56%, var(--border-color));
+    color: var(--el-color-danger);
+
+    .slide-verify__mask {
+      border-right-color: var(--el-color-danger);
+      background: color-mix(in srgb, var(--el-color-danger) 12%, transparent);
+    }
+
+    .slide-verify__handle {
+      border-color: var(--el-color-danger);
+      background: var(--el-color-danger);
+    }
+  }
+
+  &__spinner {
+    animation: slide-verify-spin 800ms linear infinite;
+  }
+}
+
+@keyframes slide-verify-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .slide-verify__progress,
-  .slide-verify__handle {
+  .slide-verify__refresh,
+  .slide-verify__spinner {
     transition: none;
+    animation: none;
   }
 }

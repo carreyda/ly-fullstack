@@ -51,11 +51,11 @@ html[data-theme='dark'] {
   --empty-fill-color-8: color-mix(in srgb, var(--color-primary) 9%, var(--control-fill-color));
   --empty-fill-color-9: color-mix(in srgb, var(--color-primary) 3%, var(--control-fill-color));
   --layout-header-background: transparent;
-  --login-visual-background:
-    radial-gradient(circle at 70% 76%, color-mix(in srgb, var(--palette-green-400) 15%, transparent), transparent 32%),
-    radial-gradient(circle at 18% 12%, color-mix(in srgb, var(--palette-green-400) 5.5%, transparent), transparent 28%),
-    linear-gradient(145deg, var(--palette-dark-950) 0%, var(--palette-dark-925) 56%, var(--palette-dark-950) 100%);
   --login-visual-border-color: var(--border-color);
+  --login-decoration-soft-color: color-mix(in srgb, var(--color-primary) 5%, transparent);
+  --login-decoration-medium-color: color-mix(in srgb, var(--color-primary) 11%, transparent);
+  --login-decoration-strong-color: color-mix(in srgb, var(--color-primary) 22%, transparent);
+  --login-decoration-shadow: 0 8px 24px color-mix(in srgb, var(--palette-black) 18%, transparent);
   --login-visual-machine-filter: brightness(0.5) saturate(1.6) contrast(1.34)
     drop-shadow(0 28px 48px color-mix(in srgb, var(--palette-black) 52%, transparent));
   --login-visual-title-color: var(--palette-mint-50);
@@ -165,11 +165,11 @@ html[data-theme='light'] {
   --empty-fill-color-8: color-mix(in srgb, var(--color-primary) 18%, var(--palette-white));
   --empty-fill-color-9: color-mix(in srgb, var(--color-primary) 24%, var(--palette-white));
   --layout-header-background: var(--palette-white);
-  --login-visual-background:
-    radial-gradient(circle at 70% 76%, color-mix(in srgb, var(--palette-green-400) 30%, transparent), transparent 32%),
-    radial-gradient(circle at 18% 12%, color-mix(in srgb, var(--palette-white) 72%, transparent), transparent 28%),
-    linear-gradient(145deg, var(--palette-mint-50) 0%, var(--palette-green-50) 54%, var(--palette-green-75) 100%);
   --login-visual-border-color: color-mix(in srgb, var(--palette-green-700) 16%, transparent);
+  --login-decoration-soft-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
+  --login-decoration-medium-color: color-mix(in srgb, var(--color-primary) 14%, transparent);
+  --login-decoration-strong-color: color-mix(in srgb, var(--color-primary) 22%, transparent);
+  --login-decoration-shadow: 0 8px 24px color-mix(in srgb, var(--palette-green-900) 9%, transparent);
   --login-visual-machine-filter: saturate(0.94) contrast(1.04)
     drop-shadow(0 26px 42px color-mix(in srgb, var(--palette-green-900) 14%, transparent));
   --login-visual-title-color: var(--palette-neutral-800);

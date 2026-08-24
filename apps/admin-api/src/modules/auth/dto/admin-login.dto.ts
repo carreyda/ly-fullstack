@@ -1,4 +1,4 @@
-import { IsString, Length } from 'class-validator';
+import { IsString, IsUUID, Length } from 'class-validator';
 
 import type { AdminLoginParams } from '@repo/shared/types';
 
@@ -22,4 +22,10 @@ export class AdminLoginDto implements AdminLoginParams {
   @IsString()
   @Length(8, 72)
   password!: string;
+
+  /**
+   * Admin API 签发的一次性图片滑块挑战编号
+   */
+  @IsUUID()
+  captchaId!: string;
 }

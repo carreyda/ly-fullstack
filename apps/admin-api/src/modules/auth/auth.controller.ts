@@ -1,11 +1,14 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Inject, Post, Put, UseGuards } from '@nestjs/common';
-import { ThrottlerGuard } from '@nestjs/throttler';
+import { Body, Controller, Get, Headers, HttpCode, HttpStatus, Inject, Post, Put, UseGuards } from '@nestjs/common';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 
-import type { AdminLoginResponse, AdminSession } from '@repo/shared/types';
+import type { AdminCaptchaResponse, AdminLoginResponse, AdminSession } from '@repo/shared/types';
 
 import { AdminJwtGuard, createDtoValidationPipe, CurrentAdmin } from '../../common';
+import { ADMIN_CAPTCHA_RATE_LIMIT, ADMIN_LOGIN_RATE_TTL_MS, ADMIN_LOGIN_THROTTLER_NAME } from '../../constants';
 import type { AuthenticatedAdmin } from '../../types';
+import { AuthCaptchaService } from './auth-captcha.service';
 import { AuthService } from './auth.service';
+import { AdminCaptchaVerifyDto } from './dto/admin-captcha-verify.dto';
 import { AdminLoginDto } from './dto/admin-login.dto';
 import { ChangeAdminPasswordDto } from './dto/change-admin-password.dto';
 
@@ -17,7 +20,47 @@ import { ChangeAdminPasswordDto } from './dto/change-admin-password.dto';
  */
 @Controller('auth')
 export class AuthController {
-  constructor(@Inject(AuthService) private readonly authService: AuthService) {}
+  constructor(
+    @Inject(AuthService) private readonly authService: AuthService,
+    @Inject(AuthCaptchaService) private readonly authCaptchaService: AuthCaptchaService,
+  ) {}
+
+  /**
+   * 创建管理端登录图片滑块挑战
+   *
+   * 响应只包含已绘制缺口的背景图、拼图块和一次性编号，正确横坐标保留在
+   * Admin API 进程内，不下发给浏览器。
+   *
+   * @param e2eMarker Playwright 在非生产环境进行真实拖动时使用的请求标记
+   * @returns 可供登录弹框展示的一次性图片挑战
+   */
+  @Get('captcha')
+  @Throttle({
+    [ADMIN_LOGIN_THROTTLER_NAME]: { limit: ADMIN_CAPTCHA_RATE_LIMIT, ttl: ADMIN_LOGIN_RATE_TTL_MS },
+  })
+  @UseGuards(ThrottlerGuard)
+  createCaptcha(@Headers('x-ly-e2e-captcha') e2eMarker?: string): Promise<AdminCaptchaResponse> {
+    const exposeTestOffset = process.env.APP_ENV !== 'production' && e2eMarker === 'playwright';
+    return this.authCaptchaService.createCaptcha(exposeTestOffset);
+  }
+
+  /**
+   * 校验用户拖动的拼图位置
+   *
+   * 每个挑战只能提交一次。校验成功后挑战会变成待登录消费凭证；失败时直接作废，
+   * 客户端必须重新获取图片。
+   *
+   * @param dto 挑战编号和用户实际拖动偏移量
+   */
+  @Post('captcha/verify')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Throttle({
+    [ADMIN_LOGIN_THROTTLER_NAME]: { limit: ADMIN_CAPTCHA_RATE_LIMIT, ttl: ADMIN_LOGIN_RATE_TTL_MS },
+  })
+  @UseGuards(ThrottlerGuard)
+  verifyCaptcha(@Body(createDtoValidationPipe(AdminCaptchaVerifyDto)) dto: AdminCaptchaVerifyDto): void {
+    this.authCaptchaService.verifyCaptcha(dto.captchaId, dto.offset);
+  }
 
   /**
    * 使用管理员账号和密码登录

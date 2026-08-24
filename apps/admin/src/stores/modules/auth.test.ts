@@ -60,7 +60,7 @@ describe('认证 Store', () => {
     const store = useAuthStore();
     expect(store.isAuthenticated).toBe(false);
 
-    await store.login({ username: 'admin', password: 'admin123' });
+    await store.login({ username: 'admin', password: 'admin123', captchaId: 'captcha-id' });
 
     expect(store.token).toBe('jwt-token');
     expect(store.user).toEqual(response.user);
@@ -76,7 +76,9 @@ describe('认证 Store', () => {
     const store = useAuthStore();
     store.menus = createSession().menus;
 
-    await expect(store.login({ username: 'admin', password: 'wrong' })).rejects.toThrow('用户名或密码错误');
+    await expect(store.login({ username: 'admin', password: 'wrong', captchaId: 'captcha-id' })).rejects.toThrow(
+      '用户名或密码错误',
+    );
 
     expect(store.token).toBe('');
     expect(store.user).toBeNull();
@@ -134,7 +136,7 @@ describe('认证 Store', () => {
     rstest.mocked(loginAdmin).mockResolvedValue(response);
 
     const store = useAuthStore();
-    await store.login({ username: 'admin', password: 'admin123' });
+    await store.login({ username: 'admin', password: 'admin123', captchaId: 'captcha-id' });
     store.logout();
 
     expect(store.token).toBe('');

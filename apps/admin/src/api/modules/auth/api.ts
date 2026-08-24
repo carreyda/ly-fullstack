@@ -6,6 +6,16 @@
 export const API_CREATE_AUTH_SESSION = '/auth/login';
 
 /**
+ * 创建管理端登录图片滑块挑战接口
+ */
+export const API_CREATE_AUTH_CAPTCHA = '/auth/captcha';
+
+/**
+ * 校验管理端登录图片滑块位置接口
+ */
+export const API_VERIFY_AUTH_CAPTCHA = '/auth/captcha/verify';
+
+/**
  * 获取当前管理员会话接口
  *
  * 请求必须携带 Bearer Token，服务端会重新查询账号状态、有效角色、菜单和权限。

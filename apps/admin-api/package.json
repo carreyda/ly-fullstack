@@ -32,7 +32,8 @@
     "fastify": "catalog:",
     "pg": "catalog:",
     "reflect-metadata": "catalog:",
-    "rxjs": "catalog:"
+    "rxjs": "catalog:",
+    "sharp": "catalog:"
   },
   "devDependencies": {
     "@rstest/core": "catalog:",

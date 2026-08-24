@@ -15,7 +15,161 @@
     height: 100%;
     overflow: hidden;
     border-right: 1px solid var(--login-visual-border-color);
-    background: var(--login-visual-background);
+  }
+
+  &__decorations {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  &__decoration {
+    position: absolute;
+    display: block;
+    opacity: 0;
+    animation-duration: 800ms;
+    animation-fill-mode: forwards;
+    animation-timing-function: var(--ease-standard);
+
+    &--circle-outline {
+      top: 12%;
+      left: 22%;
+      width: 42px;
+      height: 42px;
+      border: 2px solid var(--login-decoration-medium-color);
+      border-radius: 50%;
+      animation-name: loginDecorationFadeInUp;
+    }
+
+    &--square-left {
+      top: 48%;
+      left: 12%;
+      width: 60px;
+      height: 60px;
+      background: var(--login-decoration-soft-color);
+      animation-name: loginDecorationFadeInLeftRotated;
+    }
+
+    &--circle-small {
+      bottom: 28%;
+      left: 28%;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--login-decoration-medium-color);
+      animation-name: loginDecorationFadeInUp;
+      animation-delay: 300ms;
+    }
+
+    &--square-bottom {
+      right: 10%;
+      bottom: 12%;
+      width: 50px;
+      height: 50px;
+      background: var(--login-decoration-soft-color);
+      animation-name: loginDecorationFadeInRightRotated;
+    }
+
+    &--bubble {
+      top: -120px;
+      right: -120px;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      background: var(--login-decoration-soft-color);
+      animation-name: loginDecorationScaleIn;
+      animation-duration: 1200ms;
+    }
+
+    &--dot-top-left,
+    &--dot-top-right,
+    &--dot-center-right {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--login-decoration-strong-color);
+      animation-name: loginDecorationBounceIn;
+      animation-duration: 600ms;
+    }
+
+    &--dot-top-left {
+      top: 140px;
+      left: 100px;
+    }
+
+    &--dot-top-right {
+      top: 140px;
+      right: 120px;
+    }
+
+    &--dot-center-right {
+      top: 46%;
+      right: 22%;
+      background: var(--login-decoration-medium-color);
+    }
+
+    &--group-small,
+    &--group-large,
+    &--group-accent {
+      border-radius: 8px;
+      box-shadow: var(--login-decoration-shadow);
+    }
+
+    &--group-small {
+      z-index: 2;
+      top: 12px;
+      left: 30px;
+      width: 50px;
+      height: 50px;
+      background: var(--login-decoration-medium-color);
+      animation-name: loginDecorationFadeInLeftBlue;
+      animation-delay: 200ms;
+    }
+
+    &--group-large {
+      z-index: 1;
+      top: 30px;
+      left: 48px;
+      width: 70px;
+      height: 70px;
+      background: var(--login-decoration-soft-color);
+      animation-name: loginDecorationFadeInLeftPink;
+      animation-delay: 400ms;
+    }
+
+    &--group-accent {
+      z-index: 3;
+      top: 66px;
+      left: 86px;
+      width: 32px;
+      height: 32px;
+      background: var(--login-decoration-strong-color);
+      animation-name: loginDecorationFadeInLeft;
+      animation-delay: 600ms;
+    }
+  }
+
+  &__decoration-group {
+    position: absolute;
+    bottom: 18px;
+    left: 20px;
+    width: 140px;
+    height: 140px;
+
+    &::after {
+      position: absolute;
+      top: 86px;
+      left: 72px;
+      width: 80px;
+      height: 1px;
+      background: linear-gradient(90deg, var(--login-decoration-strong-color), transparent);
+      content: '';
+      opacity: 0;
+      transform: rotate(50deg);
+      animation: loginDecorationLineGrow 800ms var(--ease-standard) 1200ms forwards;
+    }
   }
 
   &__visual-machine {
@@ -181,10 +335,6 @@
     font-weight: 600;
   }
 
-  &__verification {
-    margin: 4px 0 14px;
-  }
-
   &__remember {
     display: flex;
     min-height: 24px;
@@ -286,5 +436,126 @@
   .login-page__visual-machine,
   .login-page__theme {
     transition: none;
+  }
+
+  .login-page__decoration,
+  .login-page__decoration-group::after {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+@keyframes loginDecorationFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes loginDecorationFadeInLeftRotated {
+  from {
+    opacity: 0;
+    transform: translateX(-30px) rotate(-25deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0) rotate(-25deg);
+  }
+}
+
+@keyframes loginDecorationFadeInRightRotated {
+  from {
+    opacity: 0;
+    transform: translateX(30px) rotate(45deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0) rotate(45deg);
+  }
+}
+
+@keyframes loginDecorationFadeInLeftBlue {
+  from {
+    opacity: 0;
+    transform: translateX(-30px) rotate(-10deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0) rotate(-10deg);
+  }
+}
+
+@keyframes loginDecorationFadeInLeftPink {
+  from {
+    opacity: 0;
+    transform: translateX(-30px) rotate(10deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0) rotate(10deg);
+  }
+}
+
+@keyframes loginDecorationFadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes loginDecorationScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes loginDecorationBounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+
+  70% {
+    transform: scale(0.9);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes loginDecorationLineGrow {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
   }
 }

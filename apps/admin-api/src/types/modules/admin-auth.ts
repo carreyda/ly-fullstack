@@ -69,3 +69,21 @@ export interface AdminRequest {
    */
   admin?: AuthenticatedAdmin;
 }
+
+/**
+ * Admin API 进程中保存的一次性图片滑块挑战
+ *
+ * 记录不写入数据库，服务重启后未使用挑战自然失效。当前默认单实例部署使用进程内
+ * Map；若扩展为多实例，需要换成 Redis 等共享的带过期时间存储。
+ */
+export interface AdminCaptchaRecord {
+  /**
+   * 拼图缺口的正确横向偏移量
+   */
+  offset: number;
+
+  /**
+   * 挑战创建时间戳，用于惰性清理过期记录
+   */
+  createdAt: number;
+}
