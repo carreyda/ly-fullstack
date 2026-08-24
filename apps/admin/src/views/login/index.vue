@@ -19,14 +19,9 @@
       </div>
 
       <div class="login-page__decorations" aria-hidden="true">
-        <i class="login-page__decoration login-page__decoration--circle-outline"></i>
-        <i class="login-page__decoration login-page__decoration--square-left"></i>
-        <i class="login-page__decoration login-page__decoration--circle-small"></i>
         <i class="login-page__decoration login-page__decoration--square-bottom"></i>
         <i class="login-page__decoration login-page__decoration--bubble"></i>
-        <i class="login-page__decoration login-page__decoration--dot-top-left"></i>
         <i class="login-page__decoration login-page__decoration--dot-top-right"></i>
-        <i class="login-page__decoration login-page__decoration--dot-center-right"></i>
 
         <div class="login-page__decoration-group">
           <i class="login-page__decoration login-page__decoration--group-small"></i>

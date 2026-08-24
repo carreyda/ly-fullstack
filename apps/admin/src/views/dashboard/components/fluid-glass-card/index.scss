@@ -2,6 +2,9 @@
   --fluid-a: #1de9a0;
   --fluid-b: #34d8ff;
   --fluid-c: #075f54;
+  --fluid-light-a: #084332;
+  --fluid-light-b: #087f5b;
+  --fluid-light-c: #15956f;
   --surface-opacity: 0.08;
   position: relative;
   min-width: 0;
@@ -34,6 +37,10 @@
     background: var(--fluid-card-overlay-horizontal), var(--fluid-card-overlay-vertical);
     content: '';
     pointer-events: none;
+  }
+
+  &--light::before {
+    display: none;
   }
 
   &__canvas,
@@ -70,6 +77,15 @@
       135% 150%,
       115% 125%;
     animation: fluid-glass-drift 9s ease-in-out infinite alternate;
+
+    &--light {
+      background:
+        linear-gradient(90deg, var(--palette-white) 0 20%, transparent 58%),
+        radial-gradient(ellipse at 84% 22%, color-mix(in srgb, var(--fluid-light-c) 94%, transparent), transparent 52%),
+        radial-gradient(ellipse at 72% 88%, color-mix(in srgb, var(--fluid-light-b) 92%, transparent), transparent 58%),
+        radial-gradient(ellipse at 98% 55%, color-mix(in srgb, var(--fluid-light-a) 88%, transparent), transparent 54%);
+      background-color: color-mix(in srgb, var(--palette-green-25) 82%, var(--palette-white));
+    }
   }
 
   &--fallback &__canvas {
@@ -97,9 +113,21 @@
     pointer-events: none;
   }
 
+  &__highlight {
+    position: absolute;
+    z-index: 2;
+    top: 5%;
+    right: 3%;
+    left: 3%;
+    height: 44%;
+    border-radius: inherit;
+    background: var(--fluid-card-highlight);
+    pointer-events: none;
+  }
+
   &__content {
     position: relative;
-    z-index: 3;
+    z-index: 4;
     display: flex;
     height: 100%;
     flex-direction: column;
@@ -163,11 +191,13 @@
   &__change-value--positive {
     color: var(--fluid-card-positive-color);
     font-weight: 500;
+    text-shadow: var(--fluid-card-trend-shadow);
   }
 
   &__change-value--negative {
     color: var(--fluid-card-negative-color);
     font-weight: 500;
+    text-shadow: var(--fluid-card-trend-shadow);
   }
 }
 

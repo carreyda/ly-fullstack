@@ -5,9 +5,26 @@
     :class="[`fluid-glass-card--${currentThemeName}`, { 'fluid-glass-card--fallback': isFallback }]"
     :style="cardStyle"
   >
-    <canvas :key="currentThemeName" ref="canvasRef" class="fluid-glass-card__canvas" aria-hidden="true"></canvas>
-    <div class="fluid-glass-card__fallback" aria-hidden="true"></div>
-    <div class="fluid-glass-card__noise" aria-hidden="true"></div>
+    <template v-if="currentThemeName === 'dark'">
+      <canvas
+        :key="currentThemeName"
+        ref="canvasRef"
+        class="fluid-glass-card__canvas fluid-glass-card__canvas--dark"
+        aria-hidden="true"
+      ></canvas>
+      <div class="fluid-glass-card__fallback fluid-glass-card__fallback--dark" aria-hidden="true"></div>
+      <div class="fluid-glass-card__noise" aria-hidden="true"></div>
+    </template>
+    <template v-else>
+      <canvas
+        :key="currentThemeName"
+        ref="canvasRef"
+        class="fluid-glass-card__canvas fluid-glass-card__canvas--light"
+        aria-hidden="true"
+      ></canvas>
+      <div class="fluid-glass-card__fallback fluid-glass-card__fallback--light" aria-hidden="true"></div>
+      <div class="fluid-glass-card__highlight" aria-hidden="true"></div>
+    </template>
 
     <div class="fluid-glass-card__content">
       <p class="fluid-glass-card__eyebrow">{{ props.eyebrow }}</p>
@@ -106,6 +123,21 @@ interface Props {
   colorC?: string;
 
   /**
+   * 浅色主题流体材质的第一层深绿。
+   */
+  lightColorA?: string;
+
+  /**
+   * 浅色主题流体材质的品牌主色。
+   */
+  lightColorB?: string;
+
+  /**
+   * 浅色主题流体材质的第三层辅助绿。
+   */
+  lightColorC?: string;
+
+  /**
    * 流体噪声随时间变化的速度系数。
    */
   speed?: number;
@@ -140,6 +172,9 @@ const props = withDefaults(defineProps<Props>(), {
   colorA: '#1de9a0',
   colorB: '#34d8ff',
   colorC: '#075f54',
+  lightColorA: '#084332',
+  lightColorB: '#087f5b',
+  lightColorC: '#15956f',
   speed: 0.9,
   intensity: 1,
   pointer: 0.8,
@@ -171,6 +206,9 @@ const cardStyle = computed<CSSProperties>(() => ({
   '--fluid-a': props.colorA,
   '--fluid-b': props.colorB,
   '--fluid-c': props.colorC,
+  '--fluid-light-a': props.lightColorA,
+  '--fluid-light-b': props.lightColorB,
+  '--fluid-light-c': props.lightColorC,
   '--surface-opacity': String(props.surface),
 }));
 
@@ -206,6 +244,9 @@ const setupRenderer = async (nextThemeName: ThemeName): Promise<void> => {
       colorA: props.colorA,
       colorB: props.colorB,
       colorC: props.colorC,
+      lightColorA: props.lightColorA,
+      lightColorB: props.lightColorB,
+      lightColorC: props.lightColorC,
       speed: props.speed,
       intensity: props.intensity,
       pointer: props.pointer,

@@ -33,36 +33,6 @@
     animation-fill-mode: forwards;
     animation-timing-function: var(--ease-standard);
 
-    &--circle-outline {
-      top: 12%;
-      left: 22%;
-      width: 42px;
-      height: 42px;
-      border: 2px solid var(--login-decoration-medium-color);
-      border-radius: 50%;
-      animation-name: loginDecorationFadeInUp;
-    }
-
-    &--square-left {
-      top: 48%;
-      left: 12%;
-      width: 60px;
-      height: 60px;
-      background: var(--login-decoration-soft-color);
-      animation-name: loginDecorationFadeInLeftRotated;
-    }
-
-    &--circle-small {
-      bottom: 28%;
-      left: 28%;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: var(--login-decoration-medium-color);
-      animation-name: loginDecorationFadeInUp;
-      animation-delay: 300ms;
-    }
-
     &--square-bottom {
       right: 10%;
       bottom: 12%;
@@ -83,9 +53,7 @@
       animation-duration: 1200ms;
     }
 
-    &--dot-top-left,
-    &--dot-top-right,
-    &--dot-center-right {
+    &--dot-top-right {
       width: 14px;
       height: 14px;
       border-radius: 50%;
@@ -94,20 +62,9 @@
       animation-duration: 600ms;
     }
 
-    &--dot-top-left {
-      top: 140px;
-      left: 100px;
-    }
-
     &--dot-top-right {
       top: 140px;
       right: 120px;
-    }
-
-    &--dot-center-right {
-      top: 46%;
-      right: 22%;
-      background: var(--login-decoration-medium-color);
     }
 
     &--group-small,
@@ -442,30 +399,6 @@
   .login-page__decoration-group::after {
     opacity: 1;
     animation: none;
-  }
-}
-
-@keyframes loginDecorationFadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes loginDecorationFadeInLeftRotated {
-  from {
-    opacity: 0;
-    transform: translateX(-30px) rotate(-25deg);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0) rotate(-25deg);
   }
 }
 

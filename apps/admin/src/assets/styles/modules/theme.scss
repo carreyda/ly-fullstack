@@ -110,6 +110,7 @@ html[data-theme='dark'] {
   --fluid-card-change-color: var(--palette-mint-500);
   --fluid-card-positive-color: var(--palette-green-350);
   --fluid-card-negative-color: var(--palette-red-400);
+  --fluid-card-trend-shadow: none;
   --fluid-card-highlight: transparent;
   --fluid-card-shadow: none;
   --fluid-card-shadow-hover: none;
@@ -221,22 +222,23 @@ html[data-theme='light'] {
     color-mix(in srgb, var(--palette-green-700) 3%, transparent)
   );
   --fluid-card-canvas-opacity: 1;
-  --fluid-card-canvas-filter: saturate(1.18) contrast(1.08) brightness(1) blur(1.4px);
+  --fluid-card-canvas-filter: none;
   --fluid-card-canvas-mask: linear-gradient(var(--palette-black), var(--palette-black));
   --fluid-card-fallback-opacity: 0.95;
-  --fluid-card-noise-opacity: 0.045;
+  --fluid-card-noise-opacity: 0;
   --fluid-card-text-shadow: none;
   --fluid-card-eyebrow-color: var(--color-primary);
   --fluid-card-title-color: var(--palette-graphite-700);
   --fluid-card-value-color: var(--palette-green-950);
   --fluid-card-unit-color: var(--palette-graphite-500);
   --fluid-card-change-color: var(--palette-graphite-500);
-  --fluid-card-positive-color: var(--palette-green-700);
-  --fluid-card-negative-color: var(--palette-red-600);
+  --fluid-card-positive-color: var(--palette-white);
+  --fluid-card-negative-color: var(--palette-red-400);
+  --fluid-card-trend-shadow: 0 1px 4px color-mix(in srgb, var(--palette-green-900) 42%, transparent);
   --fluid-card-highlight: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--palette-white) 58%, transparent),
-    color-mix(in srgb, var(--palette-white) 10%, transparent) 70%,
+    color-mix(in srgb, var(--palette-white) 36%, transparent),
+    color-mix(in srgb, var(--palette-white) 10%, transparent) 68%,
     transparent
   );
   --fluid-card-shadow: none;
