@@ -1,0 +1,17 @@
+/**
+ * Element Plus Alert 主题适配
+ *
+ * Alert 的浅色状态直接消费编译期生成的 `--el-color-*-light-9`，无法通过 `$alert` Sass map
+ * 映射到项目的运行时主题变量。这里提高一层刚好足够的选择器权重，让警告提示在深浅主题下
+ * 统一使用项目的 warning 语义色，同时避免深色主题出现刺眼的浅黄色背景。
+ */
+.el-alert.el-alert--warning.is-light {
+  --el-alert-bg-color: color-mix(in srgb, var(--status-warning-text-color) 10%, var(--overlay-fill-color));
+
+  border: 1px solid color-mix(in srgb, var(--status-warning-text-color) 28%, var(--border-color));
+  color: var(--status-warning-text-color);
+
+  .el-alert__description {
+    color: var(--status-warning-text-color);
+  }
+}

@@ -5,6 +5,7 @@
  * 新增 Element Plus 全局修正时拆到 `modules/` 后在这里聚合。
  */
 @use './modules/var.scss';
+@use './modules/alert.scss';
 @use './modules/feedback.scss';
 @use './modules/table.scss';
 @use './modules/dialog.scss';

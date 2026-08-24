@@ -271,6 +271,9 @@ ESLint 已通过 `no-restricted-imports` 对 `apps/admin/src/**/*.{ts,vue}` 执�
 | `$dropdown`                                                      | Dropdown 菜单项 Hover 背景和文字                 |
 | `$empty`                                                         | Empty 默认 SVG 的 0–9 全部填充色                 |
 
+Alert 的浅色状态没有独立的颜色 Sass map，而是直接消费编译期生成的 `--el-color-*-light-9`。
+项目在 `assets/element-plus/modules/alert.scss` 中使用状态语义变量适配其背景、边框与文字，禁止在业务弹框中局部修补。
+
 ### 间接变量不能漏
 
 维护 Element Plus 时不能只看组件名称对应的 map。很多内部节点使用的是全局变量。
