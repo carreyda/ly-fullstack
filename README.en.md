@@ -6,82 +6,82 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Release](https://img.shields.io/badge/release-v0.1.0-087f5b.svg)](docs/releases/v0.1.0.md)
 
-A general-purpose fullstack solution for open-source showcasing and real-world projects.
+A general-purpose full-stack foundation for open-source showcases and real-world products.
 
-The admin console foundation is complete and wired end to end: login authentication, dynamic menus, user/role/menu/dictionary/public-config management, five-table RBAC, database migrations, and seed data all work against a real database. The project also ships a default consumer-facing API limited to health checks and public reads of dictionaries and shared config. Future stages will not count unimplemented consumer-side business features toward current capability.
+The admin foundation is complete and connected end to end: authentication, dynamic menus, user, role, menu, dictionary, and public configuration management, five-table RBAC, database migrations, and seed data all run against a real database. The project also includes a default end-user-facing API limited to health checks and public reads of dictionaries and configuration. Features for specific end-user products will not be presented as existing capabilities until they are actually implemented.
 
 ## Core Philosophy
 
-The concrete consumer-facing business of a product cannot be predefined by one repository: it might be a mini program, an SSR marketing site, a single-page app, a mobile client, or a functional product in some vertical domain. But whatever shape the consumer product takes, it needs a matching admin system — and admin capabilities such as login authentication, users, roles, menus, permissions, and engineering conventions are highly reusable across all of them.
+A single repository cannot predict every product's end-user domain in advance. The product might be a mini app such as a WeChat Mini Program, an SSR website, a single-page application, a mobile client, or a specialized product for a particular industry. Whatever form it takes, it still needs an admin system, and capabilities such as authentication, users, roles, menus, permissions, and engineering conventions are highly reusable.
 
-So LY Fullstack starts by distilling the management core that almost every business can reuse, a standard monorepo engineering pattern, and a clearly bounded Vue 3 admin directory layout:
+LY Fullstack therefore focuses first on a reusable admin foundation, a standard monorepo engineering model, and a clearly structured Vue 3 admin application:
 
 - `apps/admin`: a general Vue 3 admin console with explicit boundaries between page entries, business components, base components, the request layer, state, routing, navigation, and theming.
-- `apps/admin-api`: a general NestJS admin service that organizes authentication, RBAC, and system management as modules.
-- `apps/api`: the default consumer-facing NestJS API, providing only health checks and public reads of dictionaries and shared config, serving as the coding baseline for new business modules.
-- `packages/*`: reusable capabilities — database, cross-app types, pure utilities, and charts — so apps never copy code or depend on each other in reverse.
-- Root engineering: pnpm workspace, Turborepo, a unified app registry, and architecture checks organize apps and shared packages, providing a standard monorepo workflow for development, testing, and building.
+- `apps/admin-api`: a general NestJS admin service with modular authentication, RBAC, and system-management capabilities.
+- `apps/api`: the default end-user-facing NestJS API, providing only health checks and public reads of dictionaries and configuration as a baseline for real business modules.
+- `packages/*`: reusable database access, cross-application types, framework-agnostic utilities, and chart infrastructure that prevent code duplication and preserve dependency direction.
+- Repository tooling: pnpm workspace, Turborepo, a unified application registry, and architecture checks provide a standard workflow for developing, testing, and building applications and shared packages.
 
-The project does not invent consumer-side pages or concrete businesses before requirements are clear. The default `apps/api` keeps only the health-check, dictionary, and public-config read capabilities that nearly every consumer product could reuse; it contains no end-user authentication and represents no specific product shape. Once a real project starts, business modules can be added directly to this service; run `pnpm new:server` when a separate service is needed. Clients should still choose Nuxt, Next.js, Vue, React, a mini program, or any other stack based on real requirements.
+The project does not invent end-user pages or business domains before the requirements are clear. The default `apps/api` retains only broadly reusable health checks and public dictionary/configuration reads. It contains no end-user authentication and does not imply any particular product shape. Add business modules directly to this service when starting a real project, and run `pnpm new:server` only when a separate service is justified. Choose Nuxt, Next.js, Vue, React, a mini app, or another client stack according to the actual product requirements.
 
-For consumer scenarios that are already well defined, the project can further provide matching business APIs and client solutions. Those solutions sit on top of the common core, but no single business shape gets frozen into the default answer of this core repository.
+For well-defined end-user scenarios, the project can provide matching business APIs and client solutions on top of this common foundation. No single business model, however, is baked into the core repository as the default.
 
 ## Scope & Architecture Boundaries
 
-LY Fullstack currently uses an engineering architecture centered on a NestJS modular monolith, with the monorepo managing the front end, the admin service, shared packages, and independently created business apps. Multiple apps can run and deploy separately, but that is not microservices: the project provides no API gateway, service registry or discovery, config center, distributed tracing, distributed transactions, or a complete service-governance stack.
+LY Fullstack is currently centered on a NestJS modular monolith. The monorepo manages the frontend, the Admin API, shared packages, and independently created business applications. These applications can run and deploy separately, but that does not make the system a microservices architecture: the project does not currently provide an API gateway, service registration and discovery, centralized configuration, distributed tracing, distributed transactions, or a complete service-governance stack.
 
 ### Why Not Microservices by Default
 
-Microservices are not the "advanced version" of a monolith, and architecture does not become more professional by becoming more complex. Microservices solve specific problems — services that need independent deployment and scaling, fault isolation, and multi-team autonomy — while introducing extra costs: network calls, data consistency, message idempotency, tracing, deployment orchestration, and operational governance. Splitting services before those needs actually appear usually just uses the complexity of a distributed system to solve problems that do not exist.
+Microservices are not an "advanced version" of a monolith, and an architecture does not become more professional simply by becoming more complex. Microservices address specific needs, including independent deployment and scaling, fault isolation, and autonomy across multiple teams. They also introduce the cost of network communication, data consistency, message idempotency, tracing, deployment orchestration, and operational governance. Splitting services before those needs exist usually means applying distributed-system complexity to problems the project does not have.
 
-For developers with some Vue, TypeScript, or Node.js experience who are systematically moving into fullstack development — and for personal projects, small teams, and the large population of small-to-mid real businesses — it is far more valuable to first master the complete front-end/back-end boundary, database design, login authentication, permission models, testing, and deployment. LY Fullstack chose the modular monolith not because microservices are out of reach, but to deliver a real, disciplined, maintainable fullstack project that covers most common scenarios at a lower cognitive and operational cost.
+For developers with some Vue, TypeScript, or Node.js experience who are moving systematically into full-stack development — as well as for personal projects, small teams, and many real-world small-to-medium applications — it is more valuable to first master frontend/backend boundaries, database design, authentication, authorization, testing, and deployment. LY Fullstack uses a modular monolith not because microservices are out of reach, but because it delivers a disciplined, maintainable full-stack project that covers most common scenarios with lower cognitive and operational overhead.
 
-This architecture prioritizes development efficiency, code boundaries, reusable admin capabilities, and long-term maintainability for small-to-mid real projects. It fits:
+This architecture prioritizes development efficiency, clear code boundaries, reusable admin capabilities, and long-term maintainability for real-world small-to-medium projects. It is a good fit for:
 
-- Corporate websites, mini programs, content platforms, and functional web products built by individual developers or small teams.
+- Corporate websites, mini apps, content platforms, and functional web products built by individual developers or small teams.
 - Startup products, MVPs, and projects still validating their business model.
-- Operations consoles, internal management systems, and supporting business APIs for small-to-mid organizations.
+- Operations consoles, internal management systems, and supporting business APIs for small-to-medium organizations.
 - Projects whose concurrency, data volume, availability targets, and integration complexity can still be reasonably served by a monolith and a single database.
 
 It should not be advertised as a foundation for large distributed systems, nor used without additional design for:
 
-- Ultra-high concurrency, massive data volumes, or hard real-time computing.
-- Multi-region disaster recovery, strict high availability, and complex elastic scaling.
-- Complex systems with many independent teams delivering in parallel, services that must scale and fail independently.
+- Extreme concurrency, massive data volumes, or hard real-time workloads.
+- Multi-region disaster recovery, stringent high-availability targets, or complex autoscaling requirements.
+- Complex systems where many independent teams deliver in parallel and services must scale and fail independently.
 - Systems requiring complex multi-tenant isolation, distributed transactions, message-driven architectures, or strict industry compliance.
 
-Whether the project fits cannot be judged by company size alone. A small product can carry enormous traffic, and an internal system of a mid-size organization can remain a good modular-monolith fit for years. Evaluate against peak concurrency, data growth, SLAs, tenancy model, deployment environment, team boundaries, and release cadence.
+Whether the project fits cannot be judged by company size alone. A small product can carry enormous traffic, and an internal system in a medium-sized organization can remain a good modular-monolith fit for years. Evaluate against peak concurrency, data growth, SLAs, tenancy model, deployment environment, team boundaries, and release cadence.
 
-As the business grows, first address clear bottlenecks with database indexes and connection pooling, caching, task queues, object storage, rate limiting, monitoring, and multi-instance deployment; only split services and add a gateway plus service governance after business boundaries, team boundaries, and independent scaling needs have actually appeared. LY Fullstack offers a sustainable engineering starting point — it does not promise that one default architecture covers every project scale.
+As the product grows, address concrete bottlenecks first with database indexes and connection pooling, caching, task queues, object storage, rate limiting, monitoring, and multi-instance deployment. Split services and introduce a gateway and service governance only after the business boundaries, team boundaries, and independent scaling requirements are real. LY Fullstack provides a sustainable engineering starting point; it does not claim that one default architecture can serve every scale.
 
-### What's Next: a Microservices Edition
+### What's Next: A Microservices Edition
 
-The next phase plans a standalone NestJS microservices solution for projects where service splitting, independent scaling, fault isolation, and multi-team collaboration needs have genuinely emerged. That solution will focus on an API gateway, inter-service communication, message reliability, authentication propagation, configuration management, observability, containerized deployment, and distributed testing.
+The next phase will be a standalone NestJS microservices solution for projects that genuinely require service decomposition, independent scaling, fault isolation, and collaboration across multiple teams. It will focus on an API gateway, inter-service communication, message reliability, authentication propagation, configuration management, observability, containerized deployment, and distributed testing.
 
-The microservices edition will not be stacked onto this repository, and LY Fullstack will not be forcibly converted into microservices. The two solutions keep a clear boundary: LY Fullstack continues to solve efficient delivery for modular monoliths and small-to-mid projects; the microservices edition addresses problems whose business scale and organizational complexity already require a distributed architecture. Until the standalone solution ships, all of this remains future planning and is not part of current capability.
+The microservices edition will remain separate from this repository; LY Fullstack will not be forcibly converted into a microservices project. The two solutions will have distinct boundaries: LY Fullstack will continue to support efficient delivery with modular monoliths for small-to-medium projects, while the microservices edition will address products whose scale and organizational complexity genuinely require a distributed architecture. Until that standalone solution is released, it remains a plan rather than a current capability.
 
 ## UI Preview
 
-The admin console ships complete dark and light themes. Both themes share one design language and functional structure, with separate adaptations for readability, component states, and data visualization.
+The admin console includes complete dark and light themes. On the first visit, it follows the operating system's color preference; after the user selects a theme explicitly, that choice is preserved. Both themes share the same design language and functional structure, with dedicated adaptations for readability, component states, and data visualization.
 
 ### Dashboard
 
-| Dark theme                                                                         | Light theme                                                                          |
-| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| ![LY Fullstack dashboard, dark theme](docs/images/ly-fullstack-dashboard-dark.png) | ![LY Fullstack dashboard, light theme](docs/images/ly-fullstack-dashboard-light.png) |
+| Dark theme                                                            | Light theme                                                             |
+| --------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| ![LY Fullstack dashboard, dark theme](docs/images/dashboard-dark.png) | ![LY Fullstack dashboard, light theme](docs/images/dashboard-light.png) |
 
 ### Login
 
-| Dark theme                                                                      | Light theme                                                                       |
-| ------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| ![LY Fullstack login page, dark theme](docs/images/ly-fullstack-login-dark.png) | ![LY Fullstack login page, light theme](docs/images/ly-fullstack-login-light.png) |
+| Dark theme                                                         | Light theme                                                          |
+| ------------------------------------------------------------------ | -------------------------------------------------------------------- |
+| ![LY Fullstack login page, dark theme](docs/images/login-dark.png) | ![LY Fullstack login page, light theme](docs/images/login-light.png) |
 
 ## Tech Stack
 
 | Area           | Choice                                                                            |
 | -------------- | --------------------------------------------------------------------------------- |
 | Admin console  | Rsbuild 2 + Vue 3 + TypeScript + Element Plus + SCSS                              |
-| Server         | NestJS 11 + Fastify; the admin API and the default consumer API run independently |
+| Server         | NestJS 11 + Fastify; the Admin API and default end-user API run independently     |
 | Data layer     | `@repo/database` + PostgreSQL 17 + Prisma 7 (driver adapter mode)                 |
 | Shared package | `@repo/shared` (cross-app types and framework-agnostic utilities)                 |
 | Charts package | `@repo/charts` (ECharts on-demand registration, initialization, and shared types) |
@@ -92,20 +92,20 @@ The admin console ships complete dark and light themes. Both themes share one de
 
 ### 1. Prepare the environment
 
-| Dependency        | Version    | How to get it                                                                                                           |
-| ----------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------- |
-| Node.js           | >= 22.19   | [Official downloads](https://nodejs.org/en/download)                                                                    |
-| pnpm              | >= 11 < 12 | Node 22 ships Corepack — run `corepack enable`; or see the [pnpm install guide](https://pnpm.io/installation)           |
-| PostgreSQL        | 17.x       | [Official downloads](https://www.postgresql.org/download/) — note the `postgres` superuser password during installation |
-| Docker (optional) | any stable | When PostgreSQL is not installed locally, the repo's `compose.yaml` starts a container automatically                    |
+| Dependency        | Version                    | How to get it                                                                                                           |
+| ----------------- | -------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Node.js           | >= 22.19                   | [Official downloads](https://nodejs.org/en/download)                                                                    |
+| pnpm              | >= 11 < 12                 | Node 22 ships Corepack — run `corepack enable`; or see the [pnpm install guide](https://pnpm.io/installation)           |
+| PostgreSQL        | 17.x                       | [Official downloads](https://www.postgresql.org/download/) — note the `postgres` superuser password during installation |
+| Docker (optional) | Any current stable release | When PostgreSQL is not installed locally, the repository's `compose.yaml` starts a container automatically              |
 
 A few notes:
 
 - The exact Node and pnpm versions are pinned by the root `packageManager` and `engines` fields; with Corepack enabled there is nothing to align manually.
-- PostgreSQL and Docker are interchangeable here: with a local PostgreSQL, make sure the service can start; without one, `pnpm setup` starts the project container via Docker Compose.
-- Database creation, schema, and seed data are all handled by `pnpm setup` — no manual database creation or SQL.
-- [pgAdmin](https://www.pgadmin.org/) is a recommended visual client for browsing tables and seed data; refer to its official docs for installation and usage.
-- The `postgres` password set during the graphical PostgreSQL install is the first input of the next step. Resetting it later is costly, so record it at install time.
+- Use either a local PostgreSQL installation or Docker. If PostgreSQL is installed locally, make sure the service can start; otherwise, `pnpm setup` starts the project's PostgreSQL container through Docker Compose.
+- `pnpm setup` handles database creation, schema migrations, and seed data. You do not need to create the database or run SQL manually.
+- [pgAdmin](https://www.pgadmin.org/) is a useful graphical client for inspecting tables and seed data. See its official documentation for installation and usage.
+- The password assigned to the `postgres` user by the graphical PostgreSQL installer is the first value requested in the next step. Resetting it later can be inconvenient, so record it during installation.
 
 ### 2. Install dependencies
 
@@ -113,7 +113,7 @@ A few notes:
 pnpm install
 ```
 
-The install runs `prisma generate` automatically to produce the database client code, but it does not connect to PostgreSQL, create the database, build the schema, or load seed data.
+Installation runs `prisma generate` automatically to generate Prisma Client, but it does not connect to PostgreSQL, create the database, apply migrations, or load seed data.
 
 ### 3. Initialize the database and local config
 
@@ -123,27 +123,27 @@ From the repository root, run:
 pnpm setup
 ```
 
-The script asks for four inputs and only starts writing once all are provided:
+The script requests four values and does not modify the local environment until all four have been entered:
 
 1. **PostgreSQL password**: the password of the local `postgres` user, hidden input.
 2. **Database name**: defaults to `ly_fullstack` — just press Enter; only letters, digits, and underscores are allowed.
 3. **Initial admin password**: the password used to create the `admin` account, 8–64 characters, hidden input.
-4. **Confirm admin password**: enter it again; a mismatch asks you to re-enter.
+4. **Confirm admin password**: enter it again. If the two values do not match, the script prompts you to retry.
 
-After the inputs, the script automatically:
+After collecting these values, the script automatically:
 
-- Probes `127.0.0.1:5432`: reuses an existing PostgreSQL service; if none is found and Docker Compose is available, it starts the project's PostgreSQL 17 container.
-- Creates the target database idempotently — an existing database is skipped, no data is ever deleted.
-- Generates `apps/admin-api/.env.development` and `apps/api/.env.development`; both services share the local database connection, and the admin API additionally gets a random JWT secret. Neither file is committed to Git.
-- Runs the Prisma migration to create the full schema.
-- Loads the RBAC seed data: the super-admin role, the complete menu permission tree, and the `admin` account; re-running Setup never overwrites an existing account's password.
+- Checks `127.0.0.1:5432`: if PostgreSQL is already running, the script reuses it; otherwise, when Docker Compose is available, it starts the project's PostgreSQL 17 container.
+- Creates the target database idempotently — an existing database is skipped, and no data is ever deleted.
+- Generates `apps/admin-api/.env.development` and `apps/api/.env.development`. Both services share the local database connection, while the Admin API also receives a randomly generated JWT secret. Both files are excluded from Git.
+- Applies the Prisma migrations to create the complete database schema.
+- Loads the RBAC seed data: the super-admin role, the complete menu permission tree, and the `admin` account. Running Setup again never overwrites the password of an existing account.
 
 CI and automation can skip the prompts: `pnpm setup --non-interactive` with the `SETUP_DATABASE_PASSWORD`, `SETUP_DATABASE_NAME`, and `SETUP_ADMIN_PASSWORD` environment variables. See [`docs/environment.md`](docs/environment.md) for the security boundaries of these env files.
 
 ### 4. Start the apps
 
 ```bash
-# Interactive selection: first pick server apps, then front-end apps
+# Interactive selection: first pick server apps, then frontend apps
 pnpm dev
 
 # Or non-interactive
@@ -155,15 +155,15 @@ Local URLs are maintained centrally in the root [`workspace.config.json`](worksp
 
 - Admin console: <http://localhost:8081>
 - Admin API health check: <http://localhost:3000/api/health>
-- Default consumer API health check: <http://localhost:3001/api/health>
+- Default end-user API health check: <http://localhost:3001/api/health>
 - Public dictionary example: `GET http://localhost:3001/api/public/dictionaries/:code`
-- Public config example: `GET http://localhost:3001/api/public/configs/:key`
+- Public configuration example: `GET http://localhost:3001/api/public/configs/:key`
 
-Open the admin console and sign in with the account `admin` and the admin password set during Setup. When you are done, run `pnpm dev:stop` to stop every dev process started from this repository.
+Open the admin console and sign in as `admin` with the password configured during Setup. When development is complete, run `pnpm dev:stop` to stop every development process started by this repository.
 
 ## Creating a new service
 
-When you need a standalone business service beyond the default `apps/api`, run from the root:
+When you need a standalone business service in addition to the default `apps/api`, run this command from the repository root:
 
 ```bash
 pnpm new:server
@@ -171,35 +171,35 @@ pnpm new:server
 
 The generator asks for a service name and a local port, then does four things:
 
-1. Creates a NestJS + Fastify service with only a health check, from `scripts/templates/server`.
+1. Scaffolds a NestJS + Fastify service with a health check from `scripts/templates/server`.
 2. Uses `@repo/<service-name>` as the package name.
 3. Registers the service under `apps.server` in `workspace.config.json`.
-4. Installs dependencies and validates the new service's typecheck, tests, and build.
+4. Installs dependencies, then runs type checking, tests, and a build for the new service.
 
-For example, entering `content-api` and `3002` creates `apps/content-api`, which then appears automatically in the `pnpm dev` service list. The template ships no database, JWT, or business modules; end-user authentication and admin authentication are separate application boundaries, to be implemented independently when real requirements appear.
+For example, entering `content-api` and `3002` creates `apps/content-api`, which then appears automatically in the `pnpm dev` service list. The template includes no database, JWT, or business modules. End-user authentication and admin authentication belong to separate application boundaries and should be implemented independently when actual requirements emerge.
 
-There is no client stack restriction for business APIs: mini programs, SSR sites built with Nuxt or Next.js, Vue or React single-page apps, mobile clients, or any other functional website. Create the client once the real product shape is decided; to bring it into this monorepo, register it under `apps.web` in `workspace.config.json`.
+Business APIs can serve any client stack: mini apps, SSR sites built with Nuxt or Next.js, Vue or React single-page applications, mobile clients, or other functional websites. Create the client only after the product shape is clear. To include it in this monorepo, register it under `apps.web` in `workspace.config.json`.
 
 ## Common commands
 
-| Command                   | Description                                                                 |
-| ------------------------- | --------------------------------------------------------------------------- |
-| `pnpm setup`              | Validate front-end ports; initialize DB, seed data, server config           |
-| `pnpm new:server`         | Generate and register a new NestJS + Fastify service                        |
-| `pnpm dev`                | Interactively pick server and front-end apps from the registry              |
-| `pnpm dev all`            | Non-interactively start every app in the registry                           |
-| `pnpm dev:admin`          | Start admin only                                                            |
-| `pnpm dev:admin-api`      | Start admin-api only                                                        |
-| `pnpm dev:api`            | Start the default consumer API only                                         |
-| `pnpm dev:stop`           | Stop leftover dev processes from this repository                            |
-| `pnpm typecheck`          | Typecheck the whole workspace                                               |
-| `pnpm check:architecture` | Check cross-package dependencies, directory purity, service-layer direction |
-| `pnpm lint`               | ESLint check (`lint:fix` auto-fixes)                                        |
-| `pnpm format`             | Prettier formatting (`format:check` checks only)                            |
-| `pnpm test`               | Service template smoke tests and workspace-wide Rstest unit tests           |
-| `pnpm test:e2e`           | Start the admin system and run Playwright critical-path smoke tests         |
-| `pnpm build`              | Build every artifact                                                        |
-| `pnpm check`              | typecheck + lint + format:check + test + build                              |
+| Command                   | Description                                                                         |
+| ------------------------- | ----------------------------------------------------------------------------------- |
+| `pnpm setup`              | Validate frontend ports; initialize the database, seed data, and server config      |
+| `pnpm new:server`         | Generate and register a new NestJS + Fastify service                                |
+| `pnpm dev`                | Interactively select server and frontend apps from the registry                     |
+| `pnpm dev all`            | Non-interactively start every app in the registry                                   |
+| `pnpm dev:admin`          | Start admin only                                                                    |
+| `pnpm dev:admin-api`      | Start admin-api only                                                                |
+| `pnpm dev:api`            | Start the default end-user API only                                                 |
+| `pnpm dev:stop`           | Stop development processes previously started by this repository                    |
+| `pnpm typecheck`          | Run type checking across the workspace                                              |
+| `pnpm check:architecture` | Check cross-package dependencies, directory boundaries, and service-layer direction |
+| `pnpm lint`               | ESLint check (`lint:fix` auto-fixes)                                                |
+| `pnpm format`             | Prettier formatting (`format:check` checks only)                                    |
+| `pnpm test`               | Service template smoke tests and workspace-wide Rstest unit tests                   |
+| `pnpm test:e2e`           | Start the admin system and run Playwright critical-path smoke tests                 |
+| `pnpm build`              | Build all applications and packages                                                 |
+| `pnpm check`              | typecheck + lint + format:check + test + build                                      |
 
 ## Directory structure
 
@@ -208,17 +208,17 @@ ly-fullstack/
 ├── apps/
 │   ├── admin/                 # Admin console (Rsbuild + Vue 3 + Element Plus)
 │   ├── admin-api/             # Admin API (NestJS + Fastify)
-│   └── api/                   # Default consumer API (health check, public dictionaries and configs)
+│   └── api/                   # Default end-user API (health checks, public dictionaries, and configuration)
 ├── packages/
-│   ├── charts/                # Framework-free ECharts capability and shared types
+│   ├── charts/                # Framework-agnostic ECharts integration and shared types
 │   ├── database/              # Prisma schema, migrations, generated client, and DB types
 │   └── shared/                # Cross-app types and framework-agnostic utilities
 ├── scripts/
-│   ├── templates/server/      # Generatable NestJS service skeleton
-│   └── *.mjs                  # Dev launcher, setup, config reading, and template test scripts
+│   ├── templates/server/      # Template used to generate NestJS services
+│   └── *.mjs                  # Development, setup, config loading, and template test scripts
 ├── docs/                      # Project documentation
 ├── .rules/                    # Development conventions
-├── .github/workflows/ci.yml   # Quality gate for Pull Requests and the main branch
+├── .github/workflows/ci.yml   # Quality gate for pull requests and the main branch
 ├── workspace.config.json      # Source of truth for app categories, paths, package names, local ports, and health checks
 └── compose.yaml               # Local PostgreSQL dependency
 ```
@@ -227,53 +227,53 @@ ly-fullstack/
 
 Implemented:
 
-- Admin shell: collapsible sidebar (with a narrow-screen drawer), header, dashboard, 404 page, and the design token system.
-- Multi-theme: dark and light themes, Element Plus Sass variable overrides, component-level theme adaptation, and theme-switch animation.
-- Login authentication: real username/password login, JWT session restore, token revocation on password change, login rate limiting, server-side one-time image slider captcha, 401 handling, and route guards.
-- Five-table RBAC: users, roles, menus, user-role relations, and role-menu relations; the default Admin super-user holds the highest permissions.
-- System management: real pagination, filtering, create, edit, status control, relation assignment, and protection rules for users, roles, menus, dictionaries, and public configs.
-- Dynamic navigation: the sidebar consumes the menu tree returned by the login session from the database; menu icons are managed through a Lucide allowlist.
+- Admin shell: collapsible sidebar with a responsive drawer for narrow screens, header, dashboard, 404 page, and design tokens.
+- Themes: complete dark and light themes, Element Plus Sass variable overrides, component-level theme adaptations, and theme-switching animation.
+- Authentication: real username/password login, JWT session restoration, token revocation after password changes, login rate limiting, a single-use server-generated image slider CAPTCHA, 401 handling, and route guards.
+- Five-table RBAC: users, roles, menus, user-role relations, and role-menu relations; the built-in super-admin has full permissions.
+- System management: fully implemented pagination, filtering, creation, editing, status controls, relationship assignment, and protection rules for users, roles, menus, dictionaries, and public configuration.
+- Dynamic navigation: the sidebar consumes the database-backed menu tree included in the authenticated session; menu icons are managed through a Lucide allowlist.
 - Request layer: `AxiosFactory` + isolated service instances + interceptors; token handling, auth expiry, and UI feedback are injected from the app bootstrap layer.
 - Admin API: CORS allowlist, ValidationPipe, JWT guard, permission guard, health check, and system-management CRUD.
-- Default consumer API: a standalone NestJS app providing the health check plus login-free, key-exact reads of enabled dictionaries and non-sensitive public configs.
+- Default end-user API: a standalone NestJS application providing health checks and unauthenticated exact-key lookups for enabled dictionaries and non-sensitive public configuration.
 - Database: Prisma schema, migrations, seed data, and the default admin initialization flow.
-- Service scaling: config-driven dev launcher and a NestJS service template verified by real generation.
+- Service extensibility: a configuration-driven development launcher and a NestJS service template validated by generating a real service.
 - Engineering baseline: workspace catalog, Turborepo, architecture boundary checks, ESLint, Prettier, Husky, commitlint, Rstest, and GitHub Actions CI.
 
-Not yet implemented: concrete consumer business, end-user authentication, and any consumer client. The default `apps/api` is only the coding starting point for business services and must not be advertised as a finished end-user product. The deployment environment-variable contract is defined; current CI is a quality gate only — CD that has not been connected to a real server does not count as existing capability.
+Not yet implemented: product-specific end-user business features, end-user authentication, or an end-user client. The default `apps/api` is only a starting point for business services and must not be presented as a finished end-user product. The deployment environment-variable contract is defined, but CI currently provides quality gates only. Continuous deployment is not an existing capability until it is connected to a real deployment target.
 
-## Documentation system & AI collaboration
+## Documentation and AI Collaboration
 
 ### `.rules/`: development conventions — "how code should be written"
 
-Mandatory coding conventions split by stack, 13 files in total: the admin CRUD template and page rules (`admin.md`), Vue component structure and ordering (`vue3.md`), TypeScript type principles (`typescript.md`), comment style (`comment-style.md`), error-handling layers (`error-handling.md`), request-layer encapsulation (`axios.md`), state management (`pinia.md`), styles (`style.md`), naming and directories (`naming.md`, `directory.md`), engineering config (`engineering.md`), and the pre-commit self-review checklist (`code-review.md`).
+The directory contains thirteen mandatory convention files organized by technical area: admin CRUD and page patterns (`admin.md`), Vue component structure and ordering (`vue3.md`), TypeScript type principles (`typescript.md`), comment style (`comment-style.md`), error-handling layers (`error-handling.md`), request-layer encapsulation (`axios.md`), state management (`pinia.md`), server modules (`server.md`), styles (`style.md`), naming and directories (`naming.md`, `directory.md`), engineering configuration (`engineering.md`), and the pre-commit self-review checklist (`code-review.md`).
 
-Read the matching file before starting a task; the full routing table lives in section 4 of [`AGENTS.md`](AGENTS.md). These rules are not suggestions: code that violates them fails lint, architecture checks, and the CI gate.
+Read the relevant file before starting a task. The complete task-to-rule map is maintained in section 4 of [`AGENTS.md`](AGENTS.md). These conventions are requirements rather than suggestions: noncompliant code will fail linting, architecture checks, or CI quality gates.
 
 ### `docs/`: topic docs — "how the system is designed and runs"
 
-Implementation notes for specific topics, read on demand:
+Consult these topic-specific implementation notes as needed:
 
-| Document                                                         | Contents                                              |
-| ---------------------------------------------------------------- | ----------------------------------------------------- |
-| [`docs/environment.md`](docs/environment.md)                     | Environment variable boundaries and Setup behavior    |
-| [`docs/public-api.md`](docs/public-api.md)                       | Capabilities and security boundary of the default API |
-| [`docs/admin-theme.md`](docs/admin-theme.md)                     | Multi-theme and Element Plus customization            |
-| [`docs/admin-design-system.md`](docs/admin-design-system.md)     | Design system and page delivery checklist             |
-| [`docs/admin-version-offline.md`](docs/admin-version-offline.md) | Version detection and offline caching                 |
-| [`docs/deployment.md`](docs/deployment.md)                       | Production deployment                                 |
-| [`docs/releases/`](docs/releases)                                | Release notes for each version                        |
+| Document                                                         | Contents                                                |
+| ---------------------------------------------------------------- | ------------------------------------------------------- |
+| [`docs/environment.md`](docs/environment.md)                     | Environment variable boundaries and Setup behavior      |
+| [`docs/public-api.md`](docs/public-api.md)                       | Capabilities and security boundaries of the default API |
+| [`docs/admin-theme.md`](docs/admin-theme.md)                     | Multi-theme and Element Plus customization              |
+| [`docs/admin-design-system.md`](docs/admin-design-system.md)     | Design system and page delivery checklist               |
+| [`docs/admin-version-offline.md`](docs/admin-version-offline.md) | Version detection and offline caching                   |
+| [`docs/deployment.md`](docs/deployment.md)                       | Production deployment                                   |
+| [`docs/releases/`](docs/releases)                                | Release notes for each version                          |
 
-The repository root also carries [`ROADMAP.md`](ROADMAP.md) (roadmap), [`CHANGELOG.md`](CHANGELOG.md) (changelog), and [`CONTRIBUTING.md`](CONTRIBUTING.md) (contribution process).
+The repository root also contains [`ROADMAP.md`](ROADMAP.md) (roadmap), [`CHANGELOG.md`](CHANGELOG.md) (changelog), and [`CONTRIBUTING.md`](CONTRIBUTING.md) (contribution process).
 
 ### Keep one set of conventions across AI coding tools
 
-This documentation system is designed for AI collaboration from the ground up — the way this project keeps output consistent whether written by humans, AI, or a mix of both:
+This documentation system was designed with AI collaboration in mind. It keeps project output consistent whether the code is written by people, AI, or both:
 
-1. **`AGENTS.md` is the single entry point for AI**. It is the workspace instruction automatically loaded by AI coding agents (Codex, Claude Code, and other tools that follow the AGENTS.md convention) and contains the programming philosophy, tech stack, hard architecture boundaries, and the `.rules/` task routing table.
-2. **Open the repository root as your workspace when using AI**. The tool loads `AGENTS.md` automatically, then routes to the matching `.rules/` file by task type (page CRUD, server modules, styles, tests, …) — no need to paste conventions into the prompt.
-3. **Conventions are enforced by tooling, not discipline**. Code produced by humans or AI alike must pass `pnpm check` (architecture check + typecheck + lint + format + tests + build, plus remote CI); boundaries such as cross-package dependency direction and directory purity are machine-verified by `scripts/check-architecture.mjs`.
-4. **Switch tools without switching conventions**. `AGENTS.md` and `.rules/` are plain Markdown bound to no AI product; any tool that reads workspace instructions consumes the same set of rules.
+1. **`AGENTS.md` is the single entry point for AI**. AI coding agents that support the AGENTS.md convention, including Codex and Claude Code, load it as the workspace instructions. It defines the programming philosophy, technology stack, hard architecture boundaries, and the task-to-rule map for `.rules/`.
+2. **Open the repository root as the workspace when using AI**. The tool can load `AGENTS.md` automatically and consult the appropriate `.rules/` file for the task, such as CRUD pages, server modules, styles, or tests. There is no need to paste the complete conventions into every prompt.
+3. **Tooling enforces the conventions**. Code written by people or AI must pass the local `pnpm check` pipeline: architecture checks, type checking, linting, formatting checks, tests, and builds. The same quality gates run in remote CI, while boundaries such as cross-package dependency direction and directory structure are verified automatically by `scripts/check-architecture.mjs`.
+4. **Changing tools does not change the conventions**. `AGENTS.md` and `.rules/` are plain Markdown and are not tied to any AI product. Any tool that can read workspace instructions uses the same source of truth.
 
 ## License
 
