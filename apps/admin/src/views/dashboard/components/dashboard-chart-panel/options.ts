@@ -212,13 +212,13 @@ export const createDashboardChartOption = (variant: DashboardChartVariant): Char
     ...commonOption,
     xAxis: {
       ...commonOption.xAxis,
-      data: ['用户', '权限', '内容', '文件', '通知', '日志'],
+      data: ['用户', '权限', '内容', '文件', '通知', '日志', '配置', '任务'],
     },
     series: [
       {
         name: '调用次数',
         type: 'bar',
-        data: [1860, 1420, 2180, 1280, 1640, 960],
+        data: [1860, 1420, 2180, 1280, 1640, 960, 1360, 1780],
         barWidth: 18,
         showBackground: true,
         backgroundStyle: {
