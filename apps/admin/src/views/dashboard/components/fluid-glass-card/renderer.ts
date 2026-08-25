@@ -1,4 +1,4 @@
-import type { FluidGlassRenderOptions, ThemeName } from '@/types';
+import type { FluidGlassRenderOptions } from '@/types';
 
 const VERTEX_SHADER = `
   attribute vec2 a_position;
@@ -107,90 +107,6 @@ const DARK_FRAGMENT_SHADER = `
   }
 `;
 
-/**
- * 浅色主题使用实体品牌绿流体，而不是把深色透明材质简单混白。
- *
- * 左侧白色留白由着色器自身生成，确保文字始终清晰；右侧保留高密度绿色流体，避免浅色卡片
- * 退化成一层发灰的青色雾。Shader 与深色版本使用相同的 Uniform 协议，便于共用渲染生命周期。
- */
-const LIGHT_FRAGMENT_SHADER = `
-  precision highp float;
-  varying vec2 v_uv;
-  uniform vec2 u_resolution;
-  uniform float u_mouseMix;
-  uniform float u_time;
-  uniform float u_speed;
-  uniform float u_seed;
-  uniform vec3 u_colorA;
-  uniform vec3 u_colorB;
-  uniform vec3 u_colorC;
-
-  float hash(vec2 p) {
-    p = fract(p * vec2(123.34, 456.21) + u_seed);
-    p += dot(p, p + 45.32);
-    return fract(p.x * p.y);
-  }
-
-  float noise(vec2 p) {
-    vec2 i = floor(p);
-    vec2 f = fract(p);
-    f = f * f * (3.0 - 2.0 * f);
-    float a = hash(i);
-    float b = hash(i + vec2(1.0, 0.0));
-    float c = hash(i + vec2(0.0, 1.0));
-    float d = hash(i + vec2(1.0, 1.0));
-    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
-  }
-
-  float fbm(vec2 p) {
-    float value = 0.0;
-    float amplitude = .55;
-    mat2 rotation = mat2(.8, .6, -.6, .8);
-    for (int i = 0; i < 5; i++) {
-      value += amplitude * noise(p);
-      p = rotation * p * 2.0 + 3.7;
-      amplitude *= .5;
-    }
-    return value;
-  }
-
-  void main() {
-    vec2 uv = v_uv;
-    vec2 p = uv * vec2(u_resolution.x / max(u_resolution.y, 1.0), 1.0) * 1.6;
-    float time = u_time * u_speed * .245;
-
-    vec2 q = vec2(
-      fbm(p + time * vec2(.6, .2)),
-      fbm(p + time * vec2(-.4, .5) + 5.2)
-    );
-    vec2 r = vec2(
-      fbm(p + 2.2 * q + time * vec2(.3, -.4) + 1.7),
-      fbm(p + 2.2 * q + time * vec2(-.2, .3) + 8.3)
-    );
-    float fluid = fbm(p + 2.4 * r);
-
-    vec3 fluidColor = mix(u_colorA, u_colorB, smoothstep(.15, .62, fluid));
-    fluidColor = mix(fluidColor, u_colorC, smoothstep(.60, .95, clamp(q.x * 1.3, 0.0, 1.0)));
-    fluidColor += .15 * r.y * u_colorB;
-    fluidColor = mix(
-      fluidColor,
-      fluidColor * fluidColor * 1.35 + fluidColor * .12,
-      u_mouseMix * .55
-    );
-
-    float colorZone = smoothstep(.18, .72, uv.x + .15 * (q.y - .5));
-    float whiteTop = smoothstep(.58, 1.08, uv.y) * .28;
-    float density = smoothstep(.24, .72, fluid + .22 * r.x);
-    vec3 baseColor = vec3(.973, .988, .980);
-    float mask = colorZone * density;
-    mask = clamp(mask + colorZone * .20, 0.0, .88);
-    vec3 outputColor = mix(baseColor, fluidColor, mask);
-    outputColor = mix(outputColor, baseColor, whiteTop * (1.0 - mask * .55));
-
-    gl_FragColor = vec4(outputColor, 1.0);
-  }
-`;
-
 const UNIFORM_NAMES = [
   'u_resolution',
   'u_mouse',
@@ -259,10 +175,9 @@ const compileShader = (gl: WebGLRenderingContext, type: number, source: string):
  * 创建 Fluid Glass WebGL 程序
  *
  * @param gl WebGL 上下文
- * @param fragmentShaderSource 当前主题使用的片元着色器
  * @returns 链接完成的 WebGL 程序
  */
-const createProgram = (gl: WebGLRenderingContext, fragmentShaderSource: string): WebGLProgram => {
+const createProgram = (gl: WebGLRenderingContext): WebGLProgram => {
   const program = gl.createProgram();
 
   if (!program) {
@@ -270,7 +185,7 @@ const createProgram = (gl: WebGLRenderingContext, fragmentShaderSource: string):
   }
 
   const vertexShader = compileShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER);
-  const fragmentShader = compileShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
+  const fragmentShader = compileShader(gl, gl.FRAGMENT_SHADER, DARK_FRAGMENT_SHADER);
   gl.attachShader(program, vertexShader);
   gl.attachShader(program, fragmentShader);
   gl.linkProgram(program);
@@ -291,7 +206,6 @@ const createProgram = (gl: WebGLRenderingContext, fragmentShaderSource: string):
  * @param host 卡片根元素
  * @param canvas WebGL 画布
  * @param options 渲染参数
- * @param themeName 当前主题，用于选择主题专属片元着色器和输入色板
  * @param onFallback WebGL 不可用时的回调
  * @returns 组件卸载时使用的清理函数
  */
@@ -299,7 +213,6 @@ export const createFluidGlassRenderer = (
   host: HTMLElement,
   canvas: HTMLCanvasElement,
   options: FluidGlassRenderOptions,
-  themeName: ThemeName,
   onFallback: () => void,
 ): (() => void) => {
   const gl = canvas.getContext('webgl', {
@@ -320,7 +233,7 @@ export const createFluidGlassRenderer = (
   let program: WebGLProgram;
 
   try {
-    program = createProgram(gl, themeName === 'light' ? LIGHT_FRAGMENT_SHADER : DARK_FRAGMENT_SHADER);
+    program = createProgram(gl);
   } catch {
     onFallback();
     return (): void => undefined;
@@ -359,10 +272,7 @@ export const createFluidGlassRenderer = (
   let lastFrame = 0;
   let active = true;
   let animationFrame = 0;
-  const renderColors: [[number, number, number], [number, number, number], [number, number, number]] =
-    themeName === 'light'
-      ? [hexToRgb(options.lightColorA), hexToRgb(options.lightColorB), hexToRgb(options.lightColorC)]
-      : [hexToRgb(options.colorA), hexToRgb(options.colorB), hexToRgb(options.colorC)];
+  const renderColors = [hexToRgb(options.colorA), hexToRgb(options.colorB), hexToRgb(options.colorC)] as const;
 
   /**
    * 根据卡片实际尺寸同步画布像素

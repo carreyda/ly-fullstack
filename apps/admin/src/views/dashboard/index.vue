@@ -11,6 +11,7 @@
                 :eyebrow="card.eyebrow"
                 :title="card.title"
                 :value="card.value"
+                :icon="card.icon"
                 :meta-label="card.metaLabel"
                 :trend-text="card.trendText"
                 :trend-tone="card.trendTone"
@@ -41,6 +42,11 @@
 
 <script setup lang="ts">
 /**
+ * Lucide 图标用于区分用户、会话、请求和告警四类核心指标。
+ */
+import { ChartNoAxesCombined, TriangleAlert, UserPlus, Users } from '@lucide/vue';
+
+/**
  * 首页由图表、系统状态、待办和动态面板组合；页面入口只负责布局与演示数据装配。
  */
 import DashboardChartPanel from './components/dashboard-chart-panel/index.vue';
@@ -60,6 +66,7 @@ const METRIC_CARDS = [
     eyebrow: '今日新增',
     title: '新增用户',
     value: '128',
+    icon: UserPlus,
     metaLabel: '较昨日',
     trendText: '↑ 12.8%',
     trendTone: 'positive',
@@ -73,6 +80,7 @@ const METRIC_CARDS = [
     eyebrow: '活跃会话',
     title: '在线用户',
     value: '286',
+    icon: Users,
     metaLabel: '当前峰值',
     trendText: '↑ 8.6%',
     trendTone: 'positive',
@@ -86,6 +94,7 @@ const METRIC_CARDS = [
     eyebrow: '接口调用',
     title: '今日请求',
     value: '56k',
+    icon: ChartNoAxesCombined,
     metaLabel: '成功率',
     trendText: '99.98%',
     trendTone: 'positive',
@@ -99,6 +108,7 @@ const METRIC_CARDS = [
     eyebrow: '待处理',
     title: '系统告警',
     value: '03',
+    icon: TriangleAlert,
     metaLabel: '较昨日',
     trendText: '↓ 40%',
     trendTone: 'negative',

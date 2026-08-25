@@ -25,21 +25,6 @@ export interface FluidGlassRenderOptions {
   colorC: string;
 
   /**
-   * 浅色主题第一层流体颜色
-   */
-  lightColorA: string;
-
-  /**
-   * 浅色主题第二层流体颜色
-   */
-  lightColorB: string;
-
-  /**
-   * 浅色主题第三层流体颜色
-   */
-  lightColorC: string;
-
-  /**
    * 动画速度
    */
   speed: number;

@@ -16,14 +16,9 @@
       <div class="fluid-glass-card__noise" aria-hidden="true"></div>
     </template>
     <template v-else>
-      <canvas
-        :key="currentThemeName"
-        ref="canvasRef"
-        class="fluid-glass-card__canvas fluid-glass-card__canvas--light"
-        aria-hidden="true"
-      ></canvas>
-      <div class="fluid-glass-card__fallback fluid-glass-card__fallback--light" aria-hidden="true"></div>
-      <div class="fluid-glass-card__highlight" aria-hidden="true"></div>
+      <div class="fluid-glass-card__light-icon" aria-hidden="true">
+        <component :is="props.icon" :size="22" :stroke-width="1.8" />
+      </div>
     </template>
 
     <div class="fluid-glass-card__content">
@@ -46,7 +41,7 @@
  * Vue 响应式、模板引用和生命周期能力用于管理 WebGL 画布的创建、重建与资源释放。
  */
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue';
-import type { CSSProperties } from 'vue';
+import type { Component, CSSProperties } from 'vue';
 
 /**
  * 全局主题事件用于在根节点主题切换完成后重建与主题对应的片元着色器。
@@ -64,7 +59,7 @@ import { useTheme } from '@/composables/use-theme';
 import { createFluidGlassRenderer } from './renderer';
 
 /**
- * 主题名称类型约束渲染器只能接收项目已注册的明暗主题。
+ * 主题名称类型约束组件只能进入项目已注册的明暗主题分支。
  */
 import type { ThemeName } from '@/types';
 
@@ -86,6 +81,11 @@ interface Props {
    * 指标展示值，允许携带已经格式化的千分位或缩写。
    */
   value: string;
+
+  /**
+   * 浅色指标卡右侧用于区分业务类型的图标组件。
+   */
+  icon: Component;
 
   /**
    * 指标值后的可选单位。
@@ -123,21 +123,6 @@ interface Props {
   colorC?: string;
 
   /**
-   * 浅色主题流体材质的第一层深绿。
-   */
-  lightColorA?: string;
-
-  /**
-   * 浅色主题流体材质的品牌主色。
-   */
-  lightColorB?: string;
-
-  /**
-   * 浅色主题流体材质的第三层辅助绿。
-   */
-  lightColorC?: string;
-
-  /**
    * 流体噪声随时间变化的速度系数。
    */
   speed?: number;
@@ -172,9 +157,6 @@ const props = withDefaults(defineProps<Props>(), {
   colorA: '#1de9a0',
   colorB: '#34d8ff',
   colorC: '#075f54',
-  lightColorA: '#084332',
-  lightColorB: '#087f5b',
-  lightColorC: '#15956f',
   speed: 0.9,
   intensity: 1,
   pointer: 0.8,
@@ -206,9 +188,6 @@ const cardStyle = computed<CSSProperties>(() => ({
   '--fluid-a': props.colorA,
   '--fluid-b': props.colorB,
   '--fluid-c': props.colorC,
-  '--fluid-light-a': props.lightColorA,
-  '--fluid-light-b': props.lightColorB,
-  '--fluid-light-c': props.lightColorC,
   '--surface-opacity': String(props.surface),
 }));
 
@@ -232,6 +211,10 @@ const setupRenderer = async (nextThemeName: ThemeName): Promise<void> => {
     return;
   }
 
+  if (nextThemeName === 'light') {
+    return;
+  }
+
   if (!cardRef.value || !canvasRef.value) {
     isFallback.value = true;
     return;
@@ -244,16 +227,12 @@ const setupRenderer = async (nextThemeName: ThemeName): Promise<void> => {
       colorA: props.colorA,
       colorB: props.colorB,
       colorC: props.colorC,
-      lightColorA: props.lightColorA,
-      lightColorB: props.lightColorB,
-      lightColorC: props.lightColorC,
       speed: props.speed,
       intensity: props.intensity,
       pointer: props.pointer,
       surface: props.surface,
       seed: props.seed,
     },
-    nextThemeName,
     () => {
       isFallback.value = true;
     },

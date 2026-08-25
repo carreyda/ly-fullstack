@@ -112,7 +112,6 @@ html[data-theme='dark'] {
   --fluid-card-positive-color: var(--palette-green-350);
   --fluid-card-negative-color: var(--palette-red-400);
   --fluid-card-trend-shadow: none;
-  --fluid-card-highlight: transparent;
   --fluid-card-shadow: none;
   --fluid-card-shadow-hover: none;
   --body-bg-color: var(--color-bg-page);
@@ -201,15 +200,11 @@ html[data-theme='light'] {
   );
   --menu-hover-text-color: var(--color-primary);
   --menu-hover-background: color-mix(in srgb, var(--color-primary) 8%, transparent);
-  --fluid-card-background: linear-gradient(
-    140deg,
-    var(--palette-white),
-    color-mix(in srgb, var(--palette-green-25) 72%, var(--palette-white))
-  );
+  --fluid-card-background: var(--palette-white);
   --fluid-card-radius: 16px;
-  --fluid-card-hover-translate: -3px;
+  --fluid-card-hover-translate: -1px;
   --fluid-card-border: var(--border-color);
-  --fluid-card-border-hover: color-mix(in srgb, var(--palette-green-650) 32%, transparent);
+  --fluid-card-border-hover: color-mix(in srgb, var(--palette-green-650) 24%, transparent);
   --fluid-card-overlay-horizontal: linear-gradient(
     90deg,
     color-mix(in srgb, var(--palette-white) 82%, transparent),
@@ -229,22 +224,18 @@ html[data-theme='light'] {
   --fluid-card-fallback-opacity: 0.95;
   --fluid-card-noise-opacity: 0;
   --fluid-card-text-shadow: none;
-  --fluid-card-eyebrow-color: var(--color-primary);
+  --fluid-card-eyebrow-color: var(--palette-graphite-500);
   --fluid-card-title-color: var(--palette-graphite-700);
-  --fluid-card-value-color: var(--palette-green-950);
+  --fluid-card-value-color: var(--palette-graphite-925);
   --fluid-card-unit-color: var(--palette-graphite-500);
   --fluid-card-change-color: var(--palette-graphite-500);
-  --fluid-card-positive-color: var(--palette-white);
-  --fluid-card-negative-color: var(--palette-red-400);
-  --fluid-card-trend-shadow: 0 1px 4px color-mix(in srgb, var(--palette-green-900) 42%, transparent);
-  --fluid-card-highlight: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--palette-white) 36%, transparent),
-    color-mix(in srgb, var(--palette-white) 10%, transparent) 68%,
-    transparent
-  );
-  --fluid-card-shadow: none;
-  --fluid-card-shadow-hover: none;
+  --fluid-card-positive-color: var(--palette-green-700);
+  --fluid-card-negative-color: var(--palette-red-600);
+  --fluid-card-trend-shadow: none;
+  --fluid-card-light-icon-background: color-mix(in srgb, var(--palette-green-700) 8%, var(--palette-white));
+  --fluid-card-light-icon-color: var(--palette-green-700);
+  --fluid-card-shadow: 0 1px 2px color-mix(in srgb, var(--palette-graphite-925) 4%, transparent);
+  --fluid-card-shadow-hover: 0 7px 18px color-mix(in srgb, var(--palette-graphite-925) 7%, transparent);
   --body-bg-color: var(--color-bg-page);
   --color-text-base: var(--color-text-primary);
 }
