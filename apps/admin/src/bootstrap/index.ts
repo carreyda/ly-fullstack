@@ -1,7 +1,8 @@
+import { setupAdminTheme } from '@/composables/use-theme';
 import { setupServiceFeedback } from '@/feedback';
 import router from '@/router';
 import { configureServiceAuth } from '@/services/service-auth';
-import pinia, { useAuthStore } from '@/stores';
+import pinia, { useAuthStore, useThemeStore } from '@/stores';
 
 import type { App } from 'vue';
 
@@ -138,9 +139,11 @@ const setupAdminApp = (app: App): void => {
  */
 export const bootstrapAdminApp = (app: App): (() => void) => {
   setupAdminApp(app);
+  const disposeTheme = setupAdminTheme(useThemeStore(pinia));
   window.addEventListener('app-update-ready', handleAppUpdateReady);
 
   return () => {
+    disposeTheme();
     window.removeEventListener('app-update-ready', handleAppUpdateReady);
   };
 };

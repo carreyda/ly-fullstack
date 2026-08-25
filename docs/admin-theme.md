@@ -8,8 +8,10 @@
 
 当前 Admin 支持两套主题：
 
-- `dark`：默认主题；
+- `dark`：深色主题；
 - `light`：浅色主题。
+
+首次访问默认使用 `system` 偏好跟随操作系统；用户主动切换后保存明确的 `dark` 或 `light` 选择。
 
 主题系统遵循以下原则：
 
@@ -44,7 +46,7 @@ Element Plus Sass 源码编译生成 --el-* 变量和组件样式
 ```text
 主题按钮
   → useTheme.toggleTheme()
-  → Theme Store 持久化 ThemeName
+  → Theme Store 持久化 ThemePreference
   → html[data-theme] 更新
   → CSS 语义变量立即切换
   → EVENT_THEME_CHANGE 通知 Canvas / WebGL / ECharts
@@ -59,10 +61,10 @@ Element Plus Sass 源码编译生成 --el-* 变量和组件样式
 | `apps/admin/src/assets/element-plus/modules/var.scss`           | 在 Element Plus Sass 首次加载前配置官方 Sass map                  |
 | `apps/admin/src/assets/element-plus/index.scss`                 | Element Plus Sass 定制唯一聚合入口                                |
 | `apps/admin/src/assets/styles/modules/component-overrides.scss` | 必须命中第三方内部 DOM 的业务作用域覆盖                           |
-| `apps/admin/src/composables/use-theme.ts`                       | 同步 Store、`data-theme`、View Transition 和主题变更事件          |
-| `apps/admin/src/stores/modules/theme.ts`                        | 持久化当前 `ThemeName`，不直接操作 DOM                            |
-| `apps/admin/src/types/modules/base.ts`                          | 维护 `ThemeName = 'dark'                                          | 'light'` |
-| `apps/admin/index.html`                                         | 在 Vue 启动前提供默认 `data-theme="dark"`                         |
+| `apps/admin/src/composables/use-theme.ts`                       | 同步系统颜色偏好、`data-theme`、View Transition 和主题变更事件    |
+| `apps/admin/src/stores/modules/theme.ts`                        | 持久化 `ThemePreference` 并派生当前 `ThemeName`，不直接操作 DOM   |
+| `apps/admin/src/types/modules/base.ts`                          | 维护 `ThemeName` 和 `ThemePreference`                             |
+| `apps/admin/index.html`                                         | 在 Vue 启动前按持久化偏好和系统主题写入实际 `data-theme`          |
 | `apps/admin/build/rsbuild.base.config.ts`                       | 注入 Element Plus Sass 入口并配置自动导入 Resolver                |
 
 ## 三层变量模型
@@ -115,6 +117,7 @@ html[data-theme='light'] {
 | 控件       | `--control-fill-color`、`--control-hover-fill-color`、`--control-active-fill-color` | Input、Select、Button 等通用控件状态      |
 | 禁用       | `--control-disabled-*`                                                              | 禁用背景、文字和边框                      |
 | 浮层       | `--overlay-fill-color`                                                              | Select Dropdown、Popover 等 Teleport 浮层 |
+| 模态遮罩   | `--modal-backdrop-color`                                                            | Dialog 背后的页面压暗层                   |
 | 遮罩       | `--mask-fill-color`、`--mask-extra-light-fill-color`                                | `v-loading` 和按钮 Loading 遮罩           |
 | 空状态     | `--empty-fill-color-0` 至 `--empty-fill-color-9`                                    | `el-empty` 默认 SVG 的完整色阶            |
 | 菜单       | `--menu-hover-*`、`--menu-active-*`                                                 | 侧栏菜单和菜单树                          |
@@ -319,32 +322,38 @@ Alert 的浅色状态没有独立的颜色 Sass map，而是直接消费编译�
 
 ## 主题状态、持久化与动画
 
-### ThemeName
+### ThemeName 与 ThemePreference
 
-主题名称只能使用共享类型：
+实际主题和用户偏好只能使用共享类型：
 
 ```ts
 export type ThemeName = 'dark' | 'light';
+export type ThemePreference = ThemeName | 'system';
 ```
 
-Store、Composable、事件参数、Canvas 和 WebGL 组件都必须使用该类型，禁止各自声明字符串联合类型。
+`ThemeName` 约束 DOM、事件参数、Canvas 和 WebGL 最终使用的明暗主题；`ThemePreference` 只在 Store
+表达跟随系统或用户明确选择。各模块禁止重新声明字符串联合类型。
 
 ### Store 是状态真相源
 
-`useThemeStore` 使用 `pinia-plugin-persistedstate` 保存 `themeName`：
+`useThemeStore` 使用 `pinia-plugin-persistedstate` 保存 `themePreference`，并结合系统主题派生只读
+`themeName`：
 
 ```ts
 persist: {
   key: 'APP_PINIA_THEME',
-  pick: ['themeName'],
+  pick: ['themePreference'],
 }
 ```
+
+Store 会兼容旧版本持久化的 `themeName` 字段，已经明确选择深浅主题的用户升级后不会被重置。
 
 Pinia 必须先执行 `app.use(pinia)`，之后才能创建任何依赖插件的 Store。提前创建 Store 会导致持久化插件没有挂载到该实例。
 
 ### Composable 负责副作用
 
-组件不得直接同时修改 Store 和 DOM。统一调用 `useTheme()`：
+启动入口先调用 `setupAdminTheme()` 读取并监听 `prefers-color-scheme`，返回的清理函数负责移除媒体查询监听。
+组件不得直接同时修改 Store 和 DOM，统一调用 `useTheme()`：
 
 - `setTheme()`：更新 Store、`document.documentElement.dataset.theme` 并广播事件；
 - `toggleTheme()`：计算下一个主题，并在浏览器支持时运行 View Transition 圆形扩散；
@@ -352,13 +361,14 @@ Pinia 必须先执行 `app.use(pinia)`，之后才能创建任何依赖插件的
 
 ### 默认主题
 
-`apps/admin/index.html` 提前写入：
+`apps/admin/index.html` 保留浅色无脚本兜底，并在 Vue 与样式加载前同步执行主题初始化脚本：
 
 ```html
-<html lang="zh-CN" data-theme="dark"></html>
+<html lang="zh-CN" data-theme="light"></html>
 ```
 
-这样 Vue 和持久化状态尚未恢复时也有完整的默认主题，不会短暂出现无主题页面。当前产品默认主题是深色，不要删除该兜底。
+初始化脚本优先读取持久化的 `system`、`dark` 或 `light` 偏好；没有有效偏好时通过
+`prefers-color-scheme` 跟随操作系统。它与 `setupAdminTheme()` 使用同一决策顺序，避免 Vue 恢复状态前短暂闪现错误主题。
 
 ## Canvas、WebGL 和图表如何响应主题
 

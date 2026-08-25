@@ -164,6 +164,7 @@ export const getBaseConfig = (envMode = 'development'): RsbuildConfig => {
      */
     html: {
       template: resolve(process.cwd(), './index.html'),
+      favicon: resolve(process.cwd(), './public/favicon.ico'),
       title: 'LY Fullstack Admin',
     },
   };

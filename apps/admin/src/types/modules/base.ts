@@ -1,10 +1,17 @@
 /**
  * 管理后台支持的主题名称
  *
- * `dark` 表示默认深色主题，`light` 表示浅色主题。该类型同时约束主题 Store、根节点
+ * `dark` 表示深色主题，`light` 表示浅色主题。该类型同时约束根节点
  * `data-theme` 属性和全局主题变更事件，避免各模块使用不一致的字符串。
  */
 export type ThemeName = 'dark' | 'light';
+
+/**
+ * 管理后台主题偏好
+ *
+ * `system` 表示跟随操作系统颜色偏好；用户主动切换后保存明确的深色或浅色偏好。
+ */
+export type ThemePreference = ThemeName | 'system';
 
 /**
  * 后台弹窗表单支持的操作类型
