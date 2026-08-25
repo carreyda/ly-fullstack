@@ -1,19 +1,22 @@
 <template>
   <section class="dashboard-system-overview" aria-label="系统运行概览">
-    <header class="dashboard-system-overview__header">
-      <div>
-        <p class="dashboard-system-overview__eyebrow">运行状态</p>
-        <h2 class="dashboard-system-overview__title">系统运行概览</h2>
-        <p class="dashboard-system-overview__description">核心服务与基础资源的实时状态</p>
-      </div>
-      <div class="dashboard-system-overview__header-meta">
-        <span class="dashboard-system-overview__healthy">
-          <i aria-hidden="true"></i>
-          核心服务正常
-        </span>
-        <span class="dashboard-system-overview__demo-tag">演示数据</span>
-      </div>
-    </header>
+    <dashboard-panel-header
+      class="dashboard-system-overview__header"
+      :icon="Activity"
+      eyebrow="运行状态"
+      title="系统运行概览"
+      description="核心服务与基础资源的实时状态"
+    >
+      <template #meta>
+        <div class="dashboard-system-overview__header-meta">
+          <span class="dashboard-system-overview__healthy">
+            <i aria-hidden="true"></i>
+            核心服务正常
+          </span>
+          <span class="dashboard-system-overview__demo-tag">演示数据</span>
+        </div>
+      </template>
+    </dashboard-panel-header>
 
     <div class="dashboard-system-overview__services">
       <article v-for="service in serviceItems" :key="service.id" class="dashboard-system-overview__service">
@@ -50,7 +53,12 @@
 /**
  * Lucide 图标区分 Admin API、数据库、定时任务和文件服务的运行状态。
  */
-import { Cloud, Database, ServerCog, TimerReset } from '@lucide/vue';
+import { Activity, Cloud, Database, ServerCog, TimerReset } from '@lucide/vue';
+
+/**
+ * Dashboard 统一标题区负责渲染图标、模块短名称、标题和介绍。
+ */
+import DashboardPanelHeader from '../dashboard-panel-header/index.vue';
 
 /**
  * 核心服务演示数据。

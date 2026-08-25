@@ -1,32 +1,28 @@
 <template>
   <section class="dashboard-chart-panel" :aria-label="panelConfig.title">
-    <header class="dashboard-chart-panel__header">
-      <div class="dashboard-chart-panel__heading">
-        <span class="dashboard-chart-panel__icon" aria-hidden="true">
-          <trending-up v-if="props.variant === 'traffic'" :size="17" :stroke-width="1.8" />
-          <chart-no-axes-column-increasing v-else :size="17" :stroke-width="1.8" />
-        </span>
-        <div class="dashboard-chart-panel__heading-text">
-          <p class="dashboard-chart-panel__eyebrow">{{ panelConfig.eyebrow }}</p>
-          <h2 class="dashboard-chart-panel__title">{{ panelConfig.title }}</h2>
-          <p class="dashboard-chart-panel__description">{{ panelConfig.description }}</p>
+    <dashboard-panel-header
+      class="dashboard-chart-panel__header"
+      :icon="panelIcon"
+      :eyebrow="panelConfig.eyebrow"
+      :title="panelConfig.title"
+      :description="panelConfig.description"
+    >
+      <template #meta>
+        <div class="dashboard-chart-panel__summary">
+          <span class="dashboard-chart-panel__demo-tag">演示数据</span>
+          <div class="dashboard-chart-panel__legends" aria-label="图例">
+            <span v-for="(legend, index) in panelConfig.legends" :key="legend" class="dashboard-chart-panel__legend">
+              <i
+                class="dashboard-chart-panel__legend-dot"
+                :class="`dashboard-chart-panel__legend-dot--${index + 1}`"
+                aria-hidden="true"
+              ></i>
+              {{ legend }}
+            </span>
+          </div>
         </div>
-      </div>
-
-      <div class="dashboard-chart-panel__summary">
-        <span class="dashboard-chart-panel__demo-tag">演示数据</span>
-        <div class="dashboard-chart-panel__legends" aria-label="图例">
-          <span v-for="(legend, index) in panelConfig.legends" :key="legend" class="dashboard-chart-panel__legend">
-            <i
-              class="dashboard-chart-panel__legend-dot"
-              :class="`dashboard-chart-panel__legend-dot--${index + 1}`"
-              aria-hidden="true"
-            ></i>
-            {{ legend }}
-          </span>
-        </div>
-      </div>
-    </header>
+      </template>
+    </dashboard-panel-header>
 
     <div ref="chartRef" class="dashboard-chart-panel__chart" role="img" :aria-label="panelConfig.chartLabel"></div>
   </section>
@@ -42,6 +38,11 @@ import { computed, useTemplateRef } from 'vue';
  * 标题图标用于区分折线趋势与柱状分布两类演示图表。
  */
 import { ChartNoAxesColumnIncreasing, TrendingUp } from '@lucide/vue';
+
+/**
+ * Dashboard 统一标题区负责渲染图标、模块短名称、标题和介绍。
+ */
+import DashboardPanelHeader from '../dashboard-panel-header/index.vue';
 
 /**
  * 图表 Composable 统一处理实例初始化、主题刷新、尺寸监听和资源释放。
@@ -82,6 +83,11 @@ const chartRef = useTemplateRef<HTMLElement>('chartRef');
  * 当前图表的标题、说明及图例配置。
  */
 const panelConfig = computed(() => DASHBOARD_CHART_PANEL_CONFIG[props.variant]);
+
+/**
+ * 当前图表标题区使用的业务语义图标。
+ */
+const panelIcon = computed(() => (props.variant === 'traffic' ? TrendingUp : ChartNoAxesColumnIncreasing));
 
 /**
  * 挂载图表并接入主题切换和容器缩放。

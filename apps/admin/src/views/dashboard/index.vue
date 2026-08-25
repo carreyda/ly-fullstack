@@ -2,38 +2,31 @@
   <div class="dashboard">
     <el-scrollbar class="dashboard__scrollbar">
       <div class="dashboard__content">
-        <div class="dashboard__shell">
-          <div class="dashboard__main">
-            <section class="dashboard__metrics" aria-label="核心指标">
-              <fluid-glass-card
-                v-for="card in METRIC_CARDS"
-                :key="card.key"
-                :eyebrow="card.eyebrow"
-                :title="card.title"
-                :value="card.value"
-                :icon="card.icon"
-                :meta-label="card.metaLabel"
-                :trend-text="card.trendText"
-                :trend-tone="card.trendTone"
-                :speed="card.speed"
-                :intensity="card.intensity"
-                :pointer="card.pointer"
-                :seed="card.seed"
-              />
-            </section>
+        <div class="dashboard__main">
+          <section class="dashboard__metrics" aria-label="核心指标">
+            <fluid-glass-card
+              v-for="card in METRIC_CARDS"
+              :key="card.key"
+              :eyebrow="card.eyebrow"
+              :title="card.title"
+              :value="card.value"
+              :icon="card.icon"
+              :meta-label="card.metaLabel"
+              :trend-text="card.trendText"
+              :trend-tone="card.trendTone"
+              :speed="card.speed"
+              :intensity="card.intensity"
+              :pointer="card.pointer"
+              :seed="card.seed"
+            />
+          </section>
 
-            <div class="dashboard__lower">
-              <dashboard-chart-panel variant="traffic" />
-              <dashboard-chart-panel variant="module" />
-            </div>
-
-            <dashboard-system-overview class="dashboard__panel dashboard__overview" />
+          <div class="dashboard__lower">
+            <dashboard-chart-panel variant="traffic" />
+            <dashboard-chart-panel variant="module" />
           </div>
 
-          <aside class="dashboard__aside" aria-label="侧边内容区域">
-            <dashboard-todo-panel class="dashboard__panel dashboard__aside-panel" />
-            <dashboard-activity-panel class="dashboard__panel dashboard__aside-panel" />
-          </aside>
+          <dashboard-system-overview class="dashboard__panel dashboard__overview" />
         </div>
       </div>
     </el-scrollbar>
@@ -47,11 +40,9 @@
 import { ChartNoAxesCombined, TriangleAlert, UserPlus, Users } from '@lucide/vue';
 
 /**
- * 首页由图表、系统状态、待办和动态面板组合；页面入口只负责布局与演示数据装配。
+ * 首页由指标卡片、图表和系统状态面板组合；页面入口只负责布局与演示数据装配。
  */
 import DashboardChartPanel from './components/dashboard-chart-panel/index.vue';
-import DashboardActivityPanel from './components/dashboard-activity-panel/index.vue';
-import DashboardTodoPanel from './components/dashboard-todo-panel/index.vue';
 import DashboardSystemOverview from './components/dashboard-system-overview/index.vue';
 import FluidGlassCard from './components/fluid-glass-card/index.vue';
 

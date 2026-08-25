@@ -4,34 +4,6 @@
   padding: 18px 20px 20px;
   container-type: inline-size;
 
-  &__header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 16px;
-  }
-
-  &__eyebrow {
-    margin: 0 0 3px;
-    color: var(--color-primary);
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-  }
-
-  &__title {
-    margin: 0;
-    color: var(--color-text-primary);
-    font-size: var(--font-size-lg);
-    font-weight: 600;
-  }
-
-  &__description {
-    margin: 5px 0 0;
-    color: var(--color-text-tertiary);
-    font-size: var(--font-size-xs);
-  }
-
   &__header-meta {
     display: flex;
     align-items: center;
@@ -78,10 +50,11 @@
 
   &__service {
     display: flex;
+    min-height: 72px;
     min-width: 0;
     align-items: center;
     gap: 9px;
-    padding: 11px;
+    padding: 12px;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     background: color-mix(in srgb, var(--color-primary) 2.5%, transparent);
@@ -89,9 +62,9 @@
 
   &__service-icon {
     display: grid;
-    width: 32px;
-    height: 32px;
-    flex: 0 0 32px;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
     place-items: center;
     border-radius: var(--radius-md);
     color: var(--color-primary);
@@ -107,7 +80,7 @@
     strong {
       overflow: hidden;
       color: var(--color-text-primary);
-      font-size: var(--font-size-xs);
+      font-size: 14px;
       font-weight: 500;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -127,7 +100,7 @@
     align-items: center;
     gap: 4px;
     color: var(--color-primary);
-    font-size: 12px;
+    font-size: 14px;
 
     i {
       width: 4px;
@@ -163,6 +136,10 @@
     color: var(--color-text-secondary);
     font-size: var(--font-size-xs);
 
+    span {
+      font-size: 14px;
+    }
+
     strong {
       color: var(--color-text-primary);
       font-size: var(--font-size-sm);
@@ -196,10 +173,6 @@
 
 @container (max-width: 520px) {
   .dashboard-system-overview {
-    &__header {
-      flex-direction: column;
-    }
-
     &__services,
     &__metrics {
       grid-template-columns: 1fr;
