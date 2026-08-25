@@ -6,6 +6,9 @@ settings:
 
 catalogs:
   default:
+    '@bprogress/core':
+      specifier: 1.3.4
+      version: 1.3.4
     '@clack/prompts':
       specifier: 1.7.0
       version: 1.7.0
@@ -261,6 +264,9 @@ importers:
 
   apps/admin:
     dependencies:
+      '@bprogress/core':
+        specifier: 'catalog:'
+        version: 1.3.4
       '@lucide/vue':
         specifier: 'catalog:'
         version: 1.33.0(vue@3.5.41(typescript@6.0.2))
@@ -586,6 +592,9 @@ packages:
 
   '@borewit/text-codec@0.2.2':
     resolution: {integrity: sha512-DDaRehssg1aNrH4+2hnj1B7vnUGEjU6OIlyRdkMd0aUdIUvKXrJfXsy8LVtXAy7DRvYVluWbMspsRhz2lcW0mQ==}
+
+  '@bprogress/core@1.3.4':
+    resolution: {integrity: sha512-q/AqpurI/1uJzOrQROuZWixn/+ARekh+uvJGwLCP6HQ/EqAX4SkvNf618tSBxL4NysC0MwqAppb/mRw6Tzi61w==}
 
   '@bufbuild/protobuf@2.14.0':
     resolution: {integrity: sha512-C3UGsiCwSprE2NKIIFA3hCDlpXTMCAXRZuEVp88L1GY36Y41+rYL5fryE+nOFhp4p4JPQvdV8PQ4DWgHgeTE+w==}
@@ -4694,6 +4703,8 @@ snapshots:
       '@babel/helper-validator-identifier': 8.0.4
 
   '@borewit/text-codec@0.2.2': {}
+
+  '@bprogress/core@1.3.4': {}
 
   '@bufbuild/protobuf@2.14.0': {}
 

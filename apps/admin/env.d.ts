@@ -8,6 +8,13 @@
 declare module 'element-plus/dist/locale/zh-cn.mjs';
 
 /**
+ * BProgress 进度条样式的 CSS 子路径声明
+ *
+ * 上游包只为样式入口提供文件指向，没有附带可被当前 TypeScript 配置识别的类型条件。
+ */
+declare module '@bprogress/core/css';
+
+/**
  * 管理后台允许使用的构建环境
  */
 declare type AppEnv = 'development' | 'test' | 'production';

@@ -1,6 +1,8 @@
 import { createApp } from 'vue';
 
 import App from './App.vue';
+// BProgress 基础样式需先于全局样式入口引入,保证 progress.scss 的变量覆盖在其后生效
+import '@bprogress/core/css';
 import './assets/styles/index.scss';
 import { bootstrapAdminApp } from './bootstrap';
 

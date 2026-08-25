@@ -8,6 +8,7 @@ import { dashboard } from './modules/dashboard';
 import { display } from './modules/display';
 import { notFound } from './modules/not-found';
 import { createAdminPageOptions } from './modules/page-options';
+import { setupRouterProgress } from './progress';
 import { system } from './modules/system';
 
 import type { RouteRecordRaw } from 'vue-router';
@@ -48,6 +49,8 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
 });
+
+setupRouterProgress(router);
 
 /**
  * 解析登录后的站内回跳地址

@@ -1,0 +1,11 @@
+/**
+ * 页面切换顶部进度条(BProgress)主题适配
+ *
+ * BProgress 自带样式通过 `--bprogress-*` CSS 变量暴露,这里把进度条颜色接入设计
+ * 系统的 `--color-primary` 语义 token,深浅主题切换时自动跟随,辉光阴影颜色由
+ * 库样式基于同一变量派生。库样式在 `main.ts` 中先于全局样式入口引入,保证本文件
+ * 的变量覆盖在加载顺序上稳定生效。
+ */
+:root {
+  --bprogress-color: var(--color-primary);
+}
