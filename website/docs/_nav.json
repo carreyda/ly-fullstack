@@ -1,0 +1,8 @@
+[
+  { "text": "开始使用", "link": "/guide/", "activeMatch": "^/guide/" },
+  { "text": "架构", "link": "/architecture/", "activeMatch": "^/architecture/" },
+  { "text": "管理后台", "link": "/admin/", "activeMatch": "^/admin/" },
+  { "text": "服务端", "link": "/server/", "activeMatch": "^/server/" },
+  { "text": "部署运维", "link": "/operations/", "activeMatch": "^/operations/" },
+  { "text": "参考", "link": "/reference/", "activeMatch": "^/reference/" }
+]

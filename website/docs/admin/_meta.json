@@ -1,0 +1,6 @@
+[
+  { "type": "file", "name": "index", "label": "管理后台总览" },
+  { "type": "file", "name": "crud-page", "label": "新增 CRUD 页面" },
+  { "type": "file", "name": "menu-permission", "label": "菜单与权限接入" },
+  { "type": "file", "name": "theme", "label": "主题与视觉规范" }
+]

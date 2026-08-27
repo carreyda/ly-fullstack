@@ -59,6 +59,7 @@ export default tseslint.config(
     '**/.turbo/**',
     '**/.rsbuild/**',
     'packages/database/generated/prisma/**',
+    'website/doc_build/**',
   ]),
   js.configs.recommended,
   ...tseslint.configs.recommended,

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="logo-title">
+  <title id="logo-title">LY Fullstack</title>
+  <defs>
+    <linearGradient id="logo-gradient" x1="10" y1="82" x2="86" y2="14" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#00a86b" />
+      <stop offset="0.52" stop-color="#1de9a0" />
+      <stop offset="1" stop-color="#8fffd6" />
+    </linearGradient>
+  </defs>
+  <path
+    d="M48 8 84 29v38L48 88 12 67V29Z"
+    fill="none"
+    stroke="url(#logo-gradient)"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="10"
+  />
+  <path
+    d="M29 30v32c0 4.4 3.6 8 8 8h19V46M42 30l14 16 14-16"
+    fill="none"
+    stroke="url(#logo-gradient)"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="8"
+  />
+</svg>

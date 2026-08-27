@@ -1,0 +1,6 @@
+[
+  { "type": "file", "name": "index", "label": "参考总览" },
+  { "type": "file", "name": "commands", "label": "命令速查" },
+  { "type": "file", "name": "capabilities", "label": "能力边界" },
+  { "type": "file", "name": "project-documents", "label": "文档与规则索引" }
+]

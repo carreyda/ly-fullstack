@@ -1,0 +1,7 @@
+[
+  { "type": "file", "name": "index", "label": "服务端总览" },
+  { "type": "file", "name": "public-api", "label": "默认 C 端 API" },
+  { "type": "file", "name": "extend-api", "label": "新增业务模块" },
+  { "type": "file", "name": "create-service", "label": "创建独立服务" },
+  { "type": "file", "name": "database", "label": "数据库与迁移" }
+]

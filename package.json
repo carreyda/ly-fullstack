@@ -16,6 +16,9 @@
     "dev:admin": "node scripts/dev.mjs admin",
     "dev:admin-api": "node scripts/dev.mjs admin-api",
     "dev:api": "node scripts/dev.mjs api",
+    "docs:dev": "rspress dev -c website/rspress.config.ts",
+    "docs:build": "rspress build -c website/rspress.config.ts",
+    "docs:preview": "rspress preview -c website/rspress.config.ts",
     "build": "turbo run build --ui=stream",
     "check:architecture": "node scripts/check-architecture.mjs",
     "typecheck": "turbo run typecheck --ui=stream && pnpm typecheck:e2e",
@@ -29,7 +32,7 @@
     "test:template": "node scripts/test-server-template.mjs",
     "verify:setup": "node scripts/verify-setup.mjs",
     "clean": "turbo run clean --ui=stream",
-    "check": "pnpm check:architecture && pnpm typecheck && pnpm lint && pnpm format:check && pnpm test && pnpm build",
+    "check": "pnpm check:architecture && pnpm typecheck && pnpm lint && pnpm format:check && pnpm test && pnpm build && pnpm docs:build",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -41,6 +44,7 @@
     ]
   },
   "devDependencies": {
+    "@rspress/core": "catalog:",
     "@playwright/test": "catalog:",
     "@commitlint/cli": "catalog:",
     "@commitlint/config-conventional": "catalog:",

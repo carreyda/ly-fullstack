@@ -8,6 +8,8 @@
 
 面向开源展示与真实项目的通用全栈解决方案。
 
+📖 [官方使用文档](website/docs/index.md) · 本地运行 `pnpm docs:dev`
+
 当前已经完成管理后台基础闭环：登录认证、动态菜单、用户/角色/菜单/字典/公共配置管理、五表 RBAC、数据库迁移与种子数据均已真实贯通；同时提供一个只包含健康检查、公共字典和公共配置读取能力的默认 C 端 API。后续阶段仍不会把尚未实现的具体终端业务算入现有范围。
 
 ## 核心思想
@@ -199,7 +201,9 @@ pnpm new:server
 | `pnpm test`               | 服务模板冒烟测试与全仓 Rstest 单元测试           |
 | `pnpm test:e2e`           | 启动管理系统并执行 Playwright 关键流程冒烟测试   |
 | `pnpm build`              | 构建全部产物                                     |
-| `pnpm check`              | typecheck + lint + format:check + test + build   |
+| `pnpm docs:dev`           | 启动 Rspress 官方文档站                          |
+| `pnpm docs:build`         | 构建文档站、页面 Markdown 与 `llms.txt`          |
+| `pnpm check`              | 完整代码门禁并构建官方文档站                     |
 
 ## 目录结构
 
@@ -216,7 +220,8 @@ ly-fullstack/
 ├── scripts/
 │   ├── templates/server/      # 可生成的 NestJS 服务底座
 │   └── *.mjs                  # 启动、初始化、配置读取与模板测试脚本
-├── docs/                      # 项目文档
+├── docs/                      # 工程专题文档与实现真相源
+├── website/                   # Rspress 官方使用文档站源码
 ├── .rules/                    # 开发规范
 ├── .github/workflows/ci.yml   # Pull Request 与 main 分支质量门禁
 ├── workspace.config.json      # 应用分类、路径、包名、本地端口与健康检查真相源
@@ -243,6 +248,12 @@ ly-fullstack/
 尚未实现：具体 C 端业务、终端用户认证和任何 C 端客户端。默认 `apps/api` 只是业务服务编码起点，不应被宣传成已经完成的终端产品。部署环境变量契约已经明确；当前 CI 只承担质量门禁，不能把尚未接入真实服务器的 CD 算作现有能力。
 
 ## 文档体系与 AI 协作
+
+### `website/`：官方使用文档——"项目应该怎么用"
+
+基于 Rspress 2 的任务式文档站，详细覆盖本地初始化、目录职责、模块化单体边界、Admin CRUD、菜单权限、默认 C 端 API、数据库迁移、服务生成、质量门禁和生产部署。执行 `pnpm docs:dev` 本地阅读，`pnpm docs:build` 会同时生成静态站、各页面 Markdown、`llms.txt` 与 `llms-full.txt`。
+
+`website/` 不属于业务应用或共享包，不登记到 `workspace.config.json`，也不改变根 `docs/` 的专题文档语义。
 
 ### `.rules/`：开发规范——"代码应该怎么写"
 

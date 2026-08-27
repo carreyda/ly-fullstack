@@ -8,6 +8,8 @@
 
 A general-purpose full-stack foundation for open-source showcases and real-world products.
 
+📖 [Official documentation (Chinese)](website/docs/index.md) · Run locally with `pnpm docs:dev`
+
 The admin foundation is complete and connected end to end: authentication, dynamic menus, user, role, menu, dictionary, and public configuration management, five-table RBAC, database migrations, and seed data all run against a real database. The project also includes a default end-user-facing API limited to health checks and public reads of dictionaries and configuration. Features for specific end-user products will not be presented as existing capabilities until they are actually implemented.
 
 ## Core Philosophy
@@ -199,7 +201,9 @@ Business APIs can serve any client stack: mini apps, SSR sites built with Nuxt o
 | `pnpm test`               | Service template smoke tests and workspace-wide Rstest unit tests                   |
 | `pnpm test:e2e`           | Start the admin system and run Playwright critical-path smoke tests                 |
 | `pnpm build`              | Build all applications and packages                                                 |
-| `pnpm check`              | typecheck + lint + format:check + test + build                                      |
+| `pnpm docs:dev`           | Start the Rspress documentation site                                                |
+| `pnpm docs:build`         | Build the site, per-page Markdown, and `llms.txt`                                   |
+| `pnpm check`              | Run the complete code quality gate and build the documentation site                 |
 
 ## Directory structure
 
@@ -216,7 +220,8 @@ ly-fullstack/
 ├── scripts/
 │   ├── templates/server/      # Template used to generate NestJS services
 │   └── *.mjs                  # Development, setup, config loading, and template test scripts
-├── docs/                      # Project documentation
+├── docs/                      # Engineering topic docs and implementation source of truth
+├── website/                   # Rspress official documentation source
 ├── .rules/                    # Development conventions
 ├── .github/workflows/ci.yml   # Quality gate for pull requests and the main branch
 ├── workspace.config.json      # Source of truth for app categories, paths, package names, local ports, and health checks
@@ -243,6 +248,12 @@ Implemented:
 Not yet implemented: product-specific end-user business features, end-user authentication, or an end-user client. The default `apps/api` is only a starting point for business services and must not be presented as a finished end-user product. The deployment environment-variable contract is defined, but CI currently provides quality gates only. Continuous deployment is not an existing capability until it is connected to a real deployment target.
 
 ## Documentation and AI Collaboration
+
+### `website/`: official usage documentation — "how to use the project"
+
+The Rspress 2 site provides task-oriented guides for local setup, directory responsibilities, modular-monolith boundaries, Admin CRUD development, menu permissions, the default end-user API, database migrations, service generation, quality gates, and production deployment. Run `pnpm docs:dev` to read it locally. `pnpm docs:build` generates the static site, per-page Markdown, `llms.txt`, and `llms-full.txt`.
+
+`website/` is neither a business application nor a shared package. It is not registered in `workspace.config.json`, and it does not change the topic-document semantics of the root `docs/` directory.
 
 ### `.rules/`: development conventions — "how code should be written"
 

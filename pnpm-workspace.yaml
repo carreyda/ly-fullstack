@@ -17,6 +17,7 @@ allowBuilds:
 
 catalog:
   '@playwright/test': 1.62.1
+  '@rspress/core': 2.0.20
   '@bprogress/core': 1.3.4
   '@commitlint/cli': 21.2.2
   '@commitlint/config-conventional': 21.2.2
@@ -86,6 +87,8 @@ overrides:
   deepmerge-ts: 8.0.2
   fastify: 'catalog:'
   'ini@<1.3.6': 1.3.8
+  # Rspress 的 ESM Markdown 构建需要支持原生默认导入的 style-to-js 版本
+  style-to-js: 1.1.21
   vue: 'catalog:'
   typescript: 'catalog:'
 

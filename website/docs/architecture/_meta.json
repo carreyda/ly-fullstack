@@ -1,0 +1,6 @@
+[
+  { "type": "file", "name": "index", "label": "架构总览" },
+  { "type": "file", "name": "modular-monolith", "label": "为什么是模块化单体" },
+  { "type": "file", "name": "boundaries", "label": "项目边界" },
+  { "type": "file", "name": "auth-rbac", "label": "认证与 RBAC" }
+]

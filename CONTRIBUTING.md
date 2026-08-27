@@ -38,7 +38,8 @@ pnpm dev
 - 跨应用安全类型和纯工具：`packages/shared`。
 - 无框架图表能力：`packages/charts`。
 - 开发启动、Setup 和服务模板：`scripts`。
-- 规范与运维说明：`.rules` 和 `docs`。
+- 面向使用者的官方文档：`website/docs`。
+- 编码规范与工程专题说明：`.rules` 和 `docs`。
 
 应用之间禁止直接导入源码。浏览器应用禁止依赖 Prisma 类型，服务端禁止从 Shared 浏览器工具入口导入能力。
 
@@ -66,6 +67,8 @@ pnpm dev
 ```bash
 pnpm check
 ```
+
+只修改官方文档时，可以先执行 `pnpm docs:build` 快速验证路由、Markdown、静态资源和 AI 可读输出；提交前仍需执行完整 `pnpm check`。
 
 涉及浏览器关键流程时，在已经执行 `pnpm setup` 的环境中额外运行：
 

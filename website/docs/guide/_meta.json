@@ -1,0 +1,6 @@
+[
+  { "type": "file", "name": "index", "label": "认识 LY Fullstack" },
+  { "type": "file", "name": "getting-started", "label": "快速开始" },
+  { "type": "file", "name": "project-structure", "label": "目录与职责" },
+  { "type": "file", "name": "development-workflow", "label": "开发第一个业务" }
+]
