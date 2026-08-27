@@ -8,7 +8,7 @@
 
 A general-purpose full-stack foundation for open-source showcases and real-world products.
 
-📖 [Official documentation (Chinese)](website/docs/index.md) · Run locally with `pnpm docs:dev`
+📖 [Official documentation (Chinese)](https://liangy0323.github.io/ly-fullstack/) · Run locally with `pnpm docs:dev`
 
 The admin foundation is complete and connected end to end: authentication, dynamic menus, user, role, menu, dictionary, and public configuration management, five-table RBAC, database migrations, and seed data all run against a real database. The project also includes a default end-user-facing API limited to health checks and public reads of dictionaries and configuration. Features for specific end-user products will not be presented as existing capabilities until they are actually implemented.
 
