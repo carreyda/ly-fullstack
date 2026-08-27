@@ -10,9 +10,26 @@ import { fileURLToPath } from 'node:url';
  */
 const websiteDirectory = dirname(fileURLToPath(import.meta.url));
 
+/**
+ * 文档站部署前缀
+ *
+ * 本地开发默认从站点根路径访问；GitHub Pages 工作流会注入仓库子路径，确保脚本、样式、图片和
+ * 页面链接都从 `/ly-fullstack/` 加载。后续绑定独立域名时不再注入该变量即可恢复根路径部署。
+ */
+const siteBase = process.env.RSPRESS_BASE ?? '/';
+
+/**
+ * 文档站线上来源
+ *
+ * 生产构建通过工作流注入完整来源，供站点地图和 AI 可读文档生成绝对地址；本地构建不需要声明。
+ */
+const siteOrigin = process.env.RSPRESS_SITE_ORIGIN;
+
 export default defineConfig({
   root: resolve(websiteDirectory, 'docs'),
   outDir: resolve(websiteDirectory, 'doc_build'),
+  base: siteBase,
+  siteOrigin,
   title: 'LY Fullstack',
   description: 'LY Fullstack 官方文档：从本地初始化到业务扩展、权限设计、质量门禁与生产部署。',
   lang: 'zh',
