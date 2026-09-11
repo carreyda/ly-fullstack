@@ -18,9 +18,9 @@ import type {
 export const ADMIN_PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const;
 
 /**
- * 角色启用状态筛选选项
+ * 管理后台通用启停状态筛选选项
  */
-export const ADMIN_ROLE_STATUS_OPTIONS: SelectOption[] = [
+export const ADMIN_ACTIVE_STATUS_OPTIONS: SelectOption[] = [
   {
     label: '启用',
     value: 'ACTIVE',
@@ -56,7 +56,7 @@ export const ADMIN_ROLE_FILTER_CONFIG: DataFilterFieldConfig[] = [
     field: 'status',
     label: '角色状态',
     placeholder: '全部状态',
-    options: ADMIN_ROLE_STATUS_OPTIONS,
+    options: ADMIN_ACTIVE_STATUS_OPTIONS,
   },
 ];
 
@@ -70,6 +70,9 @@ export const ADMIN_ROLE_FORM_MODEL: AdminRoleFormModel = {
   isActive: true,
 };
 
+/**
+ * 字典列表默认筛选参数
+ */
 export const ADMIN_DICTIONARY_FILTER_MODEL: AdminDictionaryFilterModel = {
   pageNum: 1,
   pageSize: 20,
@@ -77,6 +80,9 @@ export const ADMIN_DICTIONARY_FILTER_MODEL: AdminDictionaryFilterModel = {
   status: undefined,
 };
 
+/**
+ * 字典列表筛选字段配置
+ */
 export const ADMIN_DICTIONARY_FILTER_CONFIG: DataFilterFieldConfig[] = [
   {
     type: 'input',
@@ -89,10 +95,13 @@ export const ADMIN_DICTIONARY_FILTER_CONFIG: DataFilterFieldConfig[] = [
     field: 'status',
     label: '字典状态',
     placeholder: '全部状态',
-    options: ADMIN_ROLE_STATUS_OPTIONS,
+    options: ADMIN_ACTIVE_STATUS_OPTIONS,
   },
 ];
 
+/**
+ * 字典新增表单默认值
+ */
 export const ADMIN_DICTIONARY_FORM_MODEL: AdminDictionaryFormModel = {
   code: '',
   name: '',
@@ -100,6 +109,9 @@ export const ADMIN_DICTIONARY_FORM_MODEL: AdminDictionaryFormModel = {
   isActive: true,
 };
 
+/**
+ * 字典项列表默认筛选参数
+ */
 export const ADMIN_DICTIONARY_ITEM_FILTER_MODEL: AdminDictionaryItemFilterModel = {
   pageNum: 1,
   pageSize: 10,
@@ -107,6 +119,9 @@ export const ADMIN_DICTIONARY_ITEM_FILTER_MODEL: AdminDictionaryItemFilterModel 
   status: undefined,
 };
 
+/**
+ * 字典项新增表单默认值
+ */
 export const ADMIN_DICTIONARY_ITEM_FORM_MODEL: AdminDictionaryItemFormModel = {
   label: '',
   value: '',
@@ -115,12 +130,18 @@ export const ADMIN_DICTIONARY_ITEM_FORM_MODEL: AdminDictionaryItemFormModel = {
   isActive: true,
 };
 
+/**
+ * 公共配置列表默认筛选参数
+ */
 export const ADMIN_PUBLIC_CONFIG_FILTER_MODEL: AdminPublicConfigFilterModel = {
   pageNum: 1,
   pageSize: 20,
   keyword: '',
 };
 
+/**
+ * 公共配置列表筛选字段配置
+ */
 export const ADMIN_PUBLIC_CONFIG_FILTER_CONFIG: DataFilterFieldConfig[] = [
   {
     type: 'input',
@@ -130,25 +151,14 @@ export const ADMIN_PUBLIC_CONFIG_FILTER_CONFIG: DataFilterFieldConfig[] = [
   },
 ];
 
+/**
+ * 公共配置新增表单默认值
+ */
 export const ADMIN_PUBLIC_CONFIG_FORM_MODEL: AdminPublicConfigFormModel = {
   key: '',
   value: '',
   description: '',
 };
-
-/**
- * 用户启用状态筛选选项
- */
-export const ADMIN_USER_STATUS_OPTIONS: SelectOption[] = [
-  {
-    label: '启用',
-    value: 'ACTIVE',
-  },
-  {
-    label: '停用',
-    value: 'INACTIVE',
-  },
-];
 
 /**
  * 用户列表默认筛选参数
@@ -178,7 +188,7 @@ export const ADMIN_USER_FILTER_CONFIG: DataFilterFieldConfig[] = [
     field: 'status',
     label: '用户状态',
     placeholder: '全部状态',
-    options: ADMIN_USER_STATUS_OPTIONS,
+    options: ADMIN_ACTIVE_STATUS_OPTIONS,
   },
 ];
 

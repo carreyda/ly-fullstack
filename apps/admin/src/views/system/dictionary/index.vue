@@ -3,7 +3,9 @@
     <section class="admin-crud-page__workspace">
       <header class="admin-crud-page__header">
         <h1 class="admin-crud-page__title">字典管理</h1>
-        <el-button type="primary" @click="formDialogRef?.open('add')">新增字典</el-button>
+        <el-button v-if="hasPermission('system:dictionary:create')" type="primary" @click="formDialogRef?.open('add')">
+          新增字典
+        </el-button>
       </header>
       <data-filter-panel
         :model-value="filters"
@@ -40,13 +42,22 @@
           </el-table-column>
           <el-table-column label="操作" width="210" fixed="right">
             <template #default="{ row }">
-              <el-button link type="primary" @click="itemDialogRef?.open(row as AdminDictionaryListItem)"
+              <el-button
+                v-if="hasPermission('system:dictionary-item:list')"
+                link
+                type="primary"
+                @click="itemDialogRef?.open(row as AdminDictionaryListItem)"
                 >字典项</el-button
               >
-              <el-button link type="primary" @click="formDialogRef?.open('edit', row as AdminDictionaryListItem)"
+              <el-button
+                v-if="hasPermission('system:dictionary:update')"
+                link
+                type="primary"
+                @click="formDialogRef?.open('edit', row as AdminDictionaryListItem)"
                 >编辑</el-button
               >
               <el-button
+                v-if="hasPermission('system:dictionary:delete')"
                 link
                 type="danger"
                 :loading="deletingId === row.id"
@@ -56,7 +67,15 @@
               </el-button>
             </template>
           </el-table-column>
-          <template #empty><base-empty-state description="暂无字典数据" layout="inline" :image-size="84" /></template>
+          <template #empty>
+            <base-empty-state
+              :description="loadFailed ? '字典数据加载失败' : '暂无字典数据'"
+              layout="inline"
+              :image-size="84"
+            >
+              <el-button v-if="loadFailed" type="primary" @click="reload">重新加载</el-button>
+            </base-empty-state>
+          </template>
         </el-table>
       </div>
       <footer class="admin-crud-page__pagination">
@@ -80,6 +99,7 @@
 <script setup lang="ts">
 import DataFilterPanel from '@/components/business/data-filter-panel/index.vue';
 import { ADMIN_DICTIONARY_FILTER_CONFIG, ADMIN_DICTIONARY_FILTER_MODEL, ADMIN_PAGE_SIZE_OPTIONS } from '@/constants';
+import { useAuthStore } from '@/stores';
 import { formatAdminDateTime } from '@/utils';
 import DictionaryFormDialog from './components/dictionary-form-dialog/index.vue';
 import DictionaryItemDialog from './components/dictionary-item-dialog/index.vue';
@@ -90,8 +110,10 @@ import type { AdminDictionaryListItem } from '@repo/shared/types';
 const formDialogRef = useTemplateRef<InstanceType<typeof DictionaryFormDialog>>('formDialogRef');
 const itemDialogRef = useTemplateRef<InstanceType<typeof DictionaryItemDialog>>('itemDialogRef');
 const pageSizeOptions = [...ADMIN_PAGE_SIZE_OPTIONS];
+const { hasPermission } = useAuthStore();
 const {
   loading,
+  loadFailed,
   deletingId,
   filters,
   dictionaryList,

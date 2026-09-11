@@ -82,6 +82,16 @@ LY Fullstack 的跨端共享内容统一维护在 `packages/shared`，不为 HTT
 - 新增图表、组件或渲染能力时，必须同步扩展运行时注册、`ChartOption` 类型和测试。
 - 调用方负责在组件卸载时销毁图表实例，禁止让 package 持有组件生命周期。
 
+## 共享包导出策略
+
+三个共享包按运行环境采用不同入口，不应为了表面统一而改成同一种方式：
+
+- `packages/charts` 是只被前端构建器消费的无框架 ESM 源码包，直接导出 `src`，便于 Rsbuild 完成按需打包与类型推断；它不作为独立 Node.js 产物运行。
+- `packages/shared` 同时服务浏览器构建和 Node.js 服务。开发类型入口指向 `src`，运行时入口指向 `dist`，保证 NestJS 生产进程执行已经编译的 JavaScript。
+- `packages/database` 是服务端专用包。类型入口指向 `src`，运行时入口指向 `dist/src`；Prisma Client 另由 `generate` 写入 `generated/prisma`，两类产物都必须在根构建与缓存恢复中可用。
+
+调整任一包的 `exports`、构建脚本或产物目录时，必须同步检查消费方的开发类型解析、Node.js 生产运行和 Turborepo `outputs`。
+
 ---
 
 ## Admin 标准结构

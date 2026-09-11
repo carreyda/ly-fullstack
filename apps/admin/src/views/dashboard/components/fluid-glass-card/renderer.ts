@@ -273,6 +273,8 @@ export const createFluidGlassRenderer = (
   let active = true;
   let animationFrame = 0;
   const renderColors = [hexToRgb(options.colorA), hexToRgb(options.colorB), hexToRgb(options.colorC)] as const;
+  const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let reducedMotion = reducedMotionQuery.matches;
 
   /**
    * 根据卡片实际尺寸同步画布像素
@@ -336,7 +338,6 @@ export const createFluidGlassRenderer = (
       mouseMix *= 0.945;
     }
 
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     gl.useProgram(program);
     gl.uniform2f(uniforms.u_resolution, canvas.width, canvas.height);
     gl.uniform2f(uniforms.u_mouse, mouse[0], mouse[1]);
@@ -364,6 +365,13 @@ export const createFluidGlassRenderer = (
     { signal: controller.signal, passive: true },
   );
   host.addEventListener('pointermove', updatePointer, { signal: controller.signal, passive: true });
+  reducedMotionQuery.addEventListener(
+    'change',
+    (event) => {
+      reducedMotion = event.matches;
+    },
+    { signal: controller.signal },
+  );
   host.addEventListener(
     'pointerleave',
     () => {

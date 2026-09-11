@@ -1,0 +1,97 @@
+.layout-side {
+  position: relative;
+  display: flex;
+  width: 240px;
+  height: 100%;
+  flex: 0 0 240px;
+  flex-direction: column;
+  border-right: 1px solid var(--border-color);
+  background: var(--fill-color);
+  transition:
+    width var(--duration-normal) var(--ease-standard),
+    flex-basis var(--duration-normal) var(--ease-standard);
+
+  &--collapsed {
+    width: 72px;
+    flex-basis: 72px;
+  }
+
+  &--collapsed &__header {
+    justify-content: center;
+    padding: 0;
+  }
+
+  &--collapsed &__brand,
+  &--collapsed &__status {
+    display: none;
+  }
+
+  &__header {
+    position: relative;
+    display: flex;
+    width: 100%;
+    height: 60px;
+    flex: 0 0 60px;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  &__logo-wrap {
+    display: grid;
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    place-items: center;
+  }
+
+  &__logo {
+    display: block;
+    width: 30px;
+    height: 30px;
+  }
+
+  &__brand {
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__brand-name {
+    display: block;
+    overflow: hidden;
+    color: var(--color-text-primary);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 18px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__status {
+    width: 6px;
+    height: 6px;
+    flex: 0 0 6px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary) 10%, transparent);
+  }
+
+  &__body {
+    min-height: 0;
+    flex: 1;
+    overflow: hidden;
+    padding: 10px 0;
+  }
+
+  &__scrollbar {
+    width: 100%;
+    height: 100%;
+  }
+
+  &__menu {
+    width: 100%;
+    border-right: 0;
+    background: transparent;
+  }
+}

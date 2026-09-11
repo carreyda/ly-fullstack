@@ -223,9 +223,8 @@ const upsertMenus = async (
   const menuIds: number[] = [];
 
   for (const menu of menus) {
-    const uniqueWhere = menu.permissionCode
-      ? { permissionCode: menu.permissionCode }
-      : { routeName: menu.routeName as string };
+    const uniqueWhere =
+      menu.type === MenuType.BUTTON ? { permissionCode: menu.permissionCode } : { routeName: menu.routeName };
     const data = {
       parentId,
       name: menu.name,

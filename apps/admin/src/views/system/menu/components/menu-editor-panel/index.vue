@@ -11,7 +11,14 @@
 
       <div class="menu-editor-panel__body">
         <el-scrollbar>
-          <el-form ref="formRef" class="menu-editor-panel__form" :model="form" :rules="formRules" label-position="top">
+          <el-form
+            ref="formRef"
+            class="menu-editor-panel__form"
+            :model="form"
+            :rules="formRules"
+            label-position="top"
+            :disabled="!canSave"
+          >
             <section class="menu-editor-panel__section">
               <div class="menu-editor-panel__section-heading">
                 <h3>基础信息</h3>
@@ -74,7 +81,7 @@
               </el-form-item>
 
               <el-form-item v-if="showIconPicker" label="一级菜单图标">
-                <menu-icon-picker v-model="form.icon" />
+                <menu-icon-picker v-model="form.icon" :disabled="!canSave" />
                 <p class="menu-editor-panel__help">二级和更深层级不展示图标，移动到子节点后会自动清空。</p>
               </el-form-item>
             </section>
@@ -108,7 +115,12 @@
                   <h3>操作权限</h3>
                   <p>按钮权限不占用左侧导航树，在这里集中维护。</p>
                 </div>
-                <el-button :disabled="!permissionPrefix" :loading="props.saving" @click="generateStandardPermissions">
+                <el-button
+                  v-if="props.canCreate"
+                  :disabled="!permissionPrefix"
+                  :loading="props.saving"
+                  @click="generateStandardPermissions"
+                >
                   生成标准 CRUD
                 </el-button>
               </div>
@@ -119,6 +131,7 @@
                   <span>{{ permission.name }}</span>
                   <code>{{ permission.permissionCode }}</code>
                   <button
+                    v-if="props.canDelete"
                     type="button"
                     title="删除权限"
                     aria-label="删除权限"
@@ -140,7 +153,7 @@
 
       <footer class="menu-editor-panel__footer">
         <el-button @click="emit('cancel')">取消</el-button>
-        <el-button type="primary" :loading="props.saving" @click="submitForm">保存</el-button>
+        <el-button v-if="canSave" type="primary" :loading="props.saving" @click="submitForm">保存</el-button>
       </footer>
     </template>
 
@@ -153,10 +166,10 @@ import { ShieldCheck, Trash2 } from '@lucide/vue';
 
 import { ADMIN_PAGE_OPTIONS } from '@/router';
 import MenuIconPicker from '../menu-icon-picker/index.vue';
+import { collectBoundPages, collectExcludedIds, createMenuFormRules, flattenParentOptions } from './utils';
 
-import type { FormRules } from 'element-plus';
 import type { AdminMenuTreeNode, PermissionCode, RbacMenuType } from '@repo/shared/types';
-import type { AdminMenuEditorModel, MenuFormExpose, ParentMenuOption } from '@/types';
+import type { AdminMenuEditorModel, MenuFormExpose } from '@/types';
 
 /**
  * 不同节点类型在空表单标题中的默认文案
@@ -190,6 +203,21 @@ interface Props {
    * 是否正在保存、删除或生成权限
    */
   saving?: boolean;
+
+  /**
+   * 是否允许创建菜单和按钮权限
+   */
+  canCreate?: boolean;
+
+  /**
+   * 是否允许修改现有菜单
+   */
+  canUpdate?: boolean;
+
+  /**
+   * 是否允许删除按钮权限
+   */
+  canDelete?: boolean;
 }
 
 /**
@@ -199,26 +227,29 @@ interface Emits {
   /**
    * 表单校验通过后提交完整编辑模型
    */
-  (event: 'save', model: AdminMenuEditorModel): void;
+  save: [model: AdminMenuEditorModel];
 
   /**
    * 用户取消当前编辑
    */
-  (event: 'cancel'): void;
+  cancel: [];
 
   /**
    * 为当前页面菜单生成标准 CRUD 权限
    */
-  (event: 'generate-permissions', id: number, permissionPrefix: `${string}:${string}`): void;
+  'generate-permissions': [id: number, permissionPrefix: `${string}:${string}`];
 
   /**
    * 删除当前页面下的指定按钮权限
    */
-  (event: 'delete-permission', id: number): void;
+  'delete-permission': [id: number];
 }
 
 const props = withDefaults(defineProps<Props>(), {
   saving: false,
+  canCreate: false,
+  canUpdate: false,
+  canDelete: false,
 });
 const emit = defineEmits<Emits>();
 const formRef = ref<MenuFormExpose | null>(null);
@@ -238,39 +269,17 @@ const form = reactive<AdminMenuEditorModel>({
 /**
  * 菜单属性表单校验规则
  */
-const formRules: FormRules<AdminMenuEditorModel> = {
-  name: [{ required: true, message: '请输入节点名称', trigger: 'blur' }],
-  routeName: [
-    {
-      validator: (_rule, value, callback) => {
-        if (form.type === 'MENU' && !value) {
-          callback(new Error('请选择需要绑定的前端页面'));
-          return;
-        }
-        callback();
-      },
-      trigger: 'change',
-    },
-  ],
-  permissionCode: [
-    {
-      validator: (_rule, value, callback) => {
-        const matched = typeof value === 'string' && /^[a-z][a-z0-9-]*:[a-z][a-z0-9-]*:[a-z][a-z0-9-]*$/.test(value);
-        if (form.type === 'BUTTON' && !matched) {
-          callback(new Error('请输入正确的三段式权限码'));
-          return;
-        }
-        callback();
-      },
-      trigger: 'blur',
-    },
-  ],
-};
+const formRules = createMenuFormRules(form);
 
 /**
  * 当前是否正在创建尚未写入数据库的新节点
  */
 const isCreateMode = computed(() => !form.id);
+
+/**
+ * 当前新增或编辑模式是否具备对应保存权限
+ */
+const canSave = computed(() => (isCreateMode.value ? props.canCreate : props.canUpdate));
 
 /**
  * 只有根目录和根页面允许配置侧边栏图标
@@ -285,73 +294,11 @@ const permissionPrefix = computed(() => {
 });
 
 /**
- * 递归收集当前节点及其后代主键，防止父级选择形成循环关系
- *
- * @param nodes 当前层级菜单节点
- * @param rootId 需要排除的节点主键
- * @param excludedIds 收集排除结果的集合
- * @returns 包含当前节点及全部后代主键的集合
- */
-const collectExcludedIds = (
-  nodes: AdminMenuTreeNode[],
-  rootId: number | undefined,
-  excludedIds = new Set<number>(),
-): Set<number> => {
-  for (const node of nodes) {
-    if (node.id === rootId || excludedIds.has(node.parentId ?? -1)) {
-      excludedIds.add(node.id);
-    }
-    collectExcludedIds(node.children, rootId, excludedIds);
-  }
-  return excludedIds;
-};
-
-/**
- * 把菜单树转换为带层级缩进的父级选择项
- *
- * @param nodes 当前层级菜单节点
- * @param excludedIds 当前节点及后代主键集合
- * @param level 当前树深度
- * @returns 可以作为父级的目录和页面菜单
- */
-const flattenParentOptions = (nodes: AdminMenuTreeNode[], excludedIds: Set<number>, level = 0): ParentMenuOption[] => {
-  return nodes.flatMap((node) => {
-    if (node.type === 'BUTTON' || excludedIds.has(node.id)) {
-      return [];
-    }
-
-    return [
-      { id: node.id, label: `${'　'.repeat(level)}${node.name}` },
-      ...flattenParentOptions(node.children, excludedIds, level + 1),
-    ];
-  });
-};
-
-/**
  * 当前节点可以选择的父级菜单
  */
 const parentOptions = computed(() => {
   return flattenParentOptions(props.menus, collectExcludedIds(props.menus, form.id));
 });
-
-/**
- * 获取完整菜单树中已经绑定的页面标识
- *
- * @param nodes 当前层级菜单节点
- * @returns 页面标识到菜单主键的映射
- */
-const collectBoundPages = (nodes: AdminMenuTreeNode[]): Map<string, number> => {
-  const result = new Map<string, number>();
-  for (const node of nodes) {
-    if (node.routeName) {
-      result.set(node.routeName, node.id);
-    }
-    for (const [routeName, id] of collectBoundPages(node.children)) {
-      result.set(routeName, id);
-    }
-  }
-  return result;
-};
 
 /**
  * 完整菜单树中已经绑定的页面标识
@@ -403,7 +350,7 @@ const handleParentChange = (parentId: number | null): void => {
  * 校验并提交当前菜单表单
  */
 const submitForm = async (): Promise<void> => {
-  if (!(await formRef.value?.validate())) {
+  if (!(await formRef.value?.validate().catch(() => false))) {
     return;
   }
 

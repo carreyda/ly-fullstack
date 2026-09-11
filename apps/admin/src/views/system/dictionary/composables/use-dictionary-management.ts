@@ -12,6 +12,7 @@ export const useDictionaryManagement = () => {
   const deletingId = ref<number>();
   const {
     loading,
+    loadFailed,
     filters,
     itemList,
     total,
@@ -69,6 +70,7 @@ export const useDictionaryManagement = () => {
 
   return {
     loading,
+    loadFailed,
     deletingId,
     filters,
     dictionaryList: itemList,

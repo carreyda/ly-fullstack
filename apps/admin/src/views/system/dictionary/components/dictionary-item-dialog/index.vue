@@ -17,7 +17,9 @@
           <el-option label="停用" value="INACTIVE" />
         </el-select>
         <el-button type="primary" @click="loadItems">查询</el-button>
-        <el-button @click="openForm('add')">新增字典项</el-button>
+        <el-button v-if="hasPermission('system:dictionary-item:create')" @click="openForm('add')">
+          新增字典项
+        </el-button>
       </div>
       <el-table v-loading="loading" class="admin-table" :data="itemList" height="400">
         <el-table-column prop="label" label="展示文本" min-width="140" />
@@ -35,10 +37,15 @@
         </el-table-column>
         <el-table-column label="操作" width="140" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="openForm('edit', row as AdminDictionaryItemListItem)"
+            <el-button
+              v-if="hasPermission('system:dictionary-item:update')"
+              link
+              type="primary"
+              @click="openForm('edit', row as AdminDictionaryItemListItem)"
               >编辑</el-button
             >
             <el-button
+              v-if="hasPermission('system:dictionary-item:delete')"
               link
               type="danger"
               :loading="deletingId === row.id"
@@ -49,7 +56,13 @@
           </template>
         </el-table-column>
         <template #empty>
-          <base-empty-state description="暂无字典项" layout="inline" :image-size="72" />
+          <base-empty-state
+            :description="loadFailed ? '字典项加载失败' : '暂无字典项'"
+            layout="inline"
+            :image-size="72"
+          >
+            <el-button v-if="loadFailed" type="primary" @click="loadItems">重新加载</el-button>
+          </base-empty-state>
         </template>
       </el-table>
       <div class="dictionary-item-dialog__pagination">
@@ -59,12 +72,7 @@
           :page-size="filters.pageSize"
           :total="total"
           layout="total,prev,pager,next"
-          @current-change="
-            (page: number) => {
-              filters.pageNum = page;
-              loadItems();
-            }
-          "
+          @current-change="handlePageNumChange"
         />
       </div>
     </div>
@@ -102,7 +110,7 @@
       <template #footer>
         <div class="dictionary-item-dialog__form-footer">
           <el-button :disabled="submitting" @click="formDialogVisible = false">取消</el-button>
-          <el-button type="primary" :loading="submitting" @click="handleSubmit">保存</el-button>
+          <el-button v-if="canSubmit" type="primary" :loading="submitting" @click="handleSubmit">保存</el-button>
         </div>
       </template>
     </el-dialog>
@@ -111,15 +119,28 @@
 
 <script setup lang="ts">
 import { useDictionaryItems } from './composables/use-dictionary-items';
+import { useAuthStore } from '@/stores';
 
 import type { AdminDictionaryItemListItem, AdminDictionaryListItem } from '@repo/shared/types';
 
-const emits = defineEmits<{ change: [] }>();
+/**
+ * 字典项弹框事件
+ */
+interface Emits {
+  /**
+   * 字典项发生变更后通知字典列表刷新统计
+   */
+  change: [];
+}
+
+const emits = defineEmits<Emits>();
+const { hasPermission } = useAuthStore();
 
 const {
   dialogVisible,
   formDialogVisible,
   loading,
+  loadFailed,
   submitting,
   deletingId,
   changed,
@@ -134,11 +155,23 @@ const {
   open,
   openForm,
   loadItems,
+  handlePageNumChange,
   handleSubmit,
   handleDelete,
+  handleClosed: invalidatePendingRequests,
 } = useDictionaryItems();
 
+/**
+ * 当前字典项操作是否具备对应的新增或修改权限
+ */
+const canSubmit = computed(() => {
+  return hasPermission(
+    operationType.value === 'add' ? 'system:dictionary-item:create' : 'system:dictionary-item:update',
+  );
+});
+
 const handleClosed = (): void => {
+  invalidatePendingRequests();
   if (changed.value) {
     emits('change');
   }

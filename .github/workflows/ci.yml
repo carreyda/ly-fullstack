@@ -36,6 +36,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run quality gate
+        env:
+          RSPRESS_BASE: /ly-fullstack/
+          RSPRESS_SITE_ORIGIN: https://liangy0323.github.io
         run: pnpm check
 
   integration:
@@ -95,6 +98,15 @@ jobs:
 
       - name: Verify setup migrations and seed data
         run: pnpm verify:setup
+
+      - name: Verify seed idempotency
+        shell: bash
+        run: |
+          set -a
+          source apps/admin-api/.env.development
+          set +a
+          pnpm --filter @repo/database db:seed
+          pnpm verify:setup
 
       - name: Install Chromium
         run: pnpm exec playwright install --with-deps chromium

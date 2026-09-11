@@ -31,7 +31,7 @@
           v-for="option in pagedOptions"
           :key="option.name"
           class="menu-icon-picker__option"
-          :class="{ 'menu-icon-picker__option--selected': option.name === props.modelValue }"
+          :class="{ 'menu-icon-picker__option--selected': option.name === modelValue }"
           type="button"
           :title="`${option.label} · ${option.name}`"
           @click="selectIcon(option.name)"
@@ -71,34 +71,23 @@ import type { MenuIconCategory } from '@/types';
 const PAGE_SIZE = 32;
 
 /**
+ * 定义 v-model
+ */
+const modelValue = defineModel<string | null>({ default: null });
+
+/**
  * 图标选择器输入参数
  */
 interface Props {
-  /**
-   * 当前菜单保存的 Lucide 图标名称
-   */
-  modelValue: string | null;
-
   /**
    * 是否禁止打开和修改图标
    */
   disabled?: boolean;
 }
 
-/**
- * 图标选择器输出事件
- */
-interface Emits {
-  /**
-   * 用户选择或清除图标时同步新的图标名称
-   */
-  (event: 'update:modelValue', value: string | null): void;
-}
-
 const props = withDefaults(defineProps<Props>(), {
   disabled: false,
 });
-const emit = defineEmits<Emits>();
 const categories: readonly (MenuIconCategory | '全部')[] = ['全部', ...MENU_ICON_CATEGORIES];
 const popoverVisible = ref(false);
 const keyword = ref('');
@@ -108,12 +97,12 @@ const currentPage = ref(1);
 /**
  * 当前选中图标的目录信息
  */
-const selectedOption = computed(() => MENU_ICON_OPTIONS.find((option) => option.name === props.modelValue));
+const selectedOption = computed(() => MENU_ICON_OPTIONS.find((option) => option.name === modelValue.value));
 
 /**
  * 当前选中图标对应的 Vue 组件
  */
-const selectedIcon = computed(() => resolveMenuIcon(props.modelValue));
+const selectedIcon = computed(() => resolveMenuIcon(modelValue.value));
 
 /**
  * 根据分类和搜索文本筛选图标白名单
@@ -145,7 +134,7 @@ const pagedOptions = computed(() => {
  * @param name 选中的 Lucide 图标名称；清除时为空
  */
 const selectIcon = (name: string | null): void => {
-  emit('update:modelValue', name);
+  modelValue.value = name;
   popoverVisible.value = false;
 };
 

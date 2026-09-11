@@ -18,15 +18,15 @@ description: 汇总 LY Fullstack 的依赖安装、Setup、应用启停、服务
 
 ## 开发启动
 
-| 命令                           | 用途                       |
-| ------------------------------ | -------------------------- |
-| `pnpm dev`                     | 交互选择服务端与前端应用   |
-| `pnpm dev all`                 | 启动注册表中的全部应用     |
-| `pnpm dev api admin-api admin` | 启动指定组合               |
-| `pnpm dev:admin`               | 单独启动 Admin             |
-| `pnpm dev:admin-api`           | 单独启动管理 API           |
-| `pnpm dev:api`                 | 单独启动默认 C 端 API      |
-| `pnpm dev:stop`                | 停止仓库开发启动器遗留进程 |
+| 命令                           | 用途                                     |
+| ------------------------------ | ---------------------------------------- |
+| `pnpm dev`                     | 交互选择服务端与前端应用                 |
+| `pnpm dev all`                 | 启动注册表中的全部应用                   |
+| `pnpm dev api admin-api admin` | 启动指定组合                             |
+| `pnpm dev:admin`               | 单独启动 Admin                           |
+| `pnpm dev:admin-api`           | 单独启动管理 API                         |
+| `pnpm dev:api`                 | 单独启动默认 C 端 API                    |
+| `pnpm dev:stop`                | 停止仓库开发启动器遗留进程（仅 Windows） |
 
 ## 创建应用
 

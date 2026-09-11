@@ -3,7 +3,9 @@
     <section class="admin-crud-page__workspace">
       <header class="admin-crud-page__header">
         <h1 class="admin-crud-page__title">角色管理</h1>
-        <el-button type="primary" @click="handleRoleCreate">新增角色</el-button>
+        <el-button v-if="hasPermission('system:role:create')" type="primary" @click="handleRoleCreate">
+          新增角色
+        </el-button>
       </header>
 
       <data-filter-panel
@@ -73,9 +75,24 @@
           <el-table-column label="操作" width="230" fixed="right">
             <template #default="{ row }">
               <template v-if="!row.isSystem">
-                <el-button link type="primary" @click="handleRoleMenus(row as AdminRoleListItem)">菜单权限</el-button>
-                <el-button link type="primary" @click="handleRoleEdit(row as AdminRoleListItem)">编辑</el-button>
                 <el-button
+                  v-if="hasPermission('system:role:assign-menu')"
+                  link
+                  type="primary"
+                  @click="handleRoleMenus(row as AdminRoleListItem)"
+                >
+                  菜单权限
+                </el-button>
+                <el-button
+                  v-if="hasPermission('system:role:update')"
+                  link
+                  type="primary"
+                  @click="handleRoleEdit(row as AdminRoleListItem)"
+                >
+                  编辑
+                </el-button>
+                <el-button
+                  v-if="hasPermission('system:role:delete')"
                   link
                   type="danger"
                   :loading="deletingId === row.id"
@@ -90,7 +107,13 @@
           </el-table-column>
 
           <template #empty>
-            <base-empty-state description="暂无角色数据" layout="inline" :image-size="84" />
+            <base-empty-state
+              :description="loadFailed ? '角色数据加载失败' : '暂无角色数据'"
+              layout="inline"
+              :image-size="84"
+            >
+              <el-button v-if="loadFailed" type="primary" @click="reload">重新加载</el-button>
+            </base-empty-state>
           </template>
         </el-table>
       </div>
@@ -117,6 +140,7 @@
 <script setup lang="ts">
 import DataFilterPanel from '@/components/business/data-filter-panel/index.vue';
 import { ADMIN_PAGE_SIZE_OPTIONS, ADMIN_ROLE_FILTER_CONFIG, ADMIN_ROLE_FILTER_MODEL } from '@/constants';
+import { useAuthStore } from '@/stores';
 import { formatAdminDateTime } from '@/utils';
 import RoleFormDialog from './components/role-form-dialog/index.vue';
 import RoleMenuPermissionDialog from './components/role-menu-permission-dialog/index.vue';
@@ -128,9 +152,11 @@ const formDialogRef = useTemplateRef<InstanceType<typeof RoleFormDialog>>('formD
 const menuPermissionDialogRef =
   useTemplateRef<InstanceType<typeof RoleMenuPermissionDialog>>('menuPermissionDialogRef');
 const pageSizeOptions = [...ADMIN_PAGE_SIZE_OPTIONS];
+const { hasPermission } = useAuthStore();
 
 const {
   loading,
+  loadFailed,
   deletingId,
   filters,
   roleList,

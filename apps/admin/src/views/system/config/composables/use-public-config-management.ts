@@ -12,6 +12,7 @@ export const usePublicConfigManagement = () => {
   const deletingId = ref<number>();
   const {
     loading,
+    loadFailed,
     filters,
     itemList,
     total,
@@ -46,6 +47,8 @@ export const usePublicConfigManagement = () => {
       } else {
         await reload();
       }
+    } catch {
+      // 请求拦截器已经展示服务端错误，删除失败时保留当前列表与页码。
     } finally {
       deletingId.value = undefined;
     }
@@ -61,10 +64,12 @@ export const usePublicConfigManagement = () => {
 
   return {
     loading,
+    loadFailed,
     deletingId,
     filters,
     configList: itemList,
     total,
+    reload,
     handleFilterUpdate,
     handleSearch,
     handleReset,

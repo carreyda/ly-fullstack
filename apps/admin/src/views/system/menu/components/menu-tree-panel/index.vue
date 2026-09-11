@@ -6,7 +6,7 @@
         <p>拖动节点即可调整顺序和层级</p>
       </div>
 
-      <el-dropdown trigger="click" @command="createRootNode">
+      <el-dropdown v-if="props.canCreate" trigger="click" @command="createRootNode">
         <el-button type="primary">新建根节点</el-button>
         <template #dropdown>
           <el-dropdown-menu>
@@ -33,7 +33,7 @@
           :filter-node-method="filterNode"
           :allow-drop="allowDrop"
           default-expand-all
-          draggable
+          :draggable="props.canReorder"
           highlight-current
           @node-click="selectNode"
           @node-drop="saveTreeOrder"
@@ -52,8 +52,12 @@
               <span class="menu-tree-panel__type">{{ data.typeLabel }}</span>
               <span v-if="!data.isActive" class="menu-tree-panel__state">停用</span>
 
-              <span class="menu-tree-panel__actions" @click.stop>
-                <el-dropdown trigger="click" @command="(command: unknown) => createChildNode(data.id, command)">
+              <span v-if="props.canCreate || props.canDelete" class="menu-tree-panel__actions" @click.stop>
+                <el-dropdown
+                  v-if="props.canCreate"
+                  trigger="click"
+                  @command="handleCreateChildCommand(data.id, $event)"
+                >
                   <button class="menu-tree-panel__action" type="button" title="新增子节点" aria-label="新增子节点">
                     <Plus :size="15" />
                   </button>
@@ -66,6 +70,7 @@
                 </el-dropdown>
 
                 <button
+                  v-if="props.canDelete"
                   class="menu-tree-panel__action menu-tree-panel__action--danger"
                   type="button"
                   title="删除节点"
@@ -126,6 +131,21 @@ interface Props {
    * 是否正在加载菜单树
    */
   loading?: boolean;
+
+  /**
+   * 是否允许创建目录或页面节点
+   */
+  canCreate?: boolean;
+
+  /**
+   * 是否允许删除目录或页面节点
+   */
+  canDelete?: boolean;
+
+  /**
+   * 是否允许拖拽调整菜单层级和顺序
+   */
+  canReorder?: boolean;
 }
 
 /**
@@ -135,27 +155,30 @@ interface Emits {
   /**
    * 用户选择树节点时通知页面切换属性面板
    */
-  (event: 'select', id: number): void;
+  select: [id: number];
 
   /**
    * 用户从根节点或现有节点发起新增操作
    */
-  (event: 'create', context: AdminMenuCreateContext): void;
+  create: [context: AdminMenuCreateContext];
 
   /**
    * 用户请求删除指定菜单节点
    */
-  (event: 'delete', id: number): void;
+  delete: [id: number];
 
   /**
    * 树拖拽完成后提交全部导航节点的位置快照
    */
-  (event: 'reorder', items: AdminMenuReorderItem[]): void;
+  reorder: [items: AdminMenuReorderItem[]];
 }
 
 const props = withDefaults(defineProps<Props>(), {
   selectedId: undefined,
   loading: false,
+  canCreate: false,
+  canDelete: false,
+  canReorder: false,
 });
 const emit = defineEmits<Emits>();
 const treeRef = ref<MenuTreeExpose | null>(null);
@@ -251,10 +274,22 @@ const createChildNode = (parentId: number, type: unknown): void => {
 };
 
 /**
+ * 接收 Element Plus 下拉菜单命令并创建指定父级的子节点
+ *
+ * @param parentId 父菜单主键
+ * @param command 下拉菜单返回的节点类型
+ */
+const handleCreateChildCommand = (parentId: number, command: unknown): void => {
+  createChildNode(parentId, command);
+};
+
+/**
  * 提交 Element Plus 已经更新完成的菜单树顺序
  */
 const saveTreeOrder = (): void => {
-  emit('reorder', flattenTreeOrder(treeData.value));
+  if (props.canReorder) {
+    emit('reorder', flattenTreeOrder(treeData.value));
+  }
 };
 
 watch(

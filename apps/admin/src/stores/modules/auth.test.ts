@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, rstest } from '@rstest/core';
 
 import { fetchAdminSession, loginAdmin } from '@/api';
+import { createDeferred } from '@tests/deferred';
 import { useAuthStore } from './auth';
 
 import type { AdminLoginResponse, AdminSession, RbacMenuNode } from '@repo/shared/types';
@@ -127,6 +128,56 @@ describe('认证 Store', () => {
 
     expect(store.token).toBe('expired-token');
     expect(store.permissions).toEqual(['system:user:list']);
+    expect(store.sessionReady).toBe(false);
+  });
+
+  it('并发恢复会话时复用同一个在途请求', async () => {
+    const request = createDeferred<AdminSession>();
+    rstest.mocked(fetchAdminSession).mockReturnValue(request.promise);
+    const store = useAuthStore();
+    store.token = 'valid-token';
+
+    const firstRestore = store.restoreSession();
+    const secondRestore = store.restoreSession();
+    request.resolve(createSession());
+
+    await Promise.all([firstRestore, secondRestore]);
+
+    expect(fetchAdminSession).toHaveBeenCalledTimes(1);
+    expect(store.sessionReady).toBe(true);
+    expect(store.hasPermission('system:user:list')).toBe(true);
+    expect(store.hasPermission('system:user:create')).toBe(false);
+  });
+
+  it('恢复失败后允许下一次重新请求会话', async () => {
+    rstest
+      .mocked(fetchAdminSession)
+      .mockRejectedValueOnce(new Error('临时故障'))
+      .mockResolvedValueOnce(createSession());
+    const store = useAuthStore();
+    store.token = 'valid-token';
+
+    await expect(store.restoreSession()).rejects.toThrow('临时故障');
+    await expect(store.restoreSession()).resolves.toBeUndefined();
+
+    expect(fetchAdminSession).toHaveBeenCalledTimes(2);
+    expect(store.sessionReady).toBe(true);
+  });
+
+  it('退出登录后忽略之前发起的会话恢复响应', async () => {
+    const request = createDeferred<AdminSession>();
+    rstest.mocked(fetchAdminSession).mockReturnValue(request.promise);
+    const store = useAuthStore();
+    store.token = 'valid-token';
+
+    const restore = store.restoreSession();
+    store.logout();
+    request.resolve(createSession());
+    await restore;
+
+    expect(store.token).toBe('');
+    expect(store.user).toBeNull();
+    expect(store.permissions).toEqual([]);
     expect(store.sessionReady).toBe(false);
   });
 

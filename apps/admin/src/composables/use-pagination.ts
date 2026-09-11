@@ -39,6 +39,7 @@ export const usePagination = <TItem, TFilters extends PaginationFilters>(
   fetchPage: (params: TFilters) => Promise<PaginationResult<TItem>>,
 ) => {
   const loading = ref(false);
+  const loadFailed = ref(false);
   const filters = reactive(cloneValue(options.defaultFilters)) as TFilters;
   const itemList = shallowRef<TItem[]>([]);
   const total = ref(0);
@@ -70,6 +71,7 @@ export const usePagination = <TItem, TFilters extends PaginationFilters>(
   const reload = async (): Promise<void> => {
     const version = ++requestVersion;
     loading.value = true;
+    loadFailed.value = false;
 
     try {
       const pageData = await fetchPage(getRequestParams());
@@ -82,8 +84,11 @@ export const usePagination = <TItem, TFilters extends PaginationFilters>(
       filters.pageNum = pageData.pageNum;
       filters.pageSize = pageData.pageSize;
     } catch {
-      if (version === requestVersion && !itemList.value.length) {
-        total.value = 0;
+      if (version === requestVersion) {
+        loadFailed.value = true;
+        if (!itemList.value.length) {
+          total.value = 0;
+        }
       }
     } finally {
       if (version === requestVersion) {
@@ -144,6 +149,7 @@ export const usePagination = <TItem, TFilters extends PaginationFilters>(
 
   return {
     loading,
+    loadFailed,
     filters,
     itemList,
     total,

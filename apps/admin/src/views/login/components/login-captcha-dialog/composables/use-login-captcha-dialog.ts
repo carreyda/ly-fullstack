@@ -88,6 +88,15 @@ export const useLoginCaptchaDialog = (onSuccess: (captchaId: string) => void) =>
   };
 
   /**
+   * 图片资源加载失败或超时后结束 Loading，让组件展示可操作的重试状态
+   */
+  const handleImageError = (): void => {
+    if (dialogVisible.value) {
+      isLoading.value = false;
+    }
+  };
+
+  /**
    * 把用户实际拖动位置交给 Admin API 校验
    *
    * @param offset 相对验证图片的横向像素偏移
@@ -134,6 +143,7 @@ export const useLoginCaptchaDialog = (onSuccess: (captchaId: string) => void) =>
     open,
     close,
     fetchCaptcha,
+    handleImageError,
     handleVerify,
   };
 };

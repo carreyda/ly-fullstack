@@ -48,7 +48,17 @@ import { useDictionaryForm } from './composables/use-dictionary-form';
 import type { AdminDictionaryListItem } from '@repo/shared/types';
 import type { OperationType } from '@/types';
 
-const emits = defineEmits<{ success: [operationType: OperationType] }>();
+/**
+ * 字典表单事件
+ */
+interface Emits {
+  /**
+   * 字典保存成功后通知列表刷新
+   */
+  success: [operationType: OperationType];
+}
+
+const emits = defineEmits<Emits>();
 const { formRef, dialogVisible, submitting, operationType, form, rules, dialogTitle, open, handleSubmit } =
   useDictionaryForm({ onSuccess: (type) => emits('success', type) });
 

@@ -47,6 +47,17 @@ describe('公共配置管理列表流程', () => {
 
     expect(fetchAdminPublicConfigs).toHaveBeenCalledWith({ pageNum: 1, pageSize: 20 });
     expect(management.configList.value[0]?.key).toBe('site.name');
+    expect(management.loadFailed.value).toBe(false);
+  });
+
+  it('首次加载失败时暴露可重试的错误状态', async () => {
+    rstest.mocked(fetchAdminPublicConfigs).mockRejectedValue(new Error('网络异常'));
+
+    const [management] = withSetup(() => usePublicConfigManagement());
+    await rstest.waitFor(() => expect(management.loading.value).toBe(false));
+
+    expect(management.loadFailed.value).toBe(true);
+    expect(management.configList.value).toEqual([]);
   });
 
   it('确认删除后调用接口并刷新列表', async () => {
@@ -59,5 +70,18 @@ describe('公共配置管理列表流程', () => {
 
     expect(deleteAdminPublicConfig).toHaveBeenCalledWith(1);
     expect(fetchAdminPublicConfigs).toHaveBeenCalledTimes(2);
+  });
+
+  it('删除失败时恢复按钮状态且不刷新列表', async () => {
+    rstest.mocked(fetchAdminPublicConfigs).mockResolvedValue(createPage([createConfig()]));
+    rstest.mocked(deleteAdminPublicConfig).mockRejectedValue(new Error('删除失败'));
+    const [management] = withSetup(() => usePublicConfigManagement());
+    await rstest.waitFor(() => expect(management.loading.value).toBe(false));
+
+    await expect(management.handleDelete(createConfig())).resolves.toBeUndefined();
+
+    expect(fetchAdminPublicConfigs).toHaveBeenCalledTimes(1);
+    expect(management.deletingId.value).toBeUndefined();
+    expect(ElMessage.success).not.toHaveBeenCalled();
   });
 });

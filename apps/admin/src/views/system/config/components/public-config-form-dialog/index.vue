@@ -49,7 +49,17 @@ import { usePublicConfigForm } from './composables/use-public-config-form';
 import type { AdminPublicConfigListItem } from '@repo/shared/types';
 import type { OperationType } from '@/types';
 
-const emits = defineEmits<{ success: [operationType: OperationType] }>();
+/**
+ * 公共配置表单事件
+ */
+interface Emits {
+  /**
+   * 配置保存成功后通知列表刷新
+   */
+  success: [operationType: OperationType];
+}
+
+const emits = defineEmits<Emits>();
 const { formRef, dialogVisible, submitting, operationType, form, rules, dialogTitle, open, handleSubmit } =
   usePublicConfigForm({ onSuccess: (type) => emits('success', type) });
 

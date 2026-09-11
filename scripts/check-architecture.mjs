@@ -1,6 +1,8 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { extname, join, relative, resolve, sep } from 'node:path';
 
+import { getWorkspaceApplications, readWorkspaceConfig } from './workspace-config.mjs';
+
 /**
  * 架构检查允许读取的源码扩展名
  */
@@ -15,6 +17,11 @@ const IGNORED_DIRECTORIES = new Set(['node_modules', 'dist', 'coverage', '.turbo
  * 当前仓库绝对路径
  */
 const WORKSPACE_ROOT = resolve(import.meta.dirname, '..');
+
+/**
+ * 应用注册表中的全部应用
+ */
+const workspaceApplications = getWorkspaceApplications(readWorkspaceConfig(WORKSPACE_ROOT));
 
 /**
  * 从源码中提取静态和动态模块导入路径
@@ -199,7 +206,9 @@ getSourceFiles(adminSourceRoot).forEach((filePath) => {
   });
 });
 
-const serverApplicationRoots = ['admin-api', 'api'].map((name) => join(WORKSPACE_ROOT, 'apps', name, 'src'));
+const serverApplicationRoots = workspaceApplications
+  .filter((application) => application.kind === 'server')
+  .map((application) => join(WORKSPACE_ROOT, application.path, 'src'));
 serverApplicationRoots.forEach((serverSourceRoot) => {
   getSourceFiles(serverSourceRoot).forEach((filePath) => {
     getImportSpecifiers(readFileSync(filePath, 'utf8')).forEach((specifier) => {

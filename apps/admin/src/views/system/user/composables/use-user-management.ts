@@ -15,6 +15,7 @@ export const useUserManagement = () => {
   const deletingId = ref<number>();
   const {
     loading,
+    loadFailed,
     filters,
     itemList,
     total,
@@ -91,6 +92,7 @@ export const useUserManagement = () => {
 
   return {
     loading,
+    loadFailed,
     deletingId,
     filters,
     userList: itemList,

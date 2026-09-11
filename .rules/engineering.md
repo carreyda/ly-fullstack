@@ -21,7 +21,7 @@
 
 - 基础：TypeScript recommended + Vue recommended
 - `vue/multi-word-component-names: off`
-- `@typescript-eslint/no-explicit-any: warn`
+- `@typescript-eslint/no-explicit-any: error`
 - `vue/multi-word-component-names: off`
 - `vue/no-mutating-props: off`
 - `@typescript-eslint/no-unused-vars: off`

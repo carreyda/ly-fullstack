@@ -416,7 +416,7 @@ const assertPortsAvailable = async (appNames) => {
  */
 const cleanupStaleDevProcesses = () => {
   if (process.platform !== 'win32') {
-    return 0;
+    throw new Error('pnpm dev:stop 当前只支持 Windows，未执行任何进程清理。');
   }
 
   const command = `
@@ -438,10 +438,21 @@ $targets = Get-CimInstance Win32_Process | Where-Object {
     $MatchesAppPath -or $MatchesPackageName
   )
 } | Select-Object -ExpandProperty ProcessId -Unique
+$failedTargets = @()
+$stoppedCount = 0
 foreach ($targetProcessId in $targets) {
   taskkill /pid $targetProcessId /t /f 2>$null | Out-Null
+  if ($LASTEXITCODE -ne 0 -and (Get-Process -Id $targetProcessId -ErrorAction SilentlyContinue)) {
+    $failedTargets += $targetProcessId
+  } else {
+    $stoppedCount += 1
+  }
 }
-@($targets).Count
+if ($failedTargets.Count -gt 0) {
+  Write-Error "无法停止进程：$($failedTargets -join '、')"
+  exit 1
+}
+$stoppedCount
 `;
   const result = spawnSync('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', command], {
     encoding: 'utf-8',
@@ -450,12 +461,22 @@ foreach ($targetProcessId in $targets) {
       LY_FULLSTACK_APP_PATHS: JSON.stringify(workspaceApplications.map((app) => resolve(repoRoot, app.path))),
       LY_FULLSTACK_PACKAGE_NAMES: JSON.stringify(workspaceApplications.map((app) => app.packageName)),
     },
-    stdio: ['ignore', 'pipe', 'ignore'],
+    stdio: ['ignore', 'pipe', 'pipe'],
     windowsHide: true,
   });
-  const count = Number(result.stdout.trim());
+  if (result.error) {
+    throw new Error(`无法执行 Windows 进程清理：${result.error.message}`);
+  }
+  if (result.status !== 0) {
+    throw new Error(result.stderr.trim() || `Windows 进程清理失败，退出码 ${String(result.status)}。`);
+  }
 
-  return Number.isFinite(count) ? count : 0;
+  const output = result.stdout.trim();
+  if (!/^\d+$/.test(output)) {
+    throw new Error(`Windows 进程清理返回了无法识别的结果：${output || '空输出'}`);
+  }
+
+  return Number(output);
 };
 
 const runHiddenCommand = (command, args) => {

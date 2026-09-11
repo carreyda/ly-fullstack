@@ -70,7 +70,9 @@ const DATABASE_READY_TIMEOUT_MS = 30_000;
  */
 const printHelp = () => {
   process.stdout.write(`LY Fullstack 本地环境初始化\n\n`);
-  process.stdout.write(`  pnpm setup    校验前端 API 端口，创建服务端本地配置、数据库、表结构和初始数据\n`);
+  process.stdout.write(
+    `  pnpm setup    同步 Admin 开发配置中的 Admin API 地址，创建服务端本地配置、数据库、表结构和初始数据\n`,
+  );
   process.stdout.write(`  pnpm setup --non-interactive    使用环境变量执行同一套初始化流程\n\n`);
   process.stdout.write(`非交互模式必须注入：\n`);
   process.stdout.write(`  ${SETUP_DATABASE_PASSWORD_ENV}    PostgreSQL postgres 用户密码\n`);

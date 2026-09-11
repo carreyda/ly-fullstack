@@ -6,7 +6,9 @@
           <h1 class="admin-crud-page__title">公共配置</h1>
           <p class="public-config-page__subtitle">维护 C 端可以免登录按键读取的非敏感配置。</p>
         </div>
-        <el-button type="primary" @click="formDialogRef?.open('add')">新增配置</el-button>
+        <el-button v-if="hasPermission('system:config:create')" type="primary" @click="formDialogRef?.open('add')">
+          新增配置
+        </el-button>
       </header>
       <data-filter-panel
         :model-value="filters"
@@ -35,10 +37,15 @@
           </el-table-column>
           <el-table-column label="操作" width="140" fixed="right">
             <template #default="{ row }">
-              <el-button link type="primary" @click="formDialogRef?.open('edit', row as AdminPublicConfigListItem)"
+              <el-button
+                v-if="hasPermission('system:config:update')"
+                link
+                type="primary"
+                @click="formDialogRef?.open('edit', row as AdminPublicConfigListItem)"
                 >编辑</el-button
               >
               <el-button
+                v-if="hasPermission('system:config:delete')"
                 link
                 type="danger"
                 :loading="deletingId === row.id"
@@ -48,7 +55,15 @@
               </el-button>
             </template>
           </el-table-column>
-          <template #empty><base-empty-state description="暂无公共配置" layout="inline" :image-size="84" /></template>
+          <template #empty>
+            <base-empty-state
+              :description="loadFailed ? '公共配置加载失败' : '暂无公共配置'"
+              layout="inline"
+              :image-size="84"
+            >
+              <el-button v-if="loadFailed" type="primary" @click="reload">重新加载</el-button>
+            </base-empty-state>
+          </template>
         </el-table>
       </div>
       <footer class="admin-crud-page__pagination">
@@ -75,6 +90,7 @@ import {
   ADMIN_PUBLIC_CONFIG_FILTER_CONFIG,
   ADMIN_PUBLIC_CONFIG_FILTER_MODEL,
 } from '@/constants';
+import { useAuthStore } from '@/stores';
 import { formatAdminDateTime } from '@/utils';
 import PublicConfigFormDialog from './components/public-config-form-dialog/index.vue';
 import { usePublicConfigManagement } from './composables/use-public-config-management';
@@ -83,12 +99,15 @@ import type { AdminPublicConfigListItem } from '@repo/shared/types';
 
 const formDialogRef = useTemplateRef<InstanceType<typeof PublicConfigFormDialog>>('formDialogRef');
 const pageSizeOptions = [...ADMIN_PAGE_SIZE_OPTIONS];
+const { hasPermission } = useAuthStore();
 const {
   loading,
+  loadFailed,
   deletingId,
   filters,
   configList,
   total,
+  reload,
   handleFilterUpdate,
   handleSearch,
   handleReset,

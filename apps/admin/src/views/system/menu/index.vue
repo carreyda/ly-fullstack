@@ -5,6 +5,9 @@
         :menus="menus"
         :selected-id="selectedId"
         :loading="loading"
+        :can-create="hasPermission('system:menu:create')"
+        :can-delete="hasPermission('system:menu:delete')"
+        :can-reorder="hasPermission('system:menu:update')"
         @select="selectMenu"
         @create="createMenuDraft"
         @delete="removeMenu"
@@ -16,6 +19,9 @@
         :menus="menus"
         :permissions="permissions"
         :saving="saving"
+        :can-create="hasPermission('system:menu:create')"
+        :can-delete="hasPermission('system:menu:delete')"
+        :can-update="hasPermission('system:menu:update')"
         @save="saveMenu"
         @cancel="cancelEdit"
         @delete-permission="removeMenu"
@@ -26,9 +32,12 @@
 </template>
 
 <script setup lang="ts">
+import { useAuthStore } from '@/stores';
 import MenuEditorPanel from './components/menu-editor-panel/index.vue';
 import MenuTreePanel from './components/menu-tree-panel/index.vue';
 import { useMenuManagement } from './composables/use-menu-management';
+
+const { hasPermission } = useAuthStore();
 
 /**
  * 菜单管理页面只负责组合树编辑器和属性面板，异步请求、竞态保护与会话刷新统一由 Composable 管理。

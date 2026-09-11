@@ -27,6 +27,7 @@ export const useDictionaryItems = () => {
   const dialogVisible = ref(false);
   const formDialogVisible = ref(false);
   const loading = ref(false);
+  const loadFailed = ref(false);
   const submitting = ref(false);
   const deletingId = ref<number>();
   const changed = ref(false);
@@ -38,16 +39,36 @@ export const useDictionaryItems = () => {
   const editingItemId = ref<number>();
   const formRef = useTemplateRef<FormInstance>('formRef');
   const form = reactive<AdminDictionaryItemFormModel>(structuredClone(ADMIN_DICTIONARY_ITEM_FORM_MODEL));
+  let requestVersion = 0;
 
+  /**
+   * 按当前字典和筛选条件加载字典项
+   *
+   * 请求版本号保证快速切换字典、关闭弹框或页面卸载后，旧响应不会覆盖当前弹框状态。
+   */
   const loadItems = async (): Promise<void> => {
     if (!dictionary.value) return;
+    const version = ++requestVersion;
+    const dictionaryId = dictionary.value.id;
     loading.value = true;
+    loadFailed.value = false;
     try {
-      const result = await fetchAdminDictionaryItems(dictionary.value.id, filters);
+      const result = await fetchAdminDictionaryItems(dictionaryId, filters);
+      if (version !== requestVersion) {
+        return;
+      }
+
       itemList.value = result.list;
       total.value = result.total;
+    } catch {
+      // 请求拦截器已经展示服务端错误，弹框保留上一次成功数据供用户重试。
+      if (version === requestVersion) {
+        loadFailed.value = true;
+      }
     } finally {
-      loading.value = false;
+      if (version === requestVersion) {
+        loading.value = false;
+      }
     }
   };
 
@@ -119,15 +140,40 @@ export const useDictionaryItems = () => {
       ElMessage.success('字典项已删除');
       if (itemList.value.length === 1 && filters.pageNum > 1) filters.pageNum -= 1;
       await loadItems();
+    } catch {
+      // 请求拦截器已经展示服务端错误，删除失败时保留当前列表与页码。
     } finally {
       deletingId.value = undefined;
     }
   };
 
+  /**
+   * 切换字典项页码并加载目标页
+   *
+   * @param pageNum 新页码
+   */
+  const handlePageNumChange = async (pageNum: number): Promise<void> => {
+    filters.pageNum = pageNum;
+    await loadItems();
+  };
+
+  /**
+   * 关闭字典项弹框并使仍在途中的列表请求失效
+   */
+  const handleClosed = (): void => {
+    requestVersion += 1;
+    loading.value = false;
+  };
+
+  onBeforeUnmount(() => {
+    requestVersion += 1;
+  });
+
   return {
     dialogVisible,
     formDialogVisible,
     loading,
+    loadFailed,
     submitting,
     deletingId,
     changed,
@@ -142,7 +188,9 @@ export const useDictionaryItems = () => {
     open,
     openForm,
     loadItems,
+    handlePageNumChange,
     handleSubmit,
     handleDelete,
+    handleClosed,
   };
 };

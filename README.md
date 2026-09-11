@@ -56,6 +56,8 @@ LY Fullstack 当前采用以 NestJS 模块化单体为核心的工程架构，�
 
 当业务规模增长时，应先通过数据库索引与连接池、缓存、任务队列、对象存储、限流、监控以及应用多实例部署解决明确瓶颈；只有在业务边界、团队边界和独立扩缩容需求真实出现后，再拆分服务并补充网关与服务治理能力。LY Fullstack 提供的是可持续演进的工程起点，不承诺用一套默认架构覆盖所有项目规模。
 
+默认登录限流和一次性图片挑战存放在单个 Admin API 进程内，适用于仓库当前的单实例部署。扩展到多实例前，必须把这两类状态迁移到网关、WAF 或 Redis 等共享设施，详见 [`SECURITY.md`](SECURITY.md) 与[生产部署](docs/deployment.md#安全验收)。
+
 ### 后续规划：微服务版本
 
 下一阶段将规划独立的 NestJS 微服务解决方案，面向已经真实出现服务拆分、独立扩缩容、故障隔离和多团队协作需求的项目。该方案将重点覆盖 API 网关、服务间通信、消息可靠性、认证传播、配置管理、可观测性、容器化部署和分布式测试等能力。
@@ -161,7 +163,7 @@ pnpm dev api admin-api admin  # 启动指定组合
 - 公共字典示例：`GET http://localhost:3001/api/public/dictionaries/:code`
 - 公共配置示例：`GET http://localhost:3001/api/public/configs/:key`
 
-打开管理后台，使用账号 `admin` 加上 Setup 中设置的管理员密码登录。结束开发后执行 `pnpm dev:stop` 停止本仓库的全部开发进程。
+打开管理后台，使用账号 `admin` 加上 Setup 中设置的管理员密码登录。Windows 下结束开发后可执行 `pnpm dev:stop` 停止本仓库开发启动器遗留的进程；Linux 与 macOS 当前不支持该清理命令，会明确返回失败。
 
 ## 新建服务
 
@@ -176,7 +178,7 @@ pnpm new:server
 1. 从 `scripts/templates/server` 创建仅含健康检查的 NestJS + Fastify 服务。
 2. 使用 `@repo/<服务名>` 作为包名。
 3. 将服务登记到 `workspace.config.json` 的 `apps.server`。
-4. 安装依赖，并验证新服务的类型、测试与构建。
+4. 在交互式生成流程中安装依赖，并验证新服务的类型、测试与构建。
 
 例如输入 `content-api` 与 `3002` 会创建 `apps/content-api`，之后它会自动出现在 `pnpm dev` 的服务列表中。模板不预置数据库、JWT 或业务模块；终端用户认证与管理端认证属于不同应用边界，应在真实需求出现后分别实现。
 
@@ -184,32 +186,34 @@ pnpm new:server
 
 ## 常用命令
 
-| 命令                      | 说明                                             |
-| ------------------------- | ------------------------------------------------ |
-| `pnpm setup`              | 校验前端端口，初始化数据库、种子数据与服务端配置 |
-| `pnpm new:server`         | 生成并注册新的 NestJS + Fastify 服务             |
-| `pnpm dev`                | 根据配置表交互选择服务端和前端应用               |
-| `pnpm dev all`            | 非交互启动配置表中的全部应用                     |
-| `pnpm dev:admin`          | 单独启动 admin                                   |
-| `pnpm dev:admin-api`      | 单独启动 admin-api                               |
-| `pnpm dev:api`            | 单独启动默认 C 端 API                            |
-| `pnpm dev:stop`           | 停止本仓库遗留的开发进程                         |
-| `pnpm typecheck`          | 全仓类型检查                                     |
-| `pnpm check:architecture` | 检查跨包依赖、目录纯度和服务层依赖方向           |
-| `pnpm lint`               | ESLint 检查（`lint:fix` 自动修复）               |
-| `pnpm format`             | Prettier 格式化（`format:check` 仅检查）         |
-| `pnpm test`               | 服务模板冒烟测试与全仓 Rstest 单元测试           |
-| `pnpm test:e2e`           | 使用独立数据库启动三端并执行 Playwright 完整回归 |
-| `pnpm test:e2e:ui`        | 在 Playwright UI 模式运行端到端测试              |
-| `pnpm test:e2e:report`    | 打开上一次 Playwright HTML 报告                  |
-| `pnpm build`              | 构建全部产物                                     |
-| `pnpm docs:dev`           | 启动 Rspress 官方文档站                          |
-| `pnpm docs:build`         | 构建文档站、页面 Markdown 与 `llms.txt`          |
-| `pnpm check`              | 完整代码门禁并构建官方文档站                     |
+| 命令                      | 说明                                                                         |
+| ------------------------- | ---------------------------------------------------------------------------- |
+| `pnpm setup`              | 同步 Admin 开发配置中的 Admin API 地址，并初始化数据库、种子数据与服务端配置 |
+| `pnpm new:server`         | 生成并注册新的 NestJS + Fastify 服务                                         |
+| `pnpm dev`                | 根据配置表交互选择服务端和前端应用                                           |
+| `pnpm dev all`            | 非交互启动配置表中的全部应用                                                 |
+| `pnpm dev:admin`          | 单独启动 admin                                                               |
+| `pnpm dev:admin-api`      | 单独启动 admin-api                                                           |
+| `pnpm dev:api`            | 单独启动默认 C 端 API                                                        |
+| `pnpm dev:stop`           | 停止本仓库遗留的开发进程（仅 Windows）                                       |
+| `pnpm typecheck`          | 全仓类型检查                                                                 |
+| `pnpm check:architecture` | 检查跨包依赖、目录纯度和服务层依赖方向                                       |
+| `pnpm lint`               | ESLint 检查（`lint:fix` 自动修复）                                           |
+| `pnpm format`             | Prettier 格式化（`format:check` 仅检查）                                     |
+| `pnpm test`               | 服务模板冒烟测试与全仓 Rstest 单元测试                                       |
+| `pnpm test:e2e`           | 使用独立数据库启动三端并执行 Playwright 完整回归                             |
+| `pnpm test:e2e:ui`        | 在 Playwright UI 模式运行端到端测试                                          |
+| `pnpm test:e2e:report`    | 打开上一次 Playwright HTML 报告                                              |
+| `pnpm build`              | 构建全部产物                                                                 |
+| `pnpm docs:dev`           | 启动 Rspress 官方文档站                                                      |
+| `pnpm docs:build`         | 构建文档站、页面 Markdown 与 `llms.txt`                                      |
+| `pnpm check`              | 完整代码门禁并构建官方文档站                                                 |
 
 ## Playwright 自动化测试
 
 Playwright 使用独立 PostgreSQL 测试库和独立端口启动 Admin、Admin API 与默认 API，验证真实浏览器中的登录认证、用户/菜单/字典/公共配置 CRUD、五表 RBAC、公开读取接口与服务安全边界。E2E 不包含在 `pnpm check` 中；修改登录、权限、路由或关键业务流程后，需要额外执行。
+
+验证码用例会通过仅在 `APP_ENV=test` 且携带 Playwright 标记时开放的 `testOffset` 获取目标坐标，再执行真实指针拖动和服务端一次性挑战校验；它不测试人眼或图像识别算法。
 
 首次运行先安装 Chromium：
 
@@ -280,7 +284,7 @@ ly-fullstack/
 - 管理 API：CORS 白名单、ValidationPipe、JWT Guard、权限 Guard、健康检查和系统管理 CRUD。
 - 默认 C 端 API：独立 NestJS 应用，提供健康检查，以及免登录、按键精确读取的启用字典和非敏感公共配置接口。
 - 数据库：Prisma Schema、migration、种子数据和默认管理员初始化流程。
-- 服务扩展：配置驱动的开发启动器与经过真实生成验证的 NestJS 服务模板。
+- 服务扩展：配置驱动的开发启动器与 NestJS 服务模板；CI 冒烟会真实生成文件并检查占位符与格式，交互式生成还会继续验证类型、测试和构建。
 - 工程基线：workspace catalog、Turborepo、架构边界检查、ESLint、Prettier、Husky、commitlint、Rstest 与 GitHub Actions CI。
 
 尚未实现：具体 C 端业务、终端用户认证和任何 C 端客户端。默认 `apps/api` 只是业务服务编码起点，不应被宣传成已经完成的终端产品。部署环境变量契约已经明确；当前 CI 只承担质量门禁，不能把尚未接入真实服务器的 CD 算作现有能力。
@@ -297,7 +301,7 @@ ly-fullstack/
 
 按技术栈拆分的强制编码规范，共 13 份：后台 CRUD 范本与页面规范（`admin.md`）、Vue 组件结构与顺序（`vue3.md`）、TypeScript 类型原则（`typescript.md`）、注释风格（`comment-style.md`）、错误处理分层（`error-handling.md`）、请求层封装（`axios.md`）、状态管理（`pinia.md`）、样式（`style.md`）、命名与目录（`naming.md`、`directory.md`）、工程配置（`engineering.md`）和提交前自查（`code-review.md`）。
 
-开始某类任务前先读对应文件，完整路由表维护在 [`AGENTS.md`](AGENTS.md) 第四节。这些规范不是建议：不符合规范的代码过不了 lint、架构检查和 CI 门禁。
+开始某类任务前先读对应文件，完整路由表维护在 [`AGENTS.md`](AGENTS.md) 第四节。这些规范是代码评审基线；其中跨包依赖、自动导入、`any` 等可静态判断的边界由 lint、架构检查和 CI 强制执行，其余设计与职责规则仍需通过评审确认。
 
 ### `docs/`：专题文档——"系统是怎么设计与运转的"
 

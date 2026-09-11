@@ -3,7 +3,9 @@
     <section class="admin-crud-page__workspace">
       <header class="admin-crud-page__header">
         <h1 class="admin-crud-page__title">用户管理</h1>
-        <el-button type="primary" @click="handleUserCreate">新增用户</el-button>
+        <el-button v-if="hasPermission('system:user:create')" type="primary" @click="handleUserCreate">
+          新增用户
+        </el-button>
       </header>
 
       <data-filter-panel
@@ -74,13 +76,32 @@
 
           <el-table-column label="操作" width="310" fixed="right">
             <template #default="{ row }">
-              <el-button v-if="!row.isSystem" link type="primary" @click="handleUserRoles(row as AdminUserListItem)">
+              <el-button
+                v-if="!row.isSystem && hasPermission('system:user:assign-role')"
+                link
+                type="primary"
+                @click="handleUserRoles(row as AdminUserListItem)"
+              >
                 分配角色
               </el-button>
-              <el-button link type="primary" @click="handleUserEdit(row as AdminUserListItem)">编辑</el-button>
-              <el-button link type="primary" @click="handleUserPassword(row as AdminUserListItem)">重置密码</el-button>
               <el-button
-                v-if="!row.isSystem"
+                v-if="hasPermission('system:user:update')"
+                link
+                type="primary"
+                @click="handleUserEdit(row as AdminUserListItem)"
+              >
+                编辑
+              </el-button>
+              <el-button
+                v-if="hasPermission('system:user:update')"
+                link
+                type="primary"
+                @click="handleUserPassword(row as AdminUserListItem)"
+              >
+                重置密码
+              </el-button>
+              <el-button
+                v-if="!row.isSystem && hasPermission('system:user:delete')"
                 link
                 type="danger"
                 :loading="deletingId === row.id"
@@ -93,7 +114,13 @@
           </el-table-column>
 
           <template #empty>
-            <base-empty-state description="暂无用户数据" layout="inline" :image-size="84" />
+            <base-empty-state
+              :description="loadFailed ? '用户数据加载失败' : '暂无用户数据'"
+              layout="inline"
+              :image-size="84"
+            >
+              <el-button v-if="loadFailed" type="primary" @click="reload">重新加载</el-button>
+            </base-empty-state>
           </template>
         </el-table>
       </div>
@@ -122,6 +149,7 @@
 import { fetchAdminUserRoleOptions } from '@/api';
 import DataFilterPanel from '@/components/business/data-filter-panel/index.vue';
 import { ADMIN_PAGE_SIZE_OPTIONS, ADMIN_USER_FILTER_CONFIG, ADMIN_USER_FILTER_MODEL } from '@/constants';
+import { useAuthStore } from '@/stores';
 import { formatAdminDateTime } from '@/utils';
 import UserFormDialog from './components/user-form-dialog/index.vue';
 import UserPasswordDialog from './components/user-password-dialog/index.vue';
@@ -157,9 +185,11 @@ const formDialogRef = useTemplateRef<InstanceType<typeof UserFormDialog>>('formD
 const roleDialogRef = useTemplateRef<InstanceType<typeof UserRoleDialog>>('roleDialogRef');
 const passwordDialogRef = useTemplateRef<InstanceType<typeof UserPasswordDialog>>('passwordDialogRef');
 const pageSizeOptions = [...ADMIN_PAGE_SIZE_OPTIONS];
+const { hasPermission } = useAuthStore();
 
 const {
   loading,
+  loadFailed,
   deletingId,
   filters,
   userList,
@@ -216,63 +246,4 @@ const getUserInitial = (user: AdminUserListItem): string => {
 };
 </script>
 
-<style lang="scss" scoped>
-.user-management-page {
-  &__identity {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
-
-    > div {
-      display: flex;
-      min-width: 0;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    strong {
-      overflow: hidden;
-      color: var(--color-text-primary);
-      font-weight: 500;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    span:not(.user-management-page__avatar) {
-      color: var(--color-text-tertiary);
-      font-size: 12px;
-    }
-  }
-
-  &__avatar {
-    display: inline-flex;
-    width: 32px;
-    height: 32px;
-    flex: none;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid color-mix(in srgb, var(--color-primary) 36%, var(--border-color));
-    border-radius: 50%;
-    background: var(--status-primary-fill-color);
-    color: var(--color-primary);
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-  &__roles {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  &__empty-role,
-  &__time {
-    color: var(--color-text-tertiary);
-    font-size: 12px;
-  }
-
-  &__time {
-    font-variant-numeric: tabular-nums;
-  }
-}
-</style>
+<style lang="scss" src="./index.scss" scoped></style>

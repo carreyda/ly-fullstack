@@ -36,6 +36,8 @@ export const useAuthStore = defineStore(
      * 该状态不持久化，浏览器刷新后必须重新向数据库确认账号、角色和权限状态。
      */
     const sessionReady = ref(false);
+    let restoreSessionPromise: Promise<void> | undefined;
+    let sessionVersion = 0;
 
     /**
      * 是否存在可用于恢复会话的 Access Token
@@ -43,6 +45,16 @@ export const useAuthStore = defineStore(
      * 这里只表示本地拥有 Token，不代表后端仍接受该 Token；路由守卫还需要调用 `restoreSession`。
      */
     const isAuthenticated = computed(() => Boolean(token.value));
+
+    /**
+     * 判断当前服务端会话是否包含指定操作权限
+     *
+     * @param permission 页面操作对应的三段式权限码
+     * @returns 当前会话拥有该权限时返回 `true`
+     */
+    const hasPermission = (permission: PermissionCode): boolean => {
+      return permissions.value.includes(permission);
+    };
 
     /**
      * 应用 Admin API 返回的最新 RBAC 会话
@@ -67,6 +79,8 @@ export const useAuthStore = defineStore(
      */
     const login = async (params: AdminLoginParams): Promise<void> => {
       const result = await loginAdmin(params);
+      sessionVersion += 1;
+      restoreSessionPromise = undefined;
       token.value = result.token;
       applySession(result);
     };
@@ -78,12 +92,31 @@ export const useAuthStore = defineStore(
      * 副作用：调用 `/auth/me` 并用数据库最新角色、菜单和权限覆盖本地快照。
      * Token 缺失或后端拒绝 Token 时抛出异常，由路由守卫负责清理状态并跳转登录页。
      */
-    const restoreSession = async (): Promise<void> => {
+    const restoreSession = (): Promise<void> => {
       if (!token.value) {
-        throw new Error('缺少管理端 Access Token。');
+        return Promise.reject(new Error('缺少管理端 Access Token。'));
       }
 
-      applySession(await fetchAdminSession());
+      if (restoreSessionPromise) {
+        return restoreSessionPromise;
+      }
+
+      const tokenSnapshot = token.value;
+      const version = sessionVersion;
+      const currentPromise = fetchAdminSession()
+        .then((session) => {
+          if (version === sessionVersion && token.value === tokenSnapshot) {
+            applySession(session);
+          }
+        })
+        .finally(() => {
+          if (restoreSessionPromise === currentPromise) {
+            restoreSessionPromise = undefined;
+          }
+        });
+      restoreSessionPromise = currentPromise;
+
+      return currentPromise;
     };
 
     /**
@@ -93,6 +126,8 @@ export const useAuthStore = defineStore(
      * 副作用：清空 Pinia 持久状态；路由跳转由调用方负责。
      */
     const logout = (): void => {
+      sessionVersion += 1;
+      restoreSessionPromise = undefined;
       token.value = '';
       user.value = null;
       menus.value = [];
@@ -107,6 +142,7 @@ export const useAuthStore = defineStore(
       permissions,
       sessionReady,
       isAuthenticated,
+      hasPermission,
       login,
       restoreSession,
       logout,

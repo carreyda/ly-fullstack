@@ -150,6 +150,8 @@ pnpm dev:stop
 
 该命令停止由本仓库开发启动器遗留的进程。数据库容器不会被一并删除，后续启动可以继续使用原数据。
 
+`pnpm dev:stop` 当前只支持 Windows。Linux 与 macOS 执行时会明确返回不支持并使用非零退出码，避免把未清理进程误报为成功。
+
 ## 下一步
 
 - 想先看懂仓库：阅读[目录与职责](/guide/project-structure)。

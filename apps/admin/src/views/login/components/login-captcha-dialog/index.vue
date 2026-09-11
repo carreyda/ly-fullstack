@@ -35,6 +35,7 @@
               :challenge="captchaChallenge"
               :loading="isLoading"
               :result-state="resultState"
+              @error="handleImageError"
               @ready="isLoading = false"
               @refresh="fetchCaptcha"
               @verify="handleVerify"
@@ -66,14 +67,23 @@ interface Emits {
   /**
    * Admin API 已经确认拼图位置，可以继续提交登录
    */
-  (event: 'success', captchaId: string): void;
+  success: [captchaId: string];
 }
 
 const emit = defineEmits<Emits>();
 const dialogPanelRef = useTemplateRef<HTMLElement>('dialogPanelRef');
 const closeButtonRef = useTemplateRef<HTMLButtonElement>('closeButtonRef');
-const { dialogVisible, isLoading, captchaChallenge, resultState, open, close, fetchCaptcha, handleVerify } =
-  useLoginCaptchaDialog((captchaId) => emit('success', captchaId));
+const {
+  dialogVisible,
+  isLoading,
+  captchaChallenge,
+  resultState,
+  open,
+  close,
+  fetchCaptcha,
+  handleImageError,
+  handleVerify,
+} = useLoginCaptchaDialog((captchaId) => emit('success', captchaId));
 
 /**
  * 把 Tab 键焦点约束在当前模态弹框内

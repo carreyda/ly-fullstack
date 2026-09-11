@@ -15,6 +15,7 @@ export const useRoleManagement = () => {
   const deletingId = ref<number>();
   const {
     loading,
+    loadFailed,
     filters,
     itemList,
     total,
@@ -93,6 +94,7 @@ export const useRoleManagement = () => {
 
   return {
     loading,
+    loadFailed,
     deletingId,
     filters,
     roleList: itemList,

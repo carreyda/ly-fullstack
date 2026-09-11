@@ -41,7 +41,7 @@ pnpm check:architecture
 pnpm typecheck
 ```
 
-Turborepo 执行各 workspace 包类型检查，根脚本再检查 Playwright E2E TypeScript。类型通过不代表运行时数据库、浏览器交互或视觉正确。
+Turborepo 执行各 workspace 包类型检查，根脚本再检查 Playwright E2E TypeScript 与 Rspress 配置、MDX 类型。类型通过不代表运行时数据库、浏览器交互或视觉正确。
 
 ### Lint 与格式
 
@@ -106,7 +106,7 @@ E2E 依赖已经完成 Setup 的 PostgreSQL、可用管理员账号和浏览器�
 GitHub Actions 在 main 推送和 Pull Request 上运行：
 
 - **Quality Gate**：安装锁定依赖并执行 `pnpm check`；
-- **Setup & Playwright Smoke**：使用真实 PostgreSQL 和浏览器验证集成链路。
+- **Setup & Playwright Smoke**：使用真实 PostgreSQL 重复执行 Seed 验证幂等性，再用真实浏览器验证集成链路。
 
 CI 通过表示仓库门禁通过，不代表已经部署到生产，更不代表真实域名、证书、备份和监控已经验收。
 
